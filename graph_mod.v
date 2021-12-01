@@ -17,10 +17,26 @@ parameter GUN_Y_T = 420;
 parameter GUN_X_SIZE = 50; 
 parameter GUN_V = 4;
 
+// shot size, 속도
+parameter SHOT_SIZE = 6;
+parameter SHOT_V = 2;
+
+// obs size, 속도
+parameter OBS_X_L = 30;
+parameter OBS_X_R = 50;
+parameter OBS_SIZE = 20;
+parameter OBS_V = 5;
+
 wire refr_tick; 
 wire gun_on;
 wire [9:0] gun_x_r, gun_x_l; 
 reg [9:0] gun_x_reg; 
+
+reg [9:0] shot_x_reg, shot_y_reg;
+reg [9:0] shot_vy_reg;
+wire [9:0] shot_x_l, shot_x_r, shot_y_t, shot_y_b;
+wire shot_on;
+
 wire reach_obs, miss_obs;
 reg game_stop, game_over;  
 
@@ -45,6 +61,34 @@ end
 /*---------------------------------------------------------*/
 // gun에서 총 나가는 거
 /*---------------------------------------------------------*/
+assign shot_x_l = shot_x_reg;
+assign shot_x_r = shot_x_reg + SHOT_SIZE - 1;
+assign shot_y_t = shot_y_reg;
+assign shot_y_b = shot_y_reg + SHOT_SIZE -1;
+
+assign shot_on = (x>=shot_x_l && x<=shot_x_r && y>=shot_y_t && y<=shot_y_b)? 1 : 0; //shot이 있는 영역
+
+always @ (posedge clk or posedge rst) begin
+    if(rst|game_stop) begin
+        shot_x_reg <= MAX_X/2;
+        shot_y_reg <= 420;
+    end
+    else if(refr_tick) begin
+        shot_y_reg <= shot_y_reg + shot_vy_reg;
+    end
+end
+
+assign reach_obs = (shot_x_r>=OBS_X_L && shot_x_r<=OBS_X_R && shot_y_b>=shot_y_t && shot_y_t<=shot_y_b)? 1 : 0; //shot이 obs에 부딪힘
+assign miss_obs = (shot_y_t == 0)? 1 : 0; //shot이 화면 끝에 닿으면 shot miss
+
+always @ (posedge clk or posedge rst) begin
+    if(rst|game_stop) begin
+        shot_vy_reg <= -1*SHOT_V;
+    end
+    else begin
+        if(reach_obs) shot_vy_reg <= -1*SHOT_V;
+    end
+end
 
 /*---------------------------------------------------------*/
 // 총이 장애물 맞힐 때마다 score를 1씩 증가시키는 로직 
@@ -54,7 +98,7 @@ wire hit, miss;
 reg [3:0] dig0, dig1;
 
 assign hit = (reach_obs==1 && refr_tick==1)? 1 : 0; //gun으로 장애물 맞힘, hit를 1클럭 pulse로 만들기 위해 refr_tick과 AND 시킴
-assign miss = (miss_obs==1 && refr_tick==1)? 1 : 0; //gun이 장애물에 맞음, miss를 1클럭 pulse로 만들기 위해 refr_tick과 AND 시킴
+assign miss = (miss_obs==1 && refr_tick==1)? 1 : 0; //gun이 장애물 못맞힘, miss를 1클럭 pulse로 만들기 위해 refr_tick과 AND 시킴
 
 always @ (posedge clk or posedge rst) begin
     if(rst | d_clr) begin
@@ -101,7 +145,7 @@ always @ (*) begin
          PLAY: begin
             game_stop = 0; //게임 Running
             d_inc = hit;
-            if (miss) begin //장애물에 맞으면
+            if (miss) begin //장애물 못맞히면
                 if (life_reg==2'b00) //남은 생명이 없으면
                     state_next = OVER; //게임종료
                 else begin//남은 생명이 있으면 
@@ -241,6 +285,7 @@ assign rgb = (font_bit & score_on)? 3'b111 : //black text
              (font_bit & life_on)? 3'b110 : // yellow text  
              (font_bit & level_on)? 3'b110 : // yellow text  
              (font_bit & over_on)? 3'b100 : //red text
+             (shot_on) ? 3'b100 : // red shot
              (gun_on)? 3'b111 : //white gun
              3'b000; //black background
 
