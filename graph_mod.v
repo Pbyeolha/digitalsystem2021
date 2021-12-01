@@ -10,8 +10,8 @@ parameter MAX_X = 640;
 parameter MAX_Y = 480;  
 
 // gun 위치
-parameter GUN_Y_B = 479; 
-parameter GUN_Y_T = 429;
+parameter GUN_Y_B = 470; 
+parameter GUN_Y_T = 420;
 
 // gun size, 속도
 parameter GUN_X_SIZE = 50; 
@@ -30,16 +30,16 @@ assign refr_tick = (y==MAX_Y-1 && x==MAX_X-1)? 1 : 0; // 매 프레임마다 한 clk 동
 /*---------------------------------------------------------*/
 // gun의 위치 결정
 /*---------------------------------------------------------*/
-assign gun_x_r = gun_x_reg; //gun의 왼쪽
-assign gun_x_l = gun_x_r + GUN_X_SIZE - 1; //gun의 오른쪽
+assign gun_x_l = gun_x_reg; //gun의 left
+assign gun_x_r = gun_x_l + GUN_X_SIZE - 1; //gun의 right
 
-assign gun_on = (x>=gun_x_l && x<=gun_x_r && y>=GUN_Y_T && GUN_Y_B)? 1 : 0; //gun의 영역
+assign gun_on = (x>=gun_x_l && x<=gun_x_r && y>=GUN_Y_T && y<=GUN_Y_B)? 1 : 0; //gun의 영역
 
 always @ (posedge clk or posedge rst) begin
     if (rst | game_stop) gun_x_reg <= (MAX_X - GUN_X_SIZE)/2; //game이 멈추면 중간에서 시작
     else if (refr_tick) 
-        if (key==5'h11 && gun_x_r <= MAX_X -1 - GUN_V) gun_x_reg <= gun_x_reg + GUN_V; //move right
-        else if (key==5'h13 && gun_x_l >=GUN_V) gun_x_reg <= gun_x_reg - GUN_V;  //move left
+        if (key==5'h11 && gun_x_r <= MAX_X -1 - GUN_V) gun_x_reg <= gun_x_reg + GUN_V; //move left
+        else if (key==5'h13 && gun_x_l >=GUN_V) gun_x_reg <= gun_x_reg - GUN_V;  //move righ
 end
 
 /*---------------------------------------------------------*/
@@ -75,9 +75,9 @@ end
 parameter NEWGAME=2'b00, PLAY=2'b01, NEWGUN=2'b10, OVER=2'b11; 
 reg [1:0] state_reg, state_next;
 reg [1:0] life_reg, life_next;
-reg [1:0] level_reg, level_next;
+reg [1:0]level_reg, level_next;
 
-always @ (key, hit, miss, state_reg, life_reg, level_reg) begin
+always @ (*) begin
     game_stop = 1; 
     d_clr = 0;
     d_inc = 0;
@@ -91,9 +91,11 @@ always @ (key, hit, miss, state_reg, life_reg, level_reg) begin
             if(key[4] == 1) begin //버튼이 눌리면
                 state_next = PLAY; //게임시작
                 life_next = 2'b10; //남은 생명 2개로
+                level_next = 2'b01; //level 1로
             end else begin
                 state_next = NEWGAME; //버튼이 안 눌리면 현재 상태 유지
                 life_next = 2'b11; //남은 생명 3개 유지
+                level_next = 2'b00; //level 0으로 초기화
             end
          end
          PLAY: begin
@@ -105,9 +107,10 @@ always @ (key, hit, miss, state_reg, life_reg, level_reg) begin
                 else begin//남은 생명이 있으면 
                     state_next = NEWGUN; 
                     life_next = life_reg-1'b1; //남은 생명 하나 줄임
+                    level_next = level_reg + 1'b1;
                 end
             end else
-                state_next = PLAY; //ball 놓치지 않으면 계속 진행
+                state_next = PLAY; //계속 진행
         end
         NEWGUN: //새 gun 준비
             if(key[4] == 1) state_next = PLAY;
@@ -158,10 +161,9 @@ font_rom_vhd font_rom_inst (clk, rom_addr, font_word);
 assign rom_addr = {char_addr, row_addr};
 assign font_bit = font_word[~bit_addr]; //화면 x좌표는 왼쪽이 작은데, rom의 bit는 오른쪽이 작으므로 reverse
 
-assign char_addr = (score_on)? char_addr_s : (life_on)? char_addr_l : (over_on)? char_addr_o : (level_on)? char_addr_lev : 0;
-assign row_addr = (score_on)? row_addr_s : (life_on)? row_addr_l : (over_on)? char_addr_o : (level_on)? char_addr_lev : 0; 
-assign bit_addr = (score_on)? bit_addr_s : (life_on)? bit_addr_l : (over_on)? char_addr_o : (level_on)? char_addr_lev : 0; 
-
+assign char_addr = (score_on)? char_addr_s : (life_on)? char_addr_l : (level_on)? char_addr_lev : (over_on)? char_addr_o : 0;
+assign row_addr = (score_on)? row_addr_s : (life_on)? row_addr_l : (level_on)? row_addr_lev : (over_on)? row_addr_o : 0; 
+assign bit_addr = (score_on)? bit_addr_s : (life_on)? bit_addr_l : (level_on)? bit_addr_lev : (over_on)? bit_addr_o : 0; 
 // score
 wire [9:0] score_x_l, score_y_t;
 assign score_x_l = 556; 
@@ -182,35 +184,35 @@ end
 
 // life
 wire [9:0] life_x_l, life_y_t; 
-assign life_x_l = 200; 
+assign life_x_l = 300; 
 assign life_y_t = 0; 
 assign life_on = (y>=life_y_t && y<life_y_t+16 && x>=life_x_l && x<life_x_l+8*6)? 1 : 0;
 assign row_addr_l = y-life_y_t;
 always @(*) begin
     if (x>=life_x_l+8*0 && x<life_x_l+8*1) begin bit_addr_l = (x-life_x_l-8*0); char_addr_l = 7'b1001100; end // L x4c
     else if (x>=life_x_l+8*1 && x<life_x_l+8*2) begin bit_addr_l = (x-life_x_l-8*1); char_addr_l = 7'b1001001; end // I x49
-    else if (x>=life_x_l+8*2 && x<life_x_l+8*3) begin bit_addr_l = (x-life_x_l-8*1); char_addr_l = 7'b1000110; end // F x46
-    else if (x>=life_x_l+8*3 && x<life_x_l+8*4) begin bit_addr_l = (x-life_x_l-8*1); char_addr_l = 7'b1000101; end // E x45
-    else if (x>=life_x_l+8*4 && x<life_x_l+8*5) begin bit_addr_l = (x-life_x_l-8*1); char_addr_l = 7'b0111010; end // : x3a
-    else if (x>=life_x_l+8*5 && x<life_x_l+8*6) begin bit_addr_l = (x-life_x_l-8*2); char_addr_l = {5'b01100, life_reg}; end
+    else if (x>=life_x_l+8*2 && x<life_x_l+8*3) begin bit_addr_l = (x-life_x_l-8*2); char_addr_l = 7'b1000110; end // F x46
+    else if (x>=life_x_l+8*3 && x<life_x_l+8*4) begin bit_addr_l = (x-life_x_l-8*3); char_addr_l = 7'b1000101; end // E x45
+    else if (x>=life_x_l+8*4 && x<life_x_l+8*5) begin bit_addr_l = (x-life_x_l-8*4); char_addr_l = 7'b0111010; end // : x3a
+    else if (x>=life_x_l+8*5 && x<life_x_l+8*6) begin bit_addr_l = (x-life_x_l-8*5); char_addr_l = {5'b01100, life_reg}; end
     else begin bit_addr_l = 0; char_addr_l = 0; end   
 end
 
 // level
 wire [9:0] level_x_l, level_y_t; 
-assign level_x_l = 10; 
+assign level_x_l = 100; 
 assign level_y_t = 0; 
-assign level_on = (y>=life_y_t && y<life_y_t+16 && x>=life_x_l && x<life_x_l+8*7)? 1 : 0;
-assign row_addr_l = y-level_y_t;
+assign level_on = (y>=level_y_t && y<level_y_t+16 && x>=level_x_l && x<level_x_l+8*7)? 1 : 0;
+assign row_addr_lev = y-level_y_t;
 always @(*) begin
-    if (x>=life_x_l+8*0 && x<life_x_l+8*1) begin bit_addr_l = (x-life_x_l-8*0); char_addr_l = 7'b1001100; end // L x4c
-    else if (x>=life_x_l+8*1 && x<life_x_l+8*2) begin bit_addr_l = (x-life_x_l-8*1); char_addr_l = 7'b1000101; end // E x45
-    else if (x>=life_x_l+8*2 && x<life_x_l+8*3) begin bit_addr_l = (x-life_x_l-8*1); char_addr_l = 7'b1010110; end // V x56
-    else if (x>=life_x_l+8*3 && x<life_x_l+8*4) begin bit_addr_l = (x-life_x_l-8*1); char_addr_l = 7'b1000101; end // E x45
-    else if (x>=life_x_l+8*4 && x<life_x_l+8*5) begin bit_addr_l = (x-life_x_l-8*1); char_addr_l = 7'b1001100; end // L x4c
-    else if (x>=life_x_l+8*5 && x<life_x_l+8*6) begin bit_addr_l = (x-life_x_l-8*1); char_addr_l = 7'b0111010; end // : x3a
-    else if (x>=life_x_l+8*6 && x<life_x_l+8*7) begin bit_addr_l = (x-life_x_l-8*2); char_addr_l = {5'b01100, level_reg}; end
-    else begin bit_addr_l = 0; char_addr_l = 0; end   
+    if (x>=level_x_l+8*0 && x<level_x_l+8*1) begin bit_addr_lev = (x-level_x_l-8*0); char_addr_lev = 7'b1001100; end // L x4c
+    else if (x>=level_x_l+8*1 && x<level_x_l+8*2) begin bit_addr_lev = (x-level_x_l-8*1); char_addr_lev = 7'b1000101; end // E x45
+    else if (x>=level_x_l+8*2 && x<level_x_l+8*3) begin bit_addr_lev = (x-level_x_l-8*2); char_addr_lev = 7'b1010110; end // V x56
+    else if (x>=level_x_l+8*3 && x<level_x_l+8*4) begin bit_addr_lev = (x-level_x_l-8*3); char_addr_lev = 7'b1000101; end // E x45
+    else if (x>=level_x_l+8*4 && x<level_x_l+8*5) begin bit_addr_lev = (x-level_x_l-8*4); char_addr_lev = 7'b1001100; end // L x4c
+    else if (x>=level_x_l+8*5 && x<level_x_l+8*6) begin bit_addr_lev = (x-level_x_l-8*5); char_addr_lev = 7'b0111010; end // : x3a
+    else if (x>=level_x_l+8*6 && x<level_x_l+8*7) begin bit_addr_lev = (x-level_x_l-8*6); char_addr_lev = {5'b01100, level_reg}; end
+    else begin bit_addr_lev = 0; char_addr_lev = 0; end   
 end
 
 // game over
@@ -235,11 +237,11 @@ end
 /*---------------------------------------------------------*/
 // color setting
 /*---------------------------------------------------------*/
-assign rgb = (font_bit & score_on)? 3'b001 : //blue text
-             (font_bit & level_on)? 3'b111 : // black text 
-             (font_bit & life_on)? 3'b111 : // black text   
+assign rgb = (font_bit & score_on)? 3'b111 : //black text
+             (font_bit & life_on)? 3'b110 : // yellow text  
+             (font_bit & level_on)? 3'b110 : // yellow text  
              (font_bit & over_on)? 3'b100 : //red text
-             (gun_on)? 3'b111 : //black gun
-             3'b110; //yello background
+             (gun_on)? 3'b111 : //white gun
+             3'b000; //black background
 
 endmodule
