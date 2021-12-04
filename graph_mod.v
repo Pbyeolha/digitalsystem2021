@@ -19,29 +19,20 @@ parameter GUN_V = 4;
 
 // shot size, velocity
 parameter SHOT_SIZE = 6;
-parameter SHOT_V = 8;
+parameter SHOT_V = 7;
 
 // obs size, velocity
 parameter OBS_SIZE = 20;
-parameter OBS_V = 5;
+parameter OBS_V = 3;
 
 //bomb size, velocity
 parameter BOMB_X_L = 30;
-parameter BOMB_X_R = 50;
+parameter BOMB_X_R = 40;
 parameter bomb_SIZE = 40;
 parameter bomb_V = 15;
 
 
 wire refr_tick; 
-wire gun_on;
-wire [9:0] gun_x_r, gun_x_l; 
-reg [9:0] gun_x_reg; 
-
-reg [9:0] shot_x_reg, shot_y_reg;
-reg [9:0] shot_vy_reg, shot_vx_reg;
-wire [9:0] shot_x_l, shot_x_r, shot_y_t, shot_y_b;
-wire shot_on;
-wire bomb_on, obs_on;
 wire reach_obs, miss_obs;
 reg game_stop, game_over;  
 
@@ -52,27 +43,33 @@ assign refr_tick = (y==MAX_Y-1 && x==MAX_X-1)? 1 : 0; // frame, 1sec
 /*---------------------------------------------------------*/
 // random
 /*---------------------------------------------------------*/
-reg [19:0] sreg0;
-reg [2:0] rand;
-wire [1:0] fd_back0;
-wire [19:0] seed;
+//reg [19:0] sreg0;
+//reg [2:0] rand;
+//wire [1:0] fd_back0;
+//wire [19:0] seed;
     
-assign fd_back0[0] = sreg0[17] ^ sreg0[0] ^ sreg0[9];
-assign fd_back0[1] = sreg0[18] ^ sreg0[1] ^ sreg0[10];
+//assign fd_back0[0] = sreg0[17] ^ sreg0[0] ^ sreg0[9];
+//assign fd_back0[1] = sreg0[18] ^ sreg0[1] ^ sreg0[10];
     
-always @ (posedge clk) begin
-    if(rst) sreg0 <= seed;
-    else begin 
-    sreg0 <= {fd_back0, sreg0[19:2]};
-    rand <= sreg0[2:0];
-    end
-end
+//always @ (posedge clk) begin
+//    if(rst) sreg0 <= seed;
+//    else begin 
+//    sreg0 <= {fd_back0, sreg0[19:2]};
+//    rand <= sreg0[2:0];
+//    end
+//end
+
+wire [9:0] a, b;
+assign a = $random % 2;
 
 /*---------------------------------------------------------*/
 // obs
 /*---------------------------------------------------------*/
-wire [9:0] obs_x_l, obs_x_r, obs_y_t, obs_y_b; 
-reg obs_x_reg, obs_y_reg;
+reg [9:0] obs_x_reg, obs_y_reg;
+reg [9:0] obs_vy_reg, obs_vx_reg;
+wire [9:0] obs_x_l, obs_x_r, obs_y_t, obs_y_b;
+wire obs_on;
+wire reach_bottom;
 
 assign obs_x_l = obs_x_reg; //left
 assign obs_x_r = obs_x_l + OBS_SIZE - 1; //right
@@ -83,43 +80,62 @@ assign obs_on = (x>=obs_x_l && x<=obs_x_r && y>=obs_y_t && y<=obs_y_b)? 1 : 0; /
 
 always @ (posedge clk or posedge rst) begin
     if(rst | game_stop) begin
-        obs_x_reg <= MAX_X - rand;
-        obs_y_reg <= MAX_Y;
+        obs_x_reg <= a;
+        obs_y_reg <= 0;
     end    
     else if(refr_tick) begin
-        obs_y_reg <= obs_y_reg + OBS_V;
+        obs_x_reg <= a + obs_x_reg + obs_vx_reg;
+        obs_y_reg <= obs_y_reg + obs_vy_reg;
     end
 end
 
-//assign reach_obs = (gun_x_l >= obs_left && gun_x_r <= obs_right)? 1:0;
-//assign miss_obs = (gun_x_l <= obs_left && gun_x_r >= obs_right)? 1:0;
+always @ (posedge clk or posedge rst) begin
+    if(rst | game_stop) begin
+        obs_vy_reg <= OBS_V; // down
+        obs_vx_reg <= 0;
+    end else begin
+          if(reach_bottom) begin 
+                obs_vy_reg <= 0; //down
+                obs_vx_reg <= 0;
+          end
+          else begin
+                obs_vy_reg <= OBS_V; //down
+                obs_vx_reg <= 0;
+          end
+    end
+end
 
 /*---------------------------------------------------------*/
 // bomb
 /*---------------------------------------------------------*/
 wire [9:0] bomb_x_l, bomb_x_r, bomb_y_t, bomb_y_b; 
 reg bomb_x_reg, bomb_y_reg;
+wire bomb_on;
 
-assign bomb_x_l = bomb_x_reg; // left
-assign bomb_x_r = bomb_x_l + bomb_SIZE - 1; //right
-assign bomb_y_t = bomb_y_reg;
-assign bomb_y_b = bomb_y_t + bomb_SIZE - 1;
+//assign bomb_x_l = bomb_x_reg; // left
+//assign bomb_x_r = bomb_x_l + bomb_SIZE - 1; //right
+//assign bomb_y_t = bomb_y_reg;
+//assign bomb_y_b = bomb_y_t + bomb_SIZE - 1;
 
-assign bomb_on = (x>=bomb_x_l && x<=bomb_x_r && y>=bomb_y_t && y<=bomb_y_b)? 1 : 0; //bomb region
+//assign bomb_on = (x>=bomb_x_l && x<=bomb_x_r && y>=bomb_y_t && y<=bomb_y_b)? 1 : 0; //bomb region
 
-always @ (posedge clk or posedge rst) begin
-    if(rst | game_stop) begin
-        bomb_x_reg <= MAX_X - rand;
-        bomb_y_reg <= MAX_Y;
-    end    
-    else if(refr_tick) begin
-        bomb_y_reg <= bomb_y_reg + bomb_V;
-    end
-end
+//always @ (posedge clk or posedge rst) begin
+//    if(rst | game_stop) begin
+//        bomb_x_reg <= MAX_X - rand;
+//        bomb_y_reg <= MAX_Y;
+//    end    
+//    else if(refr_tick) begin
+//        bomb_y_reg <= bomb_y_reg + bomb_V;
+//    end
+//end
 
 /*---------------------------------------------------------*/
 // gun 
 /*---------------------------------------------------------*/
+wire gun_on;
+wire [9:0] gun_x_r, gun_x_l; 
+reg [9:0] gun_x_reg; 
+
 assign gun_x_l = gun_x_reg; //left
 assign gun_x_r = gun_x_l + GUN_X_SIZE - 1; //right
 
@@ -135,12 +151,15 @@ end
 /*---------------------------------------------------------*/
 // shot
 /*---------------------------------------------------------*/
+reg [9:0] shot_x_reg, shot_y_reg;
+reg [9:0] shot_vy_reg, shot_vx_reg;
+wire [9:0] shot_x_l, shot_x_r, shot_y_t, shot_y_b;
+wire shot_on;
+
 assign shot_x_l = shot_x_reg;
 assign shot_x_r = shot_x_reg + SHOT_SIZE - 1;
 assign shot_y_t = shot_y_reg;
 assign shot_y_b = shot_y_reg + SHOT_SIZE -1;
-wire [9:0] shot_x = (gun_x_l + gun_x_r) / 2;
-wire [9:0] shot_y = (GUN_Y_B + GUN_Y_T) / 2;
 
 assign shot_on = (x>=shot_x_l && x<=shot_x_r && y>=shot_y_t && y<=shot_y_b)? 1 : 0; //shot's area
 
@@ -205,7 +224,7 @@ end
 /*---------------------------------------------------------*/
 // finite state machine for game control
 /*---------------------------------------------------------*/
-parameter NEWGAME=3'b000, PLAY=3'b001, NEWGUN=3'b010, OVER=3'b011, NEWSHOT=3'b100; 
+parameter NEWGAME=3'b00, PLAY=3'b01, NEWGUN=3'b10, OVER=3'b11;
 reg [2:0] state_reg, state_next;
 reg [1:0] life_reg, life_next;
 reg [1:0]level_reg, level_next;
@@ -376,8 +395,8 @@ assign rgb = (font_bit & score_on)? 3'b111 : //black text
              (font_bit & over_on)? 3'b100 : //red text
              (shot_on) ? 3'b100 : // red shot
              (gun_on)? 3'b111 : //white gun
-             (bomb_on)? 3'b100 :
-             (obs_on) ? 3'b110 :
+             (bomb_on)? 3'b100 : // red bomb
+             (obs_on) ? 3'b001 : //blue obs
              3'b000; //black background
 
 endmodule
