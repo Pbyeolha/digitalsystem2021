@@ -27,6 +27,13 @@ parameter OBS_X_R = 50;
 parameter OBS_SIZE = 20;
 parameter OBS_V = 5;
 
+//bomb 속도, 크기
+parameter BOMB_X_L = 30;
+parameter BOMB_X_R = 50;
+parameter bomb_SIZE = 40;
+parameter bomb_V = 15;
+
+
 wire refr_tick; 
 wire gun_on;
 wire [9:0] gun_x_r, gun_x_l; 
@@ -40,8 +47,74 @@ wire shot_on;
 wire reach_obs, miss_obs;
 reg game_stop, game_over;  
 
+reg obs, bomb; //장애물, 폭탄
+
 //refrernce tick 
 assign refr_tick = (y==MAX_Y-1 && x==MAX_X-1)? 1 : 0; // 매 프레임마다 한 clk 동안만 1이 됨. 
+
+/*---------------------------------------------------------*/
+// random
+/*---------------------------------------------------------*/
+reg [19:0] sreg0;
+reg [2:0] rand;
+wire [1:0] fd_back0;
+wire [19:0] seed;
+    
+assign fd_back0[0] = sreg0[17] ^ sreg0[0] ^ sreg0[9];
+assign fd_back0[1] = sreg0[18] ^ sreg0[1] ^ sreg0[10];
+    
+always @ (posedge clk) begin
+    if(rst) sreg0 <= seed;
+    else begin 
+    sreg0 <= {fd_back0, sreg0[19:2]};
+    rand <= sreg0[2:0];
+    end
+end
+
+/*---------------------------------------------------------*/
+// 장애물
+/*---------------------------------------------------------*/
+wire [9:0] obs_x_l, obs_x_r, obs_y_t, obs_y_b; 
+reg obs_x_reg, obs_y_reg;
+
+assign obs_x_l = obs_x_reg; //장애물의 왼쪽
+assign obs_x_r = obs_x_l + OBS_SIZE - 1; //장애물의 오른쪽
+assign obs_y_t = obs_y_reg;
+assign obs_y_b = obs_y_t + OBS_SIZE - 1;
+
+always @ (posedge clk or posedge rst) begin
+    if(rst | game_stop) begin
+        obs_x_reg <= MAX_X - rand;
+        obs_y_reg <= MAX_Y;
+    end    
+    else if(refr_tick) begin
+        obs_y_reg <= obs_y_reg + OBS_V;
+    end
+end
+
+//assign reach_obs = (gun_x_l >= obs_left && gun_x_r <= obs_right)? 1:0;
+//assign miss_obs = (gun_x_l <= obs_left && gun_x_r >= obs_right)? 1:0;
+
+/*---------------------------------------------------------*/
+// bomb
+/*---------------------------------------------------------*/
+wire [9:0] bomb_x_l, bomb_x_r, bomb_y_t, bomb_y_b; 
+reg bomb_x_reg, bomb_y_reg;
+
+assign bomb_x_l = bomb_x_reg; //장애물의 왼쪽
+assign bomb_x_r = bomb_x_l + bomb_SIZE - 1; //장애물의 오른쪽
+assign bomb_y_t = bomb_y_reg;
+assign bomb_y_b = bomb_y_t + bomb_SIZE - 1;
+
+always @ (posedge clk or posedge rst) begin
+    if(rst | game_stop) begin
+        bomb_x_reg <= MAX_X - rand;
+        bomb_y_reg <= MAX_Y;
+    end    
+    else if(refr_tick) begin
+        bomb_y_reg <= bomb_y_reg + bomb_V;
+    end
+end
 
 /*---------------------------------------------------------*/
 // gun의 위치 결정
@@ -55,7 +128,7 @@ always @ (posedge clk or posedge rst) begin
     if (rst | game_stop) gun_x_reg <= (MAX_X - GUN_X_SIZE)/2; //game이 멈추면 중간에서 시작
     else if (refr_tick) 
         if (key==5'h11 && gun_x_r <= MAX_X -1 - GUN_V) gun_x_reg <= gun_x_reg + GUN_V; //move left
-        else if (key==5'h13 && gun_x_l >=GUN_V) gun_x_reg <= gun_x_reg - GUN_V;  //move righ
+        else if (key==5'h13 && gun_x_l >=GUN_V) gun_x_reg <= gun_x_reg - GUN_V;  //move right
 end
 
 /*---------------------------------------------------------*/
@@ -78,7 +151,7 @@ always @ (posedge clk or posedge rst) begin
     end
 end
 
-assign reach_obs = (shot_x_r>=OBS_X_L && shot_x_r<=OBS_X_R && shot_y_b>=shot_y_t && shot_y_t<=shot_y_b)? 1 : 0; //shot이 obs에 부딪힘
+assign reach_obs = (shot_x_r>=obs_x_l && shot_x_r<=obs_x_r && shot_y_b>=shot_y_t && shot_y_t<=shot_y_b)? 1 : 0; //shot이 obs에 부딪힘
 assign miss_obs = (shot_y_t == 0)? 1 : 0; //shot이 화면 끝에 닿으면 shot miss
 
 always @ (posedge clk or posedge rst) begin
@@ -112,6 +185,7 @@ always @ (posedge clk or posedge rst) begin
         end else dig0 <= dig0+1; //점수 1의 자리 1씩 증가
     end
 end
+
 
 /*---------------------------------------------------------*/
 // finite state machine for game control
