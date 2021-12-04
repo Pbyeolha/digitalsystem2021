@@ -21,7 +21,7 @@ parameter GUN_V = 4;
 parameter SHOT_SIZE = 6;
 parameter SHOT_V = 2;
 
-// obs size, 속도
+// obs size, velo
 parameter OBS_X_L = 30;
 parameter OBS_X_R = 50;
 parameter OBS_SIZE = 20;
@@ -48,6 +48,7 @@ wire reach_obs, miss_obs;
 reg game_stop, game_over;  
 
 reg obs, bomb; //장애물, 폭탄
+wire obs_on, bomb_on;
 
 //refrernce tick 
 assign refr_tick = (y==MAX_Y-1 && x==MAX_X-1)? 1 : 0; // 매 프레임마다 한 clk 동안만 1이 됨. 
@@ -72,15 +73,17 @@ always @ (posedge clk) begin
 end
 
 /*---------------------------------------------------------*/
-// 장애물
+// obstacle
 /*---------------------------------------------------------*/
 wire [9:0] obs_x_l, obs_x_r, obs_y_t, obs_y_b; 
 reg obs_x_reg, obs_y_reg;
 
-assign obs_x_l = obs_x_reg; //장애물의 왼쪽
-assign obs_x_r = obs_x_l + OBS_SIZE - 1; //장애물의 오른쪽
+assign obs_x_l = obs_x_reg; //obs's left
+assign obs_x_r = obs_x_l + OBS_SIZE - 1; //obs's right
 assign obs_y_t = obs_y_reg;
 assign obs_y_b = obs_y_t + OBS_SIZE - 1;
+
+assign obs_on = (x>=obs_x_l && x<=obs_x_r && y>=obs_y_t && y<=obs_y_b)? 1 : 0; //obs region
 
 always @ (posedge clk or posedge rst) begin
     if(rst | game_stop) begin
@@ -101,10 +104,12 @@ end
 wire [9:0] bomb_x_l, bomb_x_r, bomb_y_t, bomb_y_b; 
 reg bomb_x_reg, bomb_y_reg;
 
-assign bomb_x_l = bomb_x_reg; //장애물의 왼쪽
-assign bomb_x_r = bomb_x_l + bomb_SIZE - 1; //장애물의 오른쪽
+assign bomb_x_l = bomb_x_reg; //bomb's left
+assign bomb_x_r = bomb_x_l + bomb_SIZE - 1; //bomb's right
 assign bomb_y_t = bomb_y_reg;
 assign bomb_y_b = bomb_y_t + bomb_SIZE - 1;
+
+assign bomb_on = (x>=bomb_x_l && x<=bomb_x_r && y>=bomb_y_t && y<=bomb_y_b)? 1 : 0; //bomb region
 
 always @ (posedge clk or posedge rst) begin
     if(rst | game_stop) begin
