@@ -5,29 +5,27 @@ input [9:0] x, y;
 input [4:0] key, key_pulse; 
 output [2:0] rgb; 
 
-// 화면 크기 설정
+// screen size
 parameter MAX_X = 640; 
 parameter MAX_Y = 480;  
 
-// gun 위치
+// gun position
 parameter GUN_Y_B = 470; 
 parameter GUN_Y_T = 420;
 
-// gun size, 속도
+// gun size, velocity
 parameter GUN_X_SIZE = 50; 
 parameter GUN_V = 4;
 
-// shot size, 속도
+// shot size, velocity
 parameter SHOT_SIZE = 6;
-parameter SHOT_V = 2;
+parameter SHOT_V = 8;
 
-// obs size, velo
-parameter OBS_X_L = 30;
-parameter OBS_X_R = 50;
+// obs size, velocity
 parameter OBS_SIZE = 20;
 parameter OBS_V = 5;
 
-//bomb 속도, 크기
+//bomb size, velocity
 parameter BOMB_X_L = 30;
 parameter BOMB_X_R = 50;
 parameter bomb_SIZE = 40;
@@ -40,19 +38,17 @@ wire [9:0] gun_x_r, gun_x_l;
 reg [9:0] gun_x_reg; 
 
 reg [9:0] shot_x_reg, shot_y_reg;
-reg [9:0] shot_vy_reg;
+reg [9:0] shot_vy_reg, shot_vx_reg;
 wire [9:0] shot_x_l, shot_x_r, shot_y_t, shot_y_b;
 wire shot_on;
-
+wire bomb_on, obs_on;
 wire reach_obs, miss_obs;
 reg game_stop, game_over;  
 
-reg obs, bomb; //장애물, 폭탄
-wire obs_on, bomb_on;
+reg obs, bomb; 
 
 //refrernce tick 
-assign refr_tick = (y==MAX_Y-1 && x==MAX_X-1)? 1 : 0; // 매 프레임마다 한 clk 동안만 1이 됨. 
-
+assign refr_tick = (y==MAX_Y-1 && x==MAX_X-1)? 1 : 0; // frame, 1sec
 /*---------------------------------------------------------*/
 // random
 /*---------------------------------------------------------*/
@@ -73,13 +69,13 @@ always @ (posedge clk) begin
 end
 
 /*---------------------------------------------------------*/
-// obstacle
+// obs
 /*---------------------------------------------------------*/
 wire [9:0] obs_x_l, obs_x_r, obs_y_t, obs_y_b; 
 reg obs_x_reg, obs_y_reg;
 
-assign obs_x_l = obs_x_reg; //obs's left
-assign obs_x_r = obs_x_l + OBS_SIZE - 1; //obs's right
+assign obs_x_l = obs_x_reg; //left
+assign obs_x_r = obs_x_l + OBS_SIZE - 1; //right
 assign obs_y_t = obs_y_reg;
 assign obs_y_b = obs_y_t + OBS_SIZE - 1;
 
@@ -104,8 +100,8 @@ end
 wire [9:0] bomb_x_l, bomb_x_r, bomb_y_t, bomb_y_b; 
 reg bomb_x_reg, bomb_y_reg;
 
-assign bomb_x_l = bomb_x_reg; //bomb's left
-assign bomb_x_r = bomb_x_l + bomb_SIZE - 1; //bomb's right
+assign bomb_x_l = bomb_x_reg; // left
+assign bomb_x_r = bomb_x_l + bomb_SIZE - 1; //right
 assign bomb_y_t = bomb_y_reg;
 assign bomb_y_b = bomb_y_t + bomb_SIZE - 1;
 
@@ -122,72 +118,86 @@ always @ (posedge clk or posedge rst) begin
 end
 
 /*---------------------------------------------------------*/
-// gun의 위치 결정
+// gun 
 /*---------------------------------------------------------*/
-assign gun_x_l = gun_x_reg; //gun의 left
-assign gun_x_r = gun_x_l + GUN_X_SIZE - 1; //gun의 right
+assign gun_x_l = gun_x_reg; //left
+assign gun_x_r = gun_x_l + GUN_X_SIZE - 1; //right
 
-assign gun_on = (x>=gun_x_l && x<=gun_x_r && y>=GUN_Y_T && y<=GUN_Y_B)? 1 : 0; //gun의 영역
+assign gun_on = (x>=gun_x_l && x<=gun_x_r && y>=GUN_Y_T && y<=GUN_Y_B)? 1 : 0; //gun position
 
 always @ (posedge clk or posedge rst) begin
-    if (rst | game_stop) gun_x_reg <= (MAX_X - GUN_X_SIZE)/2; //game이 멈추면 중간에서 시작
+    if (rst | game_stop) gun_x_reg <= (MAX_X - GUN_X_SIZE)/2; //if game stop, game begin middle
     else if (refr_tick) 
         if (key==5'h11 && gun_x_r <= MAX_X -1 - GUN_V) gun_x_reg <= gun_x_reg + GUN_V; //move left
         else if (key==5'h13 && gun_x_l >=GUN_V) gun_x_reg <= gun_x_reg - GUN_V;  //move right
 end
 
 /*---------------------------------------------------------*/
-// gun에서 총 나가는 거
+// shot
 /*---------------------------------------------------------*/
 assign shot_x_l = shot_x_reg;
 assign shot_x_r = shot_x_reg + SHOT_SIZE - 1;
 assign shot_y_t = shot_y_reg;
 assign shot_y_b = shot_y_reg + SHOT_SIZE -1;
+wire [9:0] shot_x = (gun_x_l + gun_x_r) / 2;
+wire [9:0] shot_y = (GUN_Y_B + GUN_Y_T) / 2;
 
-assign shot_on = (x>=shot_x_l && x<=shot_x_r && y>=shot_y_t && y<=shot_y_b)? 1 : 0; //shot이 있는 영역
+assign shot_on = (x>=shot_x_l && x<=shot_x_r && y>=shot_y_t && y<=shot_y_b)? 1 : 0; //shot's area
 
 always @ (posedge clk or posedge rst) begin
     if(rst|game_stop) begin
-        shot_x_reg <= MAX_X/2;
-        shot_y_reg <= 420;
+        shot_x_reg <= (gun_x_l + gun_x_r) / 2;
+        shot_y_reg <= (GUN_Y_B + GUN_Y_T) / 2;
     end
-    else if(refr_tick) begin
-        shot_y_reg <= shot_y_reg + shot_vy_reg;
+    else if(refr_tick)begin
+        shot_x_reg <= (gun_x_l + gun_x_r) / 2;
+        shot_y_reg <= (GUN_Y_B + GUN_Y_T) / 2;
+        if(key == 5'h15) begin
+           shot_y_reg <= shot_y_reg + shot_vy_reg;
+           shot_x_reg <= shot_x_reg + shot_vx_reg;
+        end
     end
 end
 
-assign reach_obs = (shot_x_r>=obs_x_l && shot_x_r<=obs_x_r && shot_y_b>=shot_y_t && shot_y_t<=shot_y_b)? 1 : 0; //shot이 obs에 부딪힘
-assign miss_obs = (shot_y_t == 0)? 1 : 0; //shot이 화면 끝에 닿으면 shot miss
+assign reach_obs = (shot_x_r>=obs_x_l && shot_x_r<=obs_x_r && shot_y_b>=shot_y_t && shot_y_t<=shot_y_b)? 1 : 0; //hit obs
+assign miss_obs = (shot_y_t == 0)? 1 : 0; //shot reach screen, miss
 
 always @ (posedge clk or posedge rst) begin
     if(rst|game_stop) begin
-        shot_vy_reg <= -1*SHOT_V;
-    end
-    else begin
-        if(reach_obs) shot_vy_reg <= -1*SHOT_V;
+        shot_vy_reg <= -1*SHOT_V; //up
+        shot_vx_reg <= 0;
+    end else begin
+            if(reach_obs) begin 
+                shot_vy_reg <= -1*SHOT_V; //up
+                shot_vx_reg <= 0;
+            end
+            else begin
+                shot_vy_reg <= -1*SHOT_V; //up
+                shot_vx_reg <= 0;
+            end
     end
 end
 
 /*---------------------------------------------------------*/
-// 총이 장애물 맞힐 때마다 score를 1씩 증가시키는 로직 
+// if hit, score ++
 /*---------------------------------------------------------*/
 reg d_inc, d_clr;
 wire hit, miss;
 reg [3:0] dig0, dig1;
 
-assign hit = (reach_obs==1 && refr_tick==1)? 1 : 0; //gun으로 장애물 맞힘, hit를 1클럭 pulse로 만들기 위해 refr_tick과 AND 시킴
-assign miss = (miss_obs==1 && refr_tick==1)? 1 : 0; //gun이 장애물 못맞힘, miss를 1클럭 pulse로 만들기 위해 refr_tick과 AND 시킴
+assign hit = (reach_obs==1 && refr_tick==1)? 1 : 0; //hit
+assign miss = (miss_obs==1 && refr_tick==1)? 1 : 0; // miss
 
 always @ (posedge clk or posedge rst) begin
     if(rst | d_clr) begin
         dig1 <= 0;
         dig0 <= 0;
-    end else if (hit) begin //장애물 맞추면 점수가 증가
+    end else if (hit) begin //hit, score ++
         if(dig0==9) begin 
             dig0 <= 0;
             if (dig1==9) dig1 <= 0;
-            else dig1 <= dig1+1; //점수 10의 자리 1씩 증가
-        end else dig0 <= dig0+1; //점수 1의 자리 1씩 증가
+            else dig1 <= dig1+1; //10
+        end else dig0 <= dig0+1; //1
     end
 end
 
@@ -195,8 +205,8 @@ end
 /*---------------------------------------------------------*/
 // finite state machine for game control
 /*---------------------------------------------------------*/
-parameter NEWGAME=2'b00, PLAY=2'b01, NEWGUN=2'b10, OVER=2'b11; 
-reg [1:0] state_reg, state_next;
+parameter NEWGAME=3'b000, PLAY=3'b001, NEWGUN=3'b010, OVER=3'b011, NEWSHOT=3'b100; 
+reg [2:0] state_reg, state_next;
 reg [1:0] life_reg, life_next;
 reg [1:0]level_reg, level_next;
 
@@ -209,37 +219,37 @@ always @ (*) begin
     game_over = 0;
 
     case(state_reg) 
-        NEWGAME: begin //새 게임
-            d_clr = 1; //스코어 0으로 초기화
-            if(key[4] == 1) begin //버튼이 눌리면
-                state_next = PLAY; //게임시작
-                life_next = 2'b10; //남은 생명 2개로
-                level_next = 2'b01; //level 1로
+        NEWGAME: begin //new game
+            d_clr = 1; //score init
+            if(key[4] == 1) begin //if key push,
+                state_next = PLAY; //game start
+                life_next = 2'b10; //left life 2
+                level_next = 2'b01; //level up
             end else begin
-                state_next = NEWGAME; //버튼이 안 눌리면 현재 상태 유지
-                life_next = 2'b11; //남은 생명 3개 유지
-                level_next = 2'b00; //level 0으로 초기화
+                state_next = NEWGAME; //no key push,
+                life_next = 2'b11; //left life 3
+                level_next = 2'b00; //level init
             end
          end
          PLAY: begin
-            game_stop = 0; //게임 Running
+            game_stop = 0; //game running
             d_inc = hit;
-            if (miss) begin //장애물 못맞히면
-                if (life_reg==2'b00) //남은 생명이 없으면
-                    state_next = OVER; //게임종료
-                else begin//남은 생명이 있으면 
-                    state_next = NEWGUN; 
-                    life_next = life_reg-1'b1; //남은 생명 하나 줄임
+            if (miss) begin //miss obs
+                if (life_reg==2'b00) //no left life
+                    state_next = OVER; //gameover
+                else begin//yes left life
+                    state_next = NEWGUN; //new gun
+                    life_next = life_reg-1'b1; //- life
                     level_next = level_reg + 1'b1;
                 end
-            end else
-                state_next = PLAY; //계속 진행
+            end else if(hit)
+                state_next = PLAY; 
         end
-        NEWGUN: //새 gun 준비
+        NEWGUN: //new gun
             if(key[4] == 1) state_next = PLAY;
             else state_next = NEWGUN; 
         OVER: begin
-            if(key[4] == 1) begin //게임이 끝났을 때 버튼을 누르면 새게임 시작
+            if(key[4] == 1) begin //key push, ne game
                 state_next = NEWGAME;
             end else begin
                 state_next = OVER;
@@ -272,7 +282,7 @@ wire [6:0] char_addr;
 reg [6:0] char_addr_s, char_addr_l, char_addr_o, char_addr_lev;
 wire [2:0] bit_addr;
 reg [2:0] bit_addr_s, bit_addr_l, bit_addr_o, bit_addr_lev;
-wire [3:0] row_addr, row_addr_s, row_addr_l, row_addr_o, row_addr_lev; //4bit, 주소
+wire [3:0] row_addr, row_addr_s, row_addr_l, row_addr_o, row_addr_lev; //4bit, ???
 wire score_on, life_on, over_on, level_on;
 
 wire font_bit;
@@ -282,7 +292,7 @@ wire [10:0] rom_addr;
 font_rom_vhd font_rom_inst (clk, rom_addr, font_word);
 
 assign rom_addr = {char_addr, row_addr};
-assign font_bit = font_word[~bit_addr]; //화면 x좌표는 왼쪽이 작은데, rom의 bit는 오른쪽이 작으므로 reverse
+assign font_bit = font_word[~bit_addr]; 
 
 assign char_addr = (score_on)? char_addr_s : (life_on)? char_addr_l : (level_on)? char_addr_lev : (over_on)? char_addr_o : 0;
 assign row_addr = (score_on)? row_addr_s : (life_on)? row_addr_l : (level_on)? row_addr_lev : (over_on)? row_addr_o : 0; 
@@ -300,7 +310,7 @@ always @ (*) begin
     else if (x>=score_x_l+8*3 && x<score_x_l+8*4) begin bit_addr_s = x-score_x_l-8*3; char_addr_s = 7'b1010010; end // R x52
     else if (x>=score_x_l+8*4 && x<score_x_l+8*5) begin bit_addr_s = x-score_x_l-8*4; char_addr_s = 7'b1000101; end // E x45
     else if (x>=score_x_l+8*5 && x<score_x_l+8*6) begin bit_addr_s = x-score_x_l-8*5; char_addr_s = 7'b0111010; end // : x3a
-    else if (x>=score_x_l+8*6 && x<score_x_l+8*7) begin bit_addr_s = x-score_x_l-8*6; char_addr_s = {3'b011, dig1}; end // digit 10, ASCII 코드에서 숫자의 address는 011로 시작
+    else if (x>=score_x_l+8*6 && x<score_x_l+8*7) begin bit_addr_s = x-score_x_l-8*6; char_addr_s = {3'b011, dig1}; end // digit 10, ASCII ????? ?????? address?? 011?? ????
     else if (x>=score_x_l+8*7 && x<score_x_l+8*8) begin bit_addr_s = x-score_x_l-8*7; char_addr_s = {3'b011, dig0}; end
     else begin bit_addr_s = 0; char_addr_s = 0; end                         
 end
@@ -366,6 +376,8 @@ assign rgb = (font_bit & score_on)? 3'b111 : //black text
              (font_bit & over_on)? 3'b100 : //red text
              (shot_on) ? 3'b100 : // red shot
              (gun_on)? 3'b111 : //white gun
+             (bomb_on)? 3'b100 :
+             (obs_on) ? 3'b110 :
              3'b000; //black background
 
 endmodule
