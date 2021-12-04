@@ -26,10 +26,8 @@ parameter OBS_SIZE = 20;
 parameter OBS_V = 3;
 
 //bomb size, velocity
-parameter BOMB_X_L = 30;
-parameter BOMB_X_R = 40;
 parameter bomb_SIZE = 40;
-parameter bomb_V = 15;
+parameter bomb_V = 10;
 
 
 wire refr_tick; 
@@ -40,27 +38,27 @@ reg obs, bomb;
 
 //refrernce tick 
 assign refr_tick = (y==MAX_Y-1 && x==MAX_X-1)? 1 : 0; // frame, 1sec
+
 /*---------------------------------------------------------*/
 // random
 /*---------------------------------------------------------*/
-//reg [19:0] sreg0;
-//reg [2:0] rand;
-//wire [1:0] fd_back0;
-//wire [19:0] seed;
-    
-//assign fd_back0[0] = sreg0[17] ^ sreg0[0] ^ sreg0[9];
-//assign fd_back0[1] = sreg0[18] ^ sreg0[1] ^ sreg0[10];
-    
-//always @ (posedge clk) begin
-//    if(rst) sreg0 <= seed;
-//    else begin 
-//    sreg0 <= {fd_back0, sreg0[19:2]};
-//    rand <= sreg0[2:0];
-//    end
-//end
+reg [9:0] sreg0;
+reg [1:0] rand;
+reg [1:0] fd_back0;
+reg [9:0] seed;
 
-wire [9:0] a, b;
-assign a = $random % 2;
+always @ (posedge clk) begin
+    if(rst) begin
+        seed <= x;
+        sreg0 <= seed;
+        fd_back0[0] <= sreg0[7] ^ sreg0[0];
+        fd_back0[1] <= sreg0[8] ^ sreg0[1];
+    end
+    else begin 
+        sreg0 <= {fd_back0, sreg0[9:2]};
+        rand <= sreg0[2:0];
+    end
+end
 
 /*---------------------------------------------------------*/
 // obs
@@ -80,11 +78,11 @@ assign obs_on = (x>=obs_x_l && x<=obs_x_r && y>=obs_y_t && y<=obs_y_b)? 1 : 0; /
 
 always @ (posedge clk or posedge rst) begin
     if(rst | game_stop) begin
-        obs_x_reg <= a;
+        obs_x_reg <= MAX_X - rand;
         obs_y_reg <= 0;
     end    
     else if(refr_tick) begin
-        obs_x_reg <= a + obs_x_reg + obs_vx_reg;
+        obs_x_reg <= rand + obs_x_reg + obs_vx_reg;
         obs_y_reg <= obs_y_reg + obs_vy_reg;
     end
 end
