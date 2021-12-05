@@ -45,7 +45,8 @@ assign refr_tick = (y==MAX_Y-1 && x==MAX_X-1)? 1 : 0; // frame, 1sec
 //    assign fdback = r_reg[9] ^ r_reg[5] ^ r_reg[0];
 //    assign r_next = {fdback, r_reg[9:1]};
 //    assign rnd = r_reg;
-wire[9:0] rnd; random(rst, clk, rnd);
+wire[9:0] rnd; 
+u0 random(rst, clk, rnd);
 /*---------------------------------------------------------*/
 // obs
 /*---------------------------------------------------------*/
@@ -65,7 +66,7 @@ always @ (posedge clk or posedge rst) begin
         obs1_x_reg <= rnd; obs2_x_reg <= rnd;
         obs1_y_reg <= 0; obs2_y_reg <= 0;
     end    
-    else if(refr_tick) begin
+    else begin
         obs1_x_reg <= obs1_x_reg + obs_vx_reg; 
         obs1_y_reg <= obs1_y_reg + obs_vy_reg;
         
