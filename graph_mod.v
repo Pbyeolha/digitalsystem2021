@@ -2,6 +2,7 @@ module graph_mod (clk, rst, x, y, key, key_pulse, rgb);
 input clk, rst;
 input [9:0] x, y;
 input [4:0] key, key_pulse; 
+
 output [2:0] rgb;
 
 // screen size
@@ -17,7 +18,7 @@ parameter GUN_V = 4;
 parameter SHOT_SIZE = 6;
 parameter SHOT_V = 7;
 // obs size, velocity
-parameter OBS_SIZE = 20;
+parameter OBS_SIZE = 30;
 parameter OBS_V = 2;
 //bomb size, velocity
 parameter bomb_SIZE = 40;
@@ -26,55 +27,42 @@ wire refr_tick;
 wire reach_obs, miss_obs;
 reg game_stop, game_over;  
 reg obs, bomb; 
-wire [10:0] s1, s2; //comparator
-wire eq;
-
 //refrernce tick 
 assign refr_tick = (y==MAX_Y-1 && x==MAX_X-1)? 1 : 0; // frame, 1sec
 /*---------------------------------------------------------*/
 // random
 /*---------------------------------------------------------*/	
-reg[9:0] rnd; 
-reg [9:0] count;
-//wire [9:0] rnd;
- 
-//always @ (posedge clk or posedge rst) begin
-// if(rst) begin
-//    count<=1;
-//   rnd <= 0;
-// end
-// else if(0<= MAX_X - rnd && MAX_X - rnd <= MAX_X) begin
-//    rnd <= MAX_X % count;
-//    count <= count + 2; 
-// end
-//end
-/////////////////////////////////////////////////////////////////////////////////
-//    reg [9:0] r_reg;
-//    wire [9:0] r_next;
-//    wire fdback;
-    
-//    always @(posedge clk or posedge rst) begin
-//        if(rst | game_stop) begin
-//            r_reg[0] <= 1;
-//            r_reg[9:1] <= 0;
-//        end
-//        else r_reg <= r_next;
-//    end
-//    assign fdback = r_reg[9] ^ r_reg[5] ^ r_reg[0];
-//    assign r_next = {fdback, r_reg[9:1]};
-//    assign rnd = r_reg;
+//reg[19:0] sreg0, sreg1; wire [1:0] fd_back0 , fd_back1;
 
-//u0 random(rst, clk, rnd);
+//assign fd_back0[0] = sreg0[17] ^ sreg0[0];
+//assign fd_back0[1] = sreg0[18] ^ sreg0[1];
+//assign fd_back1[0] = sreg1[16] ^ sreg1[3];
+//assign fd_back1[1] = sreg1[14] ^ sreg1[6];
+
+//always @ (posedge clk) begin
+//    if(rst) sreg0 <= seed;
+//    else begin
+//        sreg0 <= {fd_back0, sreg0[19:2]};
+//        sreg1 <= {fd_back1, sreg1[19:2]};
+//    end
+//end
+
+//assign rand_num1 = sreg0[9:0];
+//assign rand_num2 = sreg1[9:0]; 
+wire [9:0] rand1, rand2; wire[19:0] s;
+random u0 (rst, clk, s, rand1);
+random u1 (rst, clk, s, rand2);
 /*---------------------------------------------------------*/
 // obs
 /*---------------------------------------------------------*/
+wire [10:0] s1, s2; //comparator
+wire eq;
+
 reg [9:0] obs1_x_reg, obs1_y_reg, obs2_x_reg, obs2_y_reg;
 reg [9:0] obs_vy_reg, obs_vx_reg;
 wire [9:0] obs1_x_l, obs1_x_r, obs1_y_t, obs1_y_b, obs2_x_l, obs2_x_r, obs2_y_t, obs2_y_b;
 wire obs1_on, obs2_on; 
 wire reach_bottom;
-wire obs_off;
-
 assign obs1_x_l = obs1_x_reg; assign obs2_x_l = obs2_x_reg;
 assign obs1_x_r = obs1_x_l + OBS_SIZE - 1; assign obs2_x_r = obs2_x_l + OBS_SIZE - 1; 
 assign obs1_y_t = obs1_y_reg; assign obs2_y_t = obs2_y_reg;
@@ -83,35 +71,46 @@ assign obs1_on = (x>=obs1_x_l && x<=obs1_x_r && y>=obs1_y_t && y<=obs1_y_b)? 1 :
 assign obs2_on = (x>=obs2_x_l && x<=obs2_x_r && y>=obs2_y_t && y<=obs2_y_b)? 1 : 0; //obs region
 always @ (posedge clk or posedge rst) begin
     if(rst | game_stop) begin
-        obs1_x_reg <= rnd; obs2_x_reg <= rnd;
-        obs1_y_reg <= 0; obs2_y_reg <= 0;
+        obs1_x_reg <= 64; 
+        obs1_y_reg <=150; 
     end    
     else if(refr_tick) begin
         obs1_x_reg <= obs1_x_reg + obs_vx_reg; 
         obs1_y_reg <= obs1_y_reg + obs_vy_reg;
-        obs2_x_reg <= obs2_x_reg + obs_vx_reg;
-        obs2_y_reg <= obs2_y_reg + obs_vy_reg;
-        if(eq==1) begin
+        if(reach_obs==1) begin
          obs1_x_reg <= 0;
          obs1_y_reg <= 0;
-         obs2_x_reg <= 0;
-         obs2_y_reg <= 0;
         end
     end
 end
-
 always @ (posedge clk or posedge rst) begin
     if(rst | game_stop) begin
-        obs_vy_reg <= OBS_V; // down
-        obs_vx_reg <= 0;
-    end else begin
+        obs2_x_reg <= 128; 
+        obs2_y_reg <= 150; 
+    end    
+    else if (refr_tick) begin
+        obs2_x_reg <= obs2_x_reg + obs_vx_reg; 
+        obs2_y_reg <= obs2_y_reg + obs_vy_reg;
+        if(reach_obs == 1) begin    //shot reach obs, then obs is eliminated
+                    obs2_x_reg <= 0;
+                    obs2_y_reg <= 0;
+        end
+    end
+end
+always @ (posedge clk or posedge rst) begin
+    if(rst | game_stop) begin
+        obs_vy_reg <= 0;
+        if(obs2_x_r == MAX_X-1) obs_vx_reg <= -1*OBS_V; //left
+        else if(obs2_x_r < MAX_X-1) obs_vx_reg <= OBS_V; //right
+    end else if(refr_tick) begin
           if(reach_bottom) begin 
-                obs_vy_reg <= 0; //down
+                obs_vy_reg <= 0; 
                 obs_vx_reg <= 0;
           end
           else begin
-                obs_vy_reg <= OBS_V; //down
-                obs_vx_reg <= 0;
+            obs_vy_reg <= 0;
+            if(obs2_x_r == MAX_X-1) obs_vx_reg <= -1*OBS_V; //left
+            else if(obs2_x_r < MAX_X-1) obs_vx_reg <= OBS_V; //right
           end
     end
 end
@@ -156,7 +155,7 @@ end
 reg [9:0] shot_x_reg, shot_y_reg;
 reg [9:0] shot_vy_reg, shot_vx_reg;
 wire [9:0] shot_x_l, shot_x_r, shot_y_t, shot_y_b;
-wire shot_on;
+wire shot_on; wire obs_off;
 assign shot_x_l = shot_x_reg;
 assign shot_x_r = shot_x_reg + SHOT_SIZE - 1;
 assign shot_y_t = shot_y_reg;
@@ -174,18 +173,16 @@ always @ (posedge clk or posedge rst) begin
            shot_y_reg <= shot_y_reg + shot_vy_reg;
            shot_x_reg <= shot_x_reg + shot_vx_reg;
         end
+        else if (obs_off == 1) begin
+            shot_y_reg <= 0;
+            shot_x_reg <= 0;
+        end
     end
 end
 
 assign reach_obs = (key == 5'h15) ? 0 : (shot_y_t == obs1_y_b)? 1 : 0; //hit obs
 assign miss_obs = (shot_y_t == 0)? 1 : 0; //shot reach screen, miss
 assign obs_off = (reach_obs) ? 1 : 0;
-///////////////comparator////////////////
-
-assign s1 = {1'b0, obs1_y_b} - {1'b0, shot_y_t};
-assign eq =(s1 == 0)? 1:
-           (s2 == 0)? 1: 0;
-           
 
 always @ (posedge clk or posedge rst) begin
     if(rst|game_stop) begin
@@ -203,6 +200,9 @@ always @ (posedge clk or posedge rst) begin
     end
 end
 
+//assign s1 = {1'b0, obs1_y_b} - {1'b0, shot_y_t};
+//assign eq =(s1 == 0)? 1:
+//           (s2 == 0)? 1: 0;
 /*---------------------------------------------------------*/
 // if hit, score ++
 /*---------------------------------------------------------*/
