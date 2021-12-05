@@ -45,12 +45,10 @@ assign refr_tick = (y==MAX_Y-1 && x==MAX_X-1)? 1 : 0; // frame, 1sec
 reg [9:0] sreg0;
 reg [1:0] rand;
 reg [1:0] fd_back0;
-reg [9:0] seed;
 
 always @ (posedge clk) begin
     if(rst) begin
-        seed <= x;
-        sreg0 <= seed;
+        sreg0 <= x;
         fd_back0[0] <= sreg0[7] ^ sreg0[0];
         fd_back0[1] <= sreg0[8] ^ sreg0[1];
     end
