@@ -26,11 +26,29 @@ wire refr_tick;
 wire reach_obs, miss_obs;
 reg game_stop, game_over;  
 reg obs, bomb; 
+wire [10:0] s1, s2; //comparator
+wire eq;
+
 //refrernce tick 
 assign refr_tick = (y==MAX_Y-1 && x==MAX_X-1)? 1 : 0; // frame, 1sec
 /*---------------------------------------------------------*/
 // random
 /*---------------------------------------------------------*/	
+reg[9:0] rnd; 
+reg [9:0] count;
+//wire [9:0] rnd;
+ 
+//always @ (posedge clk or posedge rst) begin
+// if(rst) begin
+//    count<=1;
+//   rnd <= 0;
+// end
+// else if(0<= MAX_X - rnd && MAX_X - rnd <= MAX_X) begin
+//    rnd <= MAX_X % count;
+//    count <= count + 2; 
+// end
+//end
+/////////////////////////////////////////////////////////////////////////////////
 //    reg [9:0] r_reg;
 //    wire [9:0] r_next;
 //    wire fdback;
@@ -45,8 +63,8 @@ assign refr_tick = (y==MAX_Y-1 && x==MAX_X-1)? 1 : 0; // frame, 1sec
 //    assign fdback = r_reg[9] ^ r_reg[5] ^ r_reg[0];
 //    assign r_next = {fdback, r_reg[9:1]};
 //    assign rnd = r_reg;
-wire[9:0] rnd; 
-u0 random(rst, clk, rnd);
+
+//u0 random(rst, clk, rnd);
 /*---------------------------------------------------------*/
 // obs
 /*---------------------------------------------------------*/
@@ -55,6 +73,8 @@ reg [9:0] obs_vy_reg, obs_vx_reg;
 wire [9:0] obs1_x_l, obs1_x_r, obs1_y_t, obs1_y_b, obs2_x_l, obs2_x_r, obs2_y_t, obs2_y_b;
 wire obs1_on, obs2_on; 
 wire reach_bottom;
+wire obs_off;
+
 assign obs1_x_l = obs1_x_reg; assign obs2_x_l = obs2_x_reg;
 assign obs1_x_r = obs1_x_l + OBS_SIZE - 1; assign obs2_x_r = obs2_x_l + OBS_SIZE - 1; 
 assign obs1_y_t = obs1_y_reg; assign obs2_y_t = obs2_y_reg;
@@ -66,14 +86,20 @@ always @ (posedge clk or posedge rst) begin
         obs1_x_reg <= rnd; obs2_x_reg <= rnd;
         obs1_y_reg <= 0; obs2_y_reg <= 0;
     end    
-    else begin
+    else if(refr_tick) begin
         obs1_x_reg <= obs1_x_reg + obs_vx_reg; 
         obs1_y_reg <= obs1_y_reg + obs_vy_reg;
-        
         obs2_x_reg <= obs2_x_reg + obs_vx_reg;
         obs2_y_reg <= obs2_y_reg + obs_vy_reg;
+        if(eq==1) begin
+         obs1_x_reg <= 0;
+         obs1_y_reg <= 0;
+         obs2_x_reg <= 0;
+         obs2_y_reg <= 0;
+        end
     end
 end
+
 always @ (posedge clk or posedge rst) begin
     if(rst | game_stop) begin
         obs_vy_reg <= OBS_V; // down
@@ -153,8 +179,13 @@ end
 
 assign reach_obs = (key == 5'h15) ? 0 : (shot_y_t == obs1_y_b)? 1 : 0; //hit obs
 assign miss_obs = (shot_y_t == 0)? 1 : 0; //shot reach screen, miss
-wire obs_off;
 assign obs_off = (reach_obs) ? 1 : 0;
+///////////////comparator////////////////
+
+assign s1 = {1'b0, obs1_y_b} - {1'b0, shot_y_t};
+assign eq =(s1 == 0)? 1:
+           (s2 == 0)? 1: 0;
+           
 
 always @ (posedge clk or posedge rst) begin
     if(rst|game_stop) begin
@@ -171,6 +202,7 @@ always @ (posedge clk or posedge rst) begin
             end
     end
 end
+
 /*---------------------------------------------------------*/
 // if hit, score ++
 /*---------------------------------------------------------*/
