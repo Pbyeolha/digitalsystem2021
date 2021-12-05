@@ -1,90 +1,78 @@
 module graph_mod (clk, rst, x, y, key, key_pulse, rgb);
-
 input clk, rst;
 input [9:0] x, y;
 input [4:0] key, key_pulse; 
-output [2:0] rgb; 
+output [2:0] rgb;
 
 // screen size
 parameter MAX_X = 640; 
 parameter MAX_Y = 480;  
-
 // gun position
 parameter GUN_Y_B = 470; 
 parameter GUN_Y_T = 420;
-
 // gun size, velocity
 parameter GUN_X_SIZE = 50; 
 parameter GUN_V = 4;
-
 // shot size, velocity
 parameter SHOT_SIZE = 6;
 parameter SHOT_V = 7;
-
 // obs size, velocity
 parameter OBS_SIZE = 20;
-parameter OBS_V = 3;
-
+parameter OBS_V = 2;
 //bomb size, velocity
 parameter bomb_SIZE = 40;
 parameter bomb_V = 10;
-
-
 wire refr_tick; 
 wire reach_obs, miss_obs;
 reg game_stop, game_over;  
-
 reg obs, bomb; 
-
 //refrernce tick 
 assign refr_tick = (y==MAX_Y-1 && x==MAX_X-1)? 1 : 0; // frame, 1sec
-
 /*---------------------------------------------------------*/
 // random
-/*---------------------------------------------------------*/
-reg [9:0] sreg0;
-reg [1:0] rand;
-reg [1:0] fd_back0;
-
-always @ (posedge clk) begin
-    if(rst) begin
-        sreg0 <= x;
-        fd_back0[0] <= sreg0[7] ^ sreg0[0];
-        fd_back0[1] <= sreg0[8] ^ sreg0[1];
-    end
-    else begin 
-        sreg0 <= {fd_back0, sreg0[9:2]};
-        rand <= sreg0[2:0];
-    end
-end
-
+/*---------------------------------------------------------*/	
+//    reg [9:0] r_reg;
+//    wire [9:0] r_next;
+//    wire fdback;
+    
+//    always @(posedge clk or posedge rst) begin
+//        if(rst | game_stop) begin
+//            r_reg[0] <= 1;
+//            r_reg[9:1] <= 0;
+//        end
+//        else r_reg <= r_next;
+//    end
+//    assign fdback = r_reg[9] ^ r_reg[5] ^ r_reg[0];
+//    assign r_next = {fdback, r_reg[9:1]};
+//    assign rnd = r_reg;
+wire[9:0] rnd; random(rst, clk, rnd);
 /*---------------------------------------------------------*/
 // obs
 /*---------------------------------------------------------*/
-reg [9:0] obs_x_reg, obs_y_reg;
+reg [9:0] obs1_x_reg, obs1_y_reg, obs2_x_reg, obs2_y_reg;
 reg [9:0] obs_vy_reg, obs_vx_reg;
-wire [9:0] obs_x_l, obs_x_r, obs_y_t, obs_y_b;
-wire obs_on;
+wire [9:0] obs1_x_l, obs1_x_r, obs1_y_t, obs1_y_b, obs2_x_l, obs2_x_r, obs2_y_t, obs2_y_b;
+wire obs1_on, obs2_on; 
 wire reach_bottom;
-
-assign obs_x_l = obs_x_reg; //left
-assign obs_x_r = obs_x_l + OBS_SIZE - 1; //right
-assign obs_y_t = obs_y_reg;
-assign obs_y_b = obs_y_t + OBS_SIZE - 1;
-
-assign obs_on = (x>=obs_x_l && x<=obs_x_r && y>=obs_y_t && y<=obs_y_b)? 1 : 0; //obs region
-
+assign obs1_x_l = obs1_x_reg; assign obs2_x_l = obs2_x_reg;
+assign obs1_x_r = obs1_x_l + OBS_SIZE - 1; assign obs2_x_r = obs2_x_l + OBS_SIZE - 1; 
+assign obs1_y_t = obs1_y_reg; assign obs2_y_t = obs2_y_reg;
+assign obs1_y_b = obs1_y_t + OBS_SIZE - 1; assign obs2_y_b = obs2_y_t + OBS_SIZE - 1;
+assign obs1_on = (x>=obs1_x_l && x<=obs1_x_r && y>=obs1_y_t && y<=obs1_y_b)? 1 : 0; //obs region
+assign obs2_on = (x>=obs2_x_l && x<=obs2_x_r && y>=obs2_y_t && y<=obs2_y_b)? 1 : 0; //obs region
 always @ (posedge clk or posedge rst) begin
     if(rst | game_stop) begin
-        obs_x_reg <= MAX_X - rand;
-        obs_y_reg <= 0;
+        obs1_x_reg <= rnd; obs2_x_reg <= rnd;
+        obs1_y_reg <= 0; obs2_y_reg <= 0;
     end    
     else if(refr_tick) begin
-        obs_x_reg <= rand + obs_x_reg + obs_vx_reg;
-        obs_y_reg <= obs_y_reg + obs_vy_reg;
+        obs1_x_reg <= obs1_x_reg + obs_vx_reg; 
+        obs1_y_reg <= obs1_y_reg + obs_vy_reg;
+        
+        obs2_x_reg <= obs2_x_reg + obs_vx_reg;
+        obs2_y_reg <= obs2_y_reg + obs_vy_reg;
     end
 end
-
 always @ (posedge clk or posedge rst) begin
     if(rst | game_stop) begin
         obs_vy_reg <= OBS_V; // down
@@ -100,21 +88,17 @@ always @ (posedge clk or posedge rst) begin
           end
     end
 end
-
 /*---------------------------------------------------------*/
 // bomb
 /*---------------------------------------------------------*/
 wire [9:0] bomb_x_l, bomb_x_r, bomb_y_t, bomb_y_b; 
 reg bomb_x_reg, bomb_y_reg;
 wire bomb_on;
-
 //assign bomb_x_l = bomb_x_reg; // left
 //assign bomb_x_r = bomb_x_l + bomb_SIZE - 1; //right
 //assign bomb_y_t = bomb_y_reg;
 //assign bomb_y_b = bomb_y_t + bomb_SIZE - 1;
-
 //assign bomb_on = (x>=bomb_x_l && x<=bomb_x_r && y>=bomb_y_t && y<=bomb_y_b)? 1 : 0; //bomb region
-
 //always @ (posedge clk or posedge rst) begin
 //    if(rst | game_stop) begin
 //        bomb_x_reg <= MAX_X - rand;
@@ -124,26 +108,21 @@ wire bomb_on;
 //        bomb_y_reg <= bomb_y_reg + bomb_V;
 //    end
 //end
-
 /*---------------------------------------------------------*/
 // gun 
 /*---------------------------------------------------------*/
 wire gun_on;
 wire [9:0] gun_x_r, gun_x_l; 
 reg [9:0] gun_x_reg; 
-
 assign gun_x_l = gun_x_reg; //left
 assign gun_x_r = gun_x_l + GUN_X_SIZE - 1; //right
-
 assign gun_on = (x>=gun_x_l && x<=gun_x_r && y>=GUN_Y_T && y<=GUN_Y_B)? 1 : 0; //gun position
-
 always @ (posedge clk or posedge rst) begin
     if (rst | game_stop) gun_x_reg <= (MAX_X - GUN_X_SIZE)/2; //if game stop, game begin middle
     else if (refr_tick) 
         if (key==5'h11 && gun_x_r <= MAX_X -1 - GUN_V) gun_x_reg <= gun_x_reg + GUN_V; //move left
         else if (key==5'h13 && gun_x_l >=GUN_V) gun_x_reg <= gun_x_reg - GUN_V;  //move right
 end
-
 /*---------------------------------------------------------*/
 // shot
 /*---------------------------------------------------------*/
@@ -151,14 +130,11 @@ reg [9:0] shot_x_reg, shot_y_reg;
 reg [9:0] shot_vy_reg, shot_vx_reg;
 wire [9:0] shot_x_l, shot_x_r, shot_y_t, shot_y_b;
 wire shot_on;
-
 assign shot_x_l = shot_x_reg;
 assign shot_x_r = shot_x_reg + SHOT_SIZE - 1;
 assign shot_y_t = shot_y_reg;
 assign shot_y_b = shot_y_reg + SHOT_SIZE -1;
-
 assign shot_on = (x>=shot_x_l && x<=shot_x_r && y>=shot_y_t && y<=shot_y_b)? 1 : 0; //shot's area
-
 always @ (posedge clk or posedge rst) begin
     if(rst|game_stop) begin
         shot_x_reg <= (gun_x_l + gun_x_r) / 2;
@@ -174,8 +150,10 @@ always @ (posedge clk or posedge rst) begin
     end
 end
 
-assign reach_obs = (shot_x_r>=obs_x_l && shot_x_r<=obs_x_r && shot_y_b>=shot_y_t && shot_y_t<=shot_y_b)? 1 : 0; //hit obs
+assign reach_obs = (key == 5'h15) ? 0 : (shot_y_t == obs1_y_b)? 1 : 0; //hit obs
 assign miss_obs = (shot_y_t == 0)? 1 : 0; //shot reach screen, miss
+wire obs_off;
+assign obs_off = (reach_obs) ? 1 : 0;
 
 always @ (posedge clk or posedge rst) begin
     if(rst|game_stop) begin
@@ -192,17 +170,14 @@ always @ (posedge clk or posedge rst) begin
             end
     end
 end
-
 /*---------------------------------------------------------*/
 // if hit, score ++
 /*---------------------------------------------------------*/
 reg d_inc, d_clr;
 wire hit, miss;
 reg [3:0] dig0, dig1;
-
 assign hit = (reach_obs==1 && refr_tick==1)? 1 : 0; //hit
 assign miss = (miss_obs==1 && refr_tick==1)? 1 : 0; // miss
-
 always @ (posedge clk or posedge rst) begin
     if(rst | d_clr) begin
         dig1 <= 0;
@@ -215,8 +190,6 @@ always @ (posedge clk or posedge rst) begin
         end else dig0 <= dig0+1; //1
     end
 end
-
-
 /*---------------------------------------------------------*/
 // finite state machine for game control
 /*---------------------------------------------------------*/
@@ -224,7 +197,6 @@ parameter NEWGAME=3'b00, PLAY=3'b01, NEWGUN=3'b10, OVER=3'b11;
 reg [2:0] state_reg, state_next;
 reg [1:0] life_reg, life_next;
 reg [1:0]level_reg, level_next;
-
 always @ (*) begin
     game_stop = 1; 
     d_clr = 0;
@@ -232,7 +204,6 @@ always @ (*) begin
     life_next = life_reg;
     level_next = level_reg;
     game_over = 0;
-
     case(state_reg) 
         NEWGAME: begin //new game
             d_clr = 1; //score init
@@ -275,7 +246,6 @@ always @ (*) begin
             state_next = NEWGAME;
     endcase
 end
-
 always @ (posedge clk or posedge rst) begin
     if(rst) begin
         state_reg <= NEWGAME; 
@@ -287,11 +257,9 @@ always @ (posedge clk or posedge rst) begin
         level_reg <= level_next;
     end
 end
-
 /*---------------------------------------------------------*/
 // text on screen 
 /*---------------------------------------------------------*/
-
 // score region
 wire [6:0] char_addr;
 reg [6:0] char_addr_s, char_addr_l, char_addr_o, char_addr_lev;
@@ -299,16 +267,12 @@ wire [2:0] bit_addr;
 reg [2:0] bit_addr_s, bit_addr_l, bit_addr_o, bit_addr_lev;
 wire [3:0] row_addr, row_addr_s, row_addr_l, row_addr_o, row_addr_lev; //4bit, ???
 wire score_on, life_on, over_on, level_on;
-
 wire font_bit;
 wire [7:0] font_word;
 wire [10:0] rom_addr;
-
 font_rom_vhd font_rom_inst (clk, rom_addr, font_word);
-
 assign rom_addr = {char_addr, row_addr};
 assign font_bit = font_word[~bit_addr]; 
-
 assign char_addr = (score_on)? char_addr_s : (life_on)? char_addr_l : (level_on)? char_addr_lev : (over_on)? char_addr_o : 0;
 assign row_addr = (score_on)? row_addr_s : (life_on)? row_addr_l : (level_on)? row_addr_lev : (over_on)? row_addr_o : 0; 
 assign bit_addr = (score_on)? bit_addr_s : (life_on)? bit_addr_l : (level_on)? bit_addr_lev : (over_on)? bit_addr_o : 0; 
@@ -329,7 +293,6 @@ always @ (*) begin
     else if (x>=score_x_l+8*7 && x<score_x_l+8*8) begin bit_addr_s = x-score_x_l-8*7; char_addr_s = {3'b011, dig0}; end
     else begin bit_addr_s = 0; char_addr_s = 0; end                         
 end
-
 // life
 wire [9:0] life_x_l, life_y_t; 
 assign life_x_l = 300; 
@@ -345,7 +308,6 @@ always @(*) begin
     else if (x>=life_x_l+8*5 && x<life_x_l+8*6) begin bit_addr_l = (x-life_x_l-8*5); char_addr_l = {5'b01100, life_reg}; end
     else begin bit_addr_l = 0; char_addr_l = 0; end   
 end
-
 // level
 wire [9:0] level_x_l, level_y_t; 
 assign level_x_l = 100; 
@@ -362,7 +324,6 @@ always @(*) begin
     else if (x>=level_x_l+8*6 && x<level_x_l+8*7) begin bit_addr_lev = (x-level_x_l-8*6); char_addr_lev = {5'b01100, level_reg}; end
     else begin bit_addr_lev = 0; char_addr_lev = 0; end   
 end
-
 // game over
 assign over_on = (game_over==1 && y[9:6]==3 && x[9:5]>=5 && x[9:5]<=13)? 1 : 0; 
 assign row_addr_o = y[5:2];
@@ -381,7 +342,6 @@ always @(*) begin
         default: char_addr_o = 0; 
     endcase
 end
-
 /*---------------------------------------------------------*/
 // color setting
 /*---------------------------------------------------------*/
@@ -392,7 +352,7 @@ assign rgb = (font_bit & score_on)? 3'b111 : //black text
              (shot_on) ? 3'b100 : // red shot
              (gun_on)? 3'b111 : //white gun
              (bomb_on)? 3'b100 : // red bomb
-             (obs_on) ? 3'b001 : //blue obs
+             (obs1_on) ? 3'b001 : //blue obs
+             (obs2_on) ? 3'b001 :
              3'b000; //black background
-
 endmodule
