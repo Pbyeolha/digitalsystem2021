@@ -27,7 +27,6 @@ wire refr_tick;
 wire [9:0] reach_obs, miss_obs;
 reg game_stop, game_over;  
 reg obs, bomb; 
-
 reg bull; //bullocation
 reg [9:0] hit_obs;  //dead
 
@@ -35,61 +34,227 @@ reg [9:0] hit_obs;  //dead
 assign refr_tick = (y==MAX_Y-1 && x==MAX_X-1)? 1 : 0; // frame, 1sec
 
 /*---------------------------------------------------------*/
-// obs
+// obs - 1stage
 /*---------------------------------------------------------*/
 reg [9:0] obs_x_reg [29:0], obs_y_reg [29:0];
-reg [9:0] obs_vy_reg, obs_vx_reg;
+reg [9:0] obs1_vy_reg, obs1_vx_reg;
 wire [9:0] obs_x_l[29:0], obs_x_r[29:0], obs_y_t[29:0], obs_y_b[29:0];
 wire obs_on[29:0];
 wire reach_bottom;
-assign obs_x_l[0] = obs_x_reg[0];  assign obs_x_l[1] = obs_x_reg[1];
-assign obs_x_r[0] = obs_x_l[0] + OBS_SIZE - 1; assign obs_x_r[1] = obs_x_l[1] + OBS_SIZE - 1; 
-assign obs_y_t[0] = obs_y_reg[0]; assign obs_y_t[1] = obs_y_reg[1]; 
-assign obs_y_b[0] = obs_y_t[0] + OBS_SIZE - 1; assign obs_y_b[1] = obs_y_t[1] + OBS_SIZE - 1; 
+
+assign obs_x_l[0] = obs_x_reg[0]; 
+assign obs_x_r[0] = obs_x_l[0] + OBS_SIZE - 1; 
+assign obs_y_t[0] = obs_y_reg[0]; 
+assign obs_y_b[0] = obs_y_t[0] + OBS_SIZE - 1;
 assign obs_on[0] = (x>=obs_x_l[0] && x<=obs_x_r[0] && y>=obs_y_t[0] && y<=obs_y_b[0])? 1 : 0; //obs regionion
-assign obs_on[1] = (x>=obs_x_l[1] && x<=obs_x_r[1] && y>=obs_y_t[1] && y<=obs_y_b[1])? 1 : 0; //obs regionion
+
 always @ (posedge clk or posedge rst) begin
     if(rst | game_stop) begin
-        obs_x_reg[0] <= 64; 
+        obs_x_reg[0] <= 20; 
         obs_y_reg[0] <=150; 
     end    
     else if(refr_tick) begin
-        obs_x_reg[0] <= obs_x_reg[0] + obs_vx_reg; 
-        obs_y_reg[0] <= obs_y_reg[0] + obs_vy_reg;
+        obs_x_reg[0] <= obs_x_reg[0] + obs1_vx_reg; 
+        obs_y_reg[0] <= obs_y_reg[0] + obs1_vy_reg;
         if(reach_obs==1) begin
          obs_x_reg[0] <= 0;
          obs_y_reg[0] <= 0;
         end
     end
 end
+
+assign obs_x_l[1] = obs_x_reg[1]; 
+assign obs_x_r[1] = obs_x_l[1] + OBS_SIZE - 1; 
+assign obs_y_t[1] = obs_y_reg[1]; 
+assign obs_y_b[1] = obs_y_t[1] + OBS_SIZE - 1;
+assign obs_on[1] = (x>=obs_x_l[1] && x<=obs_x_r[1] && y>=obs_y_t[1] && y<=obs_y_b[1])? 1 : 0; //obs regionion
 always @ (posedge clk or posedge rst) begin
     if(rst | game_stop) begin
-        obs_x_reg[1] <= 128; 
+        obs_x_reg[1] <= 84; 
         obs_y_reg[1] <= 150; 
     end    
     else if (refr_tick) begin
-        obs_x_reg[1] <= obs_x_reg[1] + obs_vx_reg; 
-        obs_y_reg[1] <= obs_y_reg[1] + obs_vy_reg;
+        obs_x_reg[1] <= obs_x_reg[1] + obs1_vx_reg; 
+        obs_y_reg[1] <= obs_y_reg[1] + obs1_vy_reg;
         if(reach_obs == 1) begin    //shot reach obs, then obs is eliminated
                     obs_x_reg[1] <= 0;
                     obs_y_reg[1] <= 0;
         end
     end
 end
+
+assign obs_x_l[2] = obs_x_reg[2]; 
+assign obs_x_r[2] = obs_x_l[2] + OBS_SIZE - 1; 
+assign obs_y_t[2] = obs_y_reg[2]; 
+assign obs_y_b[2] = obs_y_t[2] + OBS_SIZE - 1;
+assign obs_on[2] = (x>=obs_x_l[2] && x<=obs_x_r[2] && y>=obs_y_t[2] && y<=obs_y_b[2])? 1 : 0; //obs regionion
 always @ (posedge clk or posedge rst) begin
     if(rst | game_stop) begin
-        obs_vy_reg <= 0;
-        if(obs_x_r[1] == MAX_X-1) obs_vx_reg <= -1*OBS_V; //left
-        else if(obs_x_r[1] < MAX_X-1) obs_vx_reg <= OBS_V; //right
+        obs_x_reg[2] <= 148; 
+        obs_y_reg[2] <= 150; 
+    end    
+    else if (refr_tick) begin
+        obs_x_reg[2] <= obs_x_reg[2] + obs1_vx_reg; 
+        obs_y_reg[2] <= obs_y_reg[2] + obs1_vy_reg;
+        if(reach_obs == 1) begin    //shot reach obs, then obs is eliminated
+                    obs_x_reg[2] <= 0;
+                    obs_y_reg[2] <= 0;
+        end
+    end
+end
+
+assign obs_x_l[3] = obs_x_reg[3]; 
+assign obs_x_r[3] = obs_x_l[3] + OBS_SIZE - 1; 
+assign obs_y_t[3] = obs_y_reg[3]; 
+assign obs_y_b[3] = obs_y_t[3] + OBS_SIZE - 1;
+assign obs_on[3] = (x>=obs_x_l[3] && x<=obs_x_r[3] && y>=obs_y_t[3] && y<=obs_y_b[3])? 1 : 0; //obs regionion
+always @ (posedge clk or posedge rst) begin
+    if(rst | game_stop) begin
+        obs_x_reg[3] <= 212; 
+        obs_y_reg[3] <= 150; 
+    end    
+    else if (refr_tick) begin
+        obs_x_reg[3] <= obs_x_reg[3] + obs1_vx_reg; 
+        obs_y_reg[3] <= obs_y_reg[3] + obs1_vy_reg;
+        if(reach_obs == 1) begin    //shot reach obs, then obs is eliminated
+                    obs_x_reg[3] <= 0;
+                    obs_y_reg[3] <= 0;
+        end
+    end
+end
+
+assign obs_x_l[4] = obs_x_reg[4]; 
+assign obs_x_r[4] = obs_x_l[4] + OBS_SIZE - 1; 
+assign obs_y_t[4] = obs_y_reg[4]; 
+assign obs_y_b[4] = obs_y_t[4] + OBS_SIZE - 1;
+assign obs_on[4] = (x>=obs_x_l[4] && x<=obs_x_r[4] && y>=obs_y_t[4] && y<=obs_y_b[4])? 1 : 0; //obs regionion
+always @ (posedge clk or posedge rst) begin
+    if(rst | game_stop) begin
+        obs_x_reg[4] <= 276; 
+        obs_y_reg[4] <= 150; 
+    end    
+    else if (refr_tick) begin
+        obs_x_reg[4] <= obs_x_reg[4] + obs1_vx_reg; 
+        obs_y_reg[4] <= obs_y_reg[4] + obs1_vy_reg;
+        if(reach_obs == 1) begin    //shot reach obs, then obs is eliminated
+                    obs_x_reg[4] <= 0;
+                    obs_y_reg[4] <= 0;
+        end
+    end
+end
+
+assign obs_x_l[5] = obs_x_reg[5]; 
+assign obs_x_r[5] = obs_x_l[5] + OBS_SIZE - 1; 
+assign obs_y_t[5] = obs_y_reg[5]; 
+assign obs_y_b[5] = obs_y_t[5] + OBS_SIZE - 1;
+assign obs_on[5] = (x>=obs_x_l[5] && x<=obs_x_r[5] && y>=obs_y_t[5] && y<=obs_y_b[5])? 1 : 0; //obs regionion
+always @ (posedge clk or posedge rst) begin
+    if(rst | game_stop) begin
+        obs_x_reg[5] <= 340; 
+        obs_y_reg[5] <= 150; 
+    end    
+    else if (refr_tick) begin
+        obs_x_reg[5] <= obs_x_reg[5] + obs1_vx_reg; 
+        obs_y_reg[5] <= obs_y_reg[5] + obs1_vy_reg;
+        if(reach_obs == 1) begin    //shot reach obs, then obs is eliminated
+                    obs_x_reg[5] <= 0;
+                    obs_y_reg[5] <= 0;
+        end
+    end
+end
+
+assign obs_x_l[6] = obs_x_reg[6]; 
+assign obs_x_r[6] = obs_x_l[6] + OBS_SIZE - 1; 
+assign obs_y_t[6] = obs_y_reg[6]; 
+assign obs_y_b[6] = obs_y_t[6] + OBS_SIZE - 1;
+assign obs_on[6] = (x>=obs_x_l[6] && x<=obs_x_r[6] && y>=obs_y_t[6] && y<=obs_y_b[6])? 1 : 0; //obs regionion
+always @ (posedge clk or posedge rst) begin
+    if(rst | game_stop) begin
+        obs_x_reg[6] <= 404; 
+        obs_y_reg[6] <= 150; 
+    end    
+    else if (refr_tick) begin
+        obs_x_reg[6] <= obs_x_reg[6] + obs1_vx_reg; 
+        obs_y_reg[6] <= obs_y_reg[6] + obs1_vy_reg;
+        if(reach_obs == 1) begin    //shot reach obs, then obs is eliminated
+                    obs_x_reg[6] <= 0;
+                    obs_y_reg[6] <= 0;
+        end
+    end
+end
+
+assign obs_x_l[7] = obs_x_reg[7]; 
+assign obs_x_r[7] = obs_x_l[7] + OBS_SIZE - 1; 
+assign obs_y_t[7] = obs_y_reg[7]; 
+assign obs_y_b[7] = obs_y_t[7] + OBS_SIZE - 1;
+assign obs_on[7] = (x>=obs_x_l[7] && x<=obs_x_r[7] && y>=obs_y_t[7] && y<=obs_y_b[7])? 1 : 0; //obs regionion
+always @ (posedge clk or posedge rst) begin
+    if(rst | game_stop) begin
+        obs_x_reg[7] <= 468; 
+        obs_y_reg[7] <= 150; 
+    end    
+    else if (refr_tick) begin
+        obs_x_reg[7] <= obs_x_reg[7] + obs1_vx_reg; 
+        obs_y_reg[7] <= obs_y_reg[7] + obs1_vy_reg;
+        if(reach_obs == 1) begin    //shot reach obs, then obs is eliminated
+                    obs_x_reg[7] <= 0;
+                    obs_y_reg[7] <= 0;
+        end
+    end
+end
+
+assign obs_x_l[8] = obs_x_reg[8]; 
+assign obs_x_r[8] = obs_x_l[8] + OBS_SIZE - 1; 
+assign obs_y_t[8] = obs_y_reg[8]; 
+assign obs_y_b[8] = obs_y_t[8] + OBS_SIZE - 1;
+assign obs_on[8] = (x>=obs_x_l[8] && x<=obs_x_r[8] && y>=obs_y_t[8] && y<=obs_y_b[8])? 1 : 0; //obs regionion
+always @ (posedge clk or posedge rst) begin
+    if(rst | game_stop) begin
+        obs_x_reg[8] <= 532; 
+        obs_y_reg[8] <= 150; 
+    end    
+    else if (refr_tick) begin
+        obs_x_reg[8] <= obs_x_reg[8] + obs1_vx_reg; 
+        obs_y_reg[8] <= obs_y_reg[8] + obs1_vy_reg;
+        if(reach_obs == 1) begin    //shot reach obs, then obs is eliminated
+                    obs_x_reg[8] <= 0;
+                    obs_y_reg[8] <= 0;
+        end
+    end
+end
+
+assign obs_x_l[9] = obs_x_reg[9]; 
+assign obs_x_r[9] = obs_x_l[9] + OBS_SIZE - 1; 
+assign obs_y_t[9] = obs_y_reg[9]; 
+assign obs_y_b[9] = obs_y_t[9] + OBS_SIZE - 1;
+assign obs_on[9] = (x>=obs_x_l[9] && x<=obs_x_r[9] && y>=obs_y_t[9] && y<=obs_y_b[9])? 1 : 0; //obs regionion
+always @ (posedge clk or posedge rst) begin
+    if(rst | game_stop) begin
+        obs_x_reg[9] <= 590; 
+        obs_y_reg[9] <= 150; 
+    end    
+    else if (refr_tick) begin
+        obs_x_reg[9] <= obs_x_reg[9] + obs1_vx_reg; 
+        obs_y_reg[9] <= obs_y_reg[9] + obs1_vy_reg;
+        if(reach_obs == 1) begin    //shot reach obs, then obs is eliminated
+                    obs_x_reg[9] <= 0;
+                    obs_y_reg[9] <= 0;
+        end
+    end
+end
+
+always @ (posedge clk or posedge rst) begin
+    if(rst | game_stop) begin
+        obs1_vy_reg <= 0;
+        obs1_vx_reg <= 0; //left
     end else if(refr_tick) begin
           if(reach_bottom) begin 
-                obs_vy_reg <= 0; 
-                obs_vx_reg <= 0;
+                obs1_vy_reg <= 0; 
+                obs1_vx_reg <= 0;
           end
           else begin
-            obs_vy_reg <= 0;
-            if(obs_x_r[1] == MAX_X-1) obs_vx_reg <= -1*OBS_V; //left
-            else if(obs_x_r[1] < MAX_X-1) obs_vx_reg <= OBS_V; //right
+            obs1_vy_reg <= 0;
+            obs1_vx_reg <= 0; //left
           end
     end
 end
@@ -155,39 +320,39 @@ always @ (posedge clk or posedge rst) begin
            shot_x_reg <= shot_x_reg + shot_vx_reg;
            bull = 1;
         end
-        else if(bull == 1'b1) begin
-            if(shot_y_t[0] == obs_y_b[0]) begin
-                    bull = 1'b0;
-                    hit_obs[0] = 1'b1;
-                    if(hit_obs[0] == 1'b1) begin
-                        obs_x_reg[0] <= 0;
-                        obs_y_reg[0] <= 0;
-                        shot_x_reg <= 0;
-                        shot_y_reg <= 0;
-                    end         
+    else if(bull == 1'b1) begin
+           if(shot_y_t[0] == obs_y_b[0]) begin
+                 bull = 1'b0;
+                 hit_obs[0] = 1'b1;
+                 if(hit_obs[0] == 1'b1) begin
+                       obs_x_reg[0] <= 0;
+                       obs_y_reg[0] <= 0;
+                       shot_x_reg <= 0;
+                       shot_y_reg <= 0;
+                  end         
             end
             if(shot_y_t[1] == obs_y_b[1]) begin
-                    bull = 1'b0;
-                    hit_obs[1] = 1'b1;     
-                    if(hit_obs[1] == 1'b1) begin
-                        obs_x_reg[1] <= 0;
-                        obs_y_reg[1] <= 0;
+                 bull = 1'b0;
+                 hit_obs[1] = 1'b1;     
+                 if(hit_obs[1] == 1'b1) begin
+                      obs_x_reg[1] <= 0;
+                      obs_y_reg[1] <= 0;
+                      shot_x_reg <= 0;
+                      shot_y_reg <= 0;
+                  end       
+              end
+              if(shot_y_t[2] == obs_y_b[2]) begin
+                   bull = 1'b0;
+                   hit_obs[2] = 1'b1;   
+                   if(hit_obs[2] == 1'b1) begin
+                        obs_x_reg[2] <= 0;
+                        obs_y_reg[2] <= 0;
                         shot_x_reg <= 0;
                         shot_y_reg <= 0;
-                    end       
-            end
-            if(shot_y_t[2] == obs_y_b[2]) begin
-                    bull = 1'b0;
-                    hit_obs[2] = 1'b1;   
-                    if(hit_obs[2] == 1'b1) begin
-                         obs_x_reg[2] <= 0;
-                         obs_y_reg[2] <= 0;
-                         shot_x_reg <= 0;
-                         shot_y_reg <= 0;
                     end                            
-           end
-        end
-    end
+              end
+          end
+     end
 end
 
 assign reach_obs = (key == 5'h15) ? 0 : (shot_y_t[0] == obs_y_b[0])? 1 : 0; //hit obs
@@ -199,8 +364,8 @@ always @ (posedge clk or posedge rst) begin
         shot_vy_reg <= -1*SHOT_V; //up
         shot_vx_reg <= 0;
     end else begin
-            if(reach_obs) begin     //////////////////////////조건문 수정/////////////////////
-                shot_vy_reg <= -1*SHOT_V; //up
+            if(reach_obs) begin 
+                shot_vy_reg <= -1*SHOT_V; //up //fix
                 shot_vx_reg <= 0;
             end
             else begin
@@ -358,11 +523,11 @@ assign level_y_t = 0;
 assign level_on = (y>=level_y_t && y<level_y_t+16 && x>=level_x_l && x<level_x_l+8*7)? 1 : 0;
 assign row_addr_lev = y-level_y_t;
 always @(*) begin
-    if (x>=level_x_l+8*0 && x<level_x_l+8*1) begin bit_addr_lev = (x-level_x_l-8*0); char_addr_lev = 7'b1001100; end // L x4c
-    else if (x>=level_x_l+8*1 && x<level_x_l+8*2) begin bit_addr_lev = (x-level_x_l-8*1); char_addr_lev = 7'b1000101; end // E x45
-    else if (x>=level_x_l+8*2 && x<level_x_l+8*3) begin bit_addr_lev = (x-level_x_l-8*2); char_addr_lev = 7'b1010110; end // V x56
-    else if (x>=level_x_l+8*3 && x<level_x_l+8*4) begin bit_addr_lev = (x-level_x_l-8*3); char_addr_lev = 7'b1000101; end // E x45
-    else if (x>=level_x_l+8*4 && x<level_x_l+8*5) begin bit_addr_lev = (x-level_x_l-8*4); char_addr_lev = 7'b1001100; end // L x4c
+    if (x>=level_x_l+8*0 && x<level_x_l+8*1) begin bit_addr_lev = (x-level_x_l-8*0); char_addr_lev = 7'b1010011; end // S x53
+    else if (x>=level_x_l+8*1 && x<level_x_l+8*2) begin bit_addr_lev = (x-level_x_l-8*1); char_addr_lev = 7'b1010100; end // T x54
+    else if (x>=level_x_l+8*2 && x<level_x_l+8*3) begin bit_addr_lev = (x-level_x_l-8*2); char_addr_lev = 7'b1000001; end // A x41
+    else if (x>=level_x_l+8*3 && x<level_x_l+8*4) begin bit_addr_lev = (x-level_x_l-8*3); char_addr_lev = 7'b1000111; end // G x47
+    else if (x>=level_x_l+8*4 && x<level_x_l+8*5) begin bit_addr_lev = (x-level_x_l-8*4); char_addr_lev = 7'b1000101; end // E x45
     else if (x>=level_x_l+8*5 && x<level_x_l+8*6) begin bit_addr_lev = (x-level_x_l-8*5); char_addr_lev = 7'b0111010; end // : x3a
     else if (x>=level_x_l+8*6 && x<level_x_l+8*7) begin bit_addr_lev = (x-level_x_l-8*6); char_addr_lev = {5'b01100, level_reg}; end
     else begin bit_addr_lev = 0; char_addr_lev = 0; end   
@@ -397,5 +562,13 @@ assign rgb = (font_bit & score_on)? 3'b111 : //black text
              (bomb_on)? 3'b100 : // red bomb
              (obs_on[0]) ? 3'b001 : //blue obs
              (obs_on[1]) ? 3'b001 :
+             (obs_on[2]) ? 3'b001 :
+             (obs_on[3]) ? 3'b001 :
+             (obs_on[4]) ? 3'b001 :
+             (obs_on[5]) ? 3'b001 :
+             (obs_on[6]) ? 3'b001 :
+             (obs_on[7]) ? 3'b001 :
+             (obs_on[8]) ? 3'b001 :
+             (obs_on[9]) ? 3'b001 :
              3'b000; //black background
 endmodule
