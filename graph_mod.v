@@ -1323,5 +1323,35 @@ assign rgb = (font_bit & score_on)? 3'b111 : //black text
              (obs_on[7]) ? 3'b001 :
              (obs_on[8]) ? 3'b001 :
              (obs_on[9]) ? 3'b001 :
+             (obs_on[10]) ? 3'b001 : //blue obs
+             (obs_on[11]) ? 3'b001 :
+             (obs_on[12]) ? 3'b001 :
+             (obs_on[13]) ? 3'b001 :
+             (obs_on[14]) ? 3'b001 :
+             (obs_on[15]) ? 3'b001 :
+             (obs_on[16]) ? 3'b001 :
+             (obs_on[17]) ? 3'b001 :
+             (obs_on[18]) ? 3'b001 :
+             (obs_on[19]) ? 3'b001 :
+             (obs_on[20]) ? 3'b001 : //blue obs
+             (obs_on[21]) ? 3'b001 :
+             (obs_on[22]) ? 3'b001 :
+             (obs_on[23]) ? 3'b001 :
+             (obs_on[24]) ? 3'b001 :
+             (obs_on[25]) ? 3'b001 :
+             (obs_on[26]) ? 3'b001 :
+             (obs_on[27]) ? 3'b001 :
+             (obs_on[28]) ? 3'b001 :
+             (obs_on[29]) ? 3'b001 :
+             (obs_on[30]) ? 3'b001 : //blue obs
+             (obs_on[31]) ? 3'b001 :
+             (obs_on[32]) ? 3'b001 :
+             (obs_on[33]) ? 3'b001 :
+             (obs_on[34]) ? 3'b001 :
+             (obs_on[35]) ? 3'b001 :
+             (obs_on[36]) ? 3'b001 :
+             (obs_on[37]) ? 3'b001 :
+             (obs_on[38]) ? 3'b001 :
+             (obs_on[39]) ? 3'b001 :
              3'b000; //black background
 endmodule
