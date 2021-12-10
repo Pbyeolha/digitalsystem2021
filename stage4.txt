@@ -1,0 +1,146 @@
+
+
+
+//color
+assign obs_on0[0] = (x>= ( 10+ obs_x_l[18]) && x <= (obs_x_r[18] - 18)&& y>=(3+obs_y_t[18]) && y  <= (obs_y_b[18] - 25))? 1 : 0;
+assign obs_on0[1] = (x>= ( 12 + obs_x_l[18]) && x <= (obs_x_r[18] - 13 )&& y>=(3+obs_y_t[18]) && y  <= (obs_y_b[18] - 25))? 1 : 0;
+assign obs_on0[2] = (x>= ( 17+obs_x_l[18]) && x <= (obs_x_r[18] -11)&&y>=(3+obs_y_t[18]) && y  <= (obs_y_b[18] - 25))? 1 : 0;
+assign obs_on0[3] = (x>= ( 1 + obs_x_l[18]) && x <= (obs_x_r[18] - 23 )&& y>= ( 4 + obs_y_t[18]) && y  <= (obs_y_b[18] - 23))? 1 : 0;
+assign obs_on0[4] = (x>= ( 10 + obs_x_l[18]) && x <= (obs_x_r[18] - 11 )&& y>=( 4 + obs_y_t[18]) && y  <= (obs_y_b[18] - 25))? 1 : 0;
+assign obs_on0[5] = (x>= ( 23 + obs_x_l[18]) && x <= (obs_x_r[18] - 1 )&&  y>= (4 + obs_y_t[18]) && y  <= (obs_y_b[18] - 23))? 1 : 0;
+assign obs_on0[6] = (x>= (2+obs_x_l[18]  ) && x <= (obs_x_r[18]-24 )&& y>= ( 6 + obs_y_t[18]) && y  <= (obs_y_b[18] - 18))? 1 : 0;
+assign obs_on0[7] = (x>= ( 5+ obs_x_l[18]) && x <= (obs_x_r[18] - 19 )&& y>= (9+ obs_y_t[18]) && y  <= (obs_y_b[18] - 18))? 1 : 0;
+assign obs_on0[8] = (x>= (10+ obs_x_l[18]) && x <= (obs_x_r[18] - 18 )&& y>= (6 + obs_y_t[18] ) && y  <= (obs_y_b[18] - 18))? 1 : 0;
+assign obs_on0[9] = (x>= (11 +  obs_x_l[18]) && x <= (obs_x_r[18]-17)&& y>= ( 7+ obs_y_t[18]) && y  <= (obs_y_b[18] - 18))? 1 : 0;
+assign obs_on0[10] = (x>= ( 12+ obs_x_l[18]) && x <= (obs_x_r[18] - 13 )&& y>= ( 5 + obs_y_t[18]) && y  <= (obs_y_b[18] - 19))? 1 : 0;
+assign obs_on0[11] = (x>= ( 16 + obs_x_l[18]) && x <= (obs_x_r[18] - 12 )&& y>=( 7 + obs_y_t[18]) && y  <= (obs_y_b[18] - 18))? 1 : 0;
+assign obs_on0[12] = (x>= ( 17 + obs_x_l[18]) && x <= (obs_x_r[18] - 11)&& y>= (6 + obs_y_t[18] ) && y  <= (obs_y_b[18] - 18))? 1 : 0;
+assign obs_on0[13] = (x>= ( 18 + obs_x_l[18]) && x <= (obs_x_r[18] - 5 )&& y>= ( 9 + obs_y_t[18] )&& y  <= (obs_y_b[18]-18))? 1 : 0;
+assign obs_on0[14] = (x>= ( 24 + obs_x_l[18]) && x <= (obs_x_r[18] - 2 )&& y>=( 6 + obs_y_t[18] )&& y  <= (obs_y_b[18]-18))? 1 : 0;
+assign obs_on0[15] = (x>= ( 8 + obs_x_l[18]) && x <= (obs_x_r[18] - 9 )&& y>=( 11 + obs_y_t[18] )&& y  <= (obs_y_b[18]-14))? 1 : 0;
+assign obs_on0[16] = (x>= ( 3 + obs_x_l[18]) && x <= (obs_x_r[18] - 4 )&& y>=( 15 + obs_y_t[18] )&& y  <= (obs_y_b[18]-7))? 1 : 0;
+assign obs_on0[17] = (x>= ( 1 + obs_x_l[18]) && x <= (obs_x_r[18] - 18)&& y>=( 22 + obs_y_t[18] )&& y  <= (obs_y_b[18]-3))? 1 : 0;
+assign obs_on0[18] = (x>= ( 17 + obs_x_l[18]) && x <= (obs_x_r[18] - 1 )&& y>=( 22 + obs_y_t[18] )&& y  <= (obs_y_b[18]-3))? 1 : 0;
+assign obs_on0[19] = (x>= ( 19 + obs_x_l[18]) && x <= (obs_x_r[18] - 6 )&& y>=( 26 + obs_y_t[18] )&& y  <= (obs_y_b[18]))? 1 : 0;
+assign obs_on0[20] = (x>= ( 19 + obs_x_l[18]) && x <= (obs_x_r[18] - 6 )&& y>=( 26 + obs_y_t[18] )&& y  <= (obs_y_b[18]))? 1 : 0;
+
+//color
+assign obs_on1[0] = (x>= ( 10+ obs_x_l[19]) && x <= (obs_x_r[19] - 18)&& y>=(3+obs_y_t[19]) && y  <= (obs_y_b[19] - 25))? 1 : 0;
+assign obs_on1[1] = (x>= ( 12 + obs_x_l[19]) && x <= (obs_x_r[19] - 13 )&& y>=(3+obs_y_t[19]) && y  <= (obs_y_b[19] - 25))? 1 : 0;
+assign obs_on1[2] = (x>= ( 17+obs_x_l[19]) && x <= (obs_x_r[19] -11)&&y>=(3+obs_y_t[19]) && y  <= (obs_y_b[19] - 25))? 1 : 0;
+assign obs_on1[3] = (x>= ( 1 + obs_x_l[19]) && x <= (obs_x_r[19] - 23 )&& y>= ( 4 + obs_y_t[19]) && y  <= (obs_y_b[19] - 23))? 1 : 0;
+assign obs_on1[4] = (x>= ( 10 + obs_x_l[9]) && x <= (obs_x_r[19] - 11 )&& y>=( 4 + obs_y_t[19]) && y  <= (obs_y_b[19] - 25))? 1 : 0;
+assign obs_on1[5] = (x>= ( 23 + obs_x_l[19]) && x <= (obs_x_r[19] - 1 )&&  y>= (4 + obs_y_t[19]) && y  <= (obs_y_b[19] - 23))? 1 : 0;
+assign obs_on1[6] = (x>= (2+obs_x_l[19]  ) && x <= (obs_x_r[19]-24 )&& y>= ( 6 + obs_y_t[19]) && y  <= (obs_y_b[19] - 18))? 1 : 0;
+assign obs_on1[7] = (x>= ( 5+ obs_x_l[19]) && x <= (obs_x_r[19] - 19 )&& y>= (9+ obs_y_t[19]) && y  <= (obs_y_b[19] - 18))? 1 : 0;
+assign obs_on1[8] = (x>= (10+ obs_x_l[19]) && x <= (obs_x_r[19] - 18 )&& y>= (6 + obs_y_t[19] ) && y  <= (obs_y_b[19] - 18))? 1 : 0;
+assign obs_on1[9] = (x>= (11 +  obs_x_l[19]) && x <= (obs_x_r[19]-17)&& y>= ( 7+ obs_y_t[19]) && y  <= (obs_y_b[19] - 18))? 1 : 0;
+assign obs_on1[10] = (x>= ( 12+ obs_x_l[19]) && x <= (obs_x_r[19] - 13 )&& y>= ( 5 + obs_y_t[19]) && y  <= (obs_y_b[19] - 19))? 1 : 0;
+assign obs_on1[11] = (x>= ( 16 + obs_x_l[19]) && x <= (obs_x_r[19] - 12 )&& y>=( 7 + obs_y_t[19]) && y  <= (obs_y_b[19] - 18))? 1 : 0;
+assign obs_on1[12] = (x>= ( 17 + obs_x_l[19]) && x <= (obs_x_r[19] - 11)&& y>= (6 + obs_y_t[19] ) && y  <= (obs_y_b[19] - 18))? 1 : 0;
+assign obs_on1[13] = (x>= ( 18 + obs_x_l[19]) && x <= (obs_x_r[19] - 5 )&& y>= ( 9 + obs_y_t[19] )&& y  <= (obs_y_b[19]-18))? 1 : 0;
+assign obs_on1[14] = (x>= ( 24 + obs_x_l[19]) && x <= (obs_x_r[19] - 2 )&& y>=( 6 + obs_y_t[19] )&& y  <= (obs_y_b[19]-18))? 1 : 0;
+assign obs_on1[15] = (x>= ( 8 + obs_x_l[19]) && x <= (obs_x_r[19] - 9 )&& y>=( 11 + obs_y_t[19] )&& y  <= (obs_y_b[19]-14))? 1 : 0;
+assign obs_on1[16] = (x>= ( 3 + obs_x_l[19]) && x <= (obs_x_r[19] - 4 )&& y>=( 15 + obs_y_t[19] )&& y  <= (obs_y_b[19]-7))? 1 : 0;
+assign obs_on1[17] = (x>= ( 1 + obs_x_l[19]) && x <= (obs_x_r[19] - 18)&& y>=( 22 + obs_y_t[19] )&& y  <= (obs_y_b[19]-3))? 1 : 0;
+assign obs_on1[18] = (x>= ( 17 + obs_x_l[19]) && x <= (obs_x_r[19] - 1 )&& y>=( 22 + obs_y_t[19] )&& y  <= (obs_y_b[19]-3))? 1 : 0;
+assign obs_on1[19] = (x>= ( 19 + obs_x_l[19]) && x <= (obs_x_r[19] - 6 )&& y>=( 26 + obs_y_t[19] )&& y  <= (obs_y_b[19]))? 1 : 0;
+assign obs_on1[20] = (x>= ( 19 + obs_x_l[19]) && x <= (obs_x_r[19] - 6 )&& y>=( 26 + obs_y_t[19] )&& y  <= (obs_y_b[19]))? 1 : 0;
+
+
+
+//color
+assign obs_on2[0] = (x>= ( 10+ obs_x_l[20]) && x <= (obs_x_r[20] - 18)&& y>=(3+obs_y_t[20]) && y  <= (obs_y_b[20] - 25))? 1 : 0;
+assign obs_on2[1] = (x>= ( 12 + obs_x_l[20]) && x <= (obs_x_r[20] - 13 )&& y>=(3+obs_y_t[20]) && y  <= (obs_y_b[20] - 25))? 1 : 0;
+assign obs_on2[2] = (x>= ( 17+obs_x_l[20]) && x <= (obs_x_r[20] -11)&&y>=(3+obs_y_t[20]) && y  <= (obs_y_b[20] - 25))? 1 : 0;
+assign obs_on2[3] = (x>= ( 1 + obs_x_l[20]) && x <= (obs_x_r[20] - 23 )&& y>= ( 4 + obs_y_t[20]) && y  <= (obs_y_b[20] - 23))? 1 : 0;
+assign obs_on2[4] = (x>= ( 10 + obs_x_l[20]) && x <= (obs_x_r[20] - 11 )&& y>=( 4 + obs_y_t[20]) && y  <= (obs_y_b[20] - 25))? 1 : 0;
+assign obs_on2[5] = (x>= ( 23 + obs_x_l[20]) && x <= (obs_x_r[20] - 1 )&&  y>= (4 + obs_y_t[20]) && y  <= (obs_y_b[20] - 23))? 1 : 0;
+assign obs_on2[6] = (x>= (2+obs_x_l[20]  ) && x <= (obs_x_r[20]-24 )&& y>= ( 6 + obs_y_t[20]) && y  <= (obs_y_b[20] - 18))? 1 : 0;
+assign obs_on2[7] = (x>= ( 5+ obs_x_l[20]) && x <= (obs_x_r[20] - 19 )&& y>= (9+ obs_y_t[20]) && y  <= (obs_y_b[20] - 18))? 1 : 0;
+assign obs_on2[8] = (x>= (10+ obs_x_l[20]) && x <= (obs_x_r[20] - 18 )&& y>= (6 + obs_y_t[20] ) && y  <= (obs_y_b[20] - 18))? 1 : 0;
+assign obs_on2[9] = (x>= (11 +  obs_x_l[20]) && x <= (obs_x_r[20]-17)&& y>= ( 7+ obs_y_t[20]) && y  <= (obs_y_b[20] - 18))? 1 : 0;
+assign obs_on2[10] = (x>= ( 12+ obs_x_l[20]) && x <= (obs_x_r[20] - 13 )&& y>= ( 5 + obs_y_t[20]) && y  <= (obs_y_b[20] - 19))? 1 : 0;
+assign obs_on2[11] = (x>= ( 16 + obs_x_l[20]) && x <= (obs_x_r[20] - 12 )&& y>=( 7 + obs_y_t[20]) && y  <= (obs_y_b[20] - 18))? 1 : 0;
+assign obs_on2[12] = (x>= ( 17 + obs_x_l[20]) && x <= (obs_x_r[20] - 11)&& y>= (6 + obs_y_t[20] ) && y  <= (obs_y_b[20] - 18))? 1 : 0;
+assign obs_on2[13] = (x>= ( 18 + obs_x_l[20]) && x <= (obs_x_r[20] - 5 )&& y>= ( 9 + obs_y_t[20] )&& y  <= (obs_y_b[20]-18))? 1 : 0;
+assign obs_on2[14] = (x>= ( 24 + obs_x_l[20]) && x <= (obs_x_r[20] - 2 )&& y>=( 6 + obs_y_t[20] )&& y  <= (obs_y_b[20]-18))? 1 : 0;
+assign obs_on2[15] = (x>= ( 8 + obs_x_l[20]) && x <= (obs_x_r[20] - 9 )&& y>=( 11 + obs_y_t[20] )&& y  <= (obs_y_b[20]-14))? 1 : 0;
+assign obs_on2[16] = (x>= ( 3 + obs_x_l[20]) && x <= (obs_x_r[20] - 4 )&& y>=( 15 + obs_y_t[20] )&& y  <= (obs_y_b[20]-7))? 1 : 0;
+assign obs_on2[17] = (x>= ( 1 + obs_x_l[20]) && x <= (obs_x_r[20] - 18)&& y>=( 22 + obs_y_t[20] )&& y  <= (obs_y_b[20]-3))? 1 : 0;
+assign obs_on2[18] = (x>= ( 17 + obs_x_l[20]) && x <= (obs_x_r[20] - 1 )&& y>=( 22 + obs_y_t[20] )&& y  <= (obs_y_b[20]-3))? 1 : 0;
+assign obs_on2[19] = (x>= ( 19 + obs_x_l[20]) && x <= (obs_x_r[20] - 6 )&& y>=( 26 + obs_y_t[20] )&& y  <= (obs_y_b[20]))? 1 : 0;
+assign obs_on2[20] = (x>= ( 19 + obs_x_l[20]) && x <= (obs_x_r[20] - 6 )&& y>=( 26 + obs_y_t[20] )&& y  <= (obs_y_b[20]))? 1 : 0;
+
+
+//color
+assign obs_on3[0] = (x>= ( 10+ obs_x_l[21]) && x <= (obs_x_r[21] - 18)&& y>=(3+obs_y_t[21]) && y  <= (obs_y_b[21] - 25))? 1 : 0;
+assign obs_on3[1] = (x>= ( 12 + obs_x_l[21]) && x <= (obs_x_r[21] - 13 )&& y>=(3+obs_y_t[21]) && y  <= (obs_y_b[21] - 25))? 1 : 0;
+assign obs_on3[2] = (x>= ( 17+obs_x_l[21]) && x <= (obs_x_r[21] -11)&&y>=(3+obs_y_t[21]) && y  <= (obs_y_b[21] - 25))? 1 : 0;
+assign obs_on3[3] = (x>= ( 1 + obs_x_l[21]) && x <= (obs_x_r[21] - 23 )&& y>= ( 4 + obs_y_t[21]) && y  <= (obs_y_b[21] - 23))? 1 : 0;
+assign obs_on3[4] = (x>= ( 10 + obs_x_l[21]) && x <= (obs_x_r[21] - 11 )&& y>=( 4 + obs_y_t[21]) && y  <= (obs_y_b[21] - 25))? 1 : 0;
+assign obs_on3[5] = (x>= ( 23 + obs_x_l[21]) && x <= (obs_x_r[21] - 1 )&&  y>= (4 + obs_y_t[21]) && y  <= (obs_y_b[21] - 23))? 1 : 0;
+assign obs_on3[6] = (x>= (2+obs_x_l[21]  ) && x <= (obs_x_r[21]-24 )&& y>= ( 6 + obs_y_t[21]) && y  <= (obs_y_b[21] - 18))? 1 : 0;
+assign obs_on3[7] = (x>= ( 5+ obs_x_l[21]) && x <= (obs_x_r[21] - 19 )&& y>= (9+ obs_y_t[21]) && y  <= (obs_y_b[21] - 18))? 1 : 0;
+assign obs_on3[8] = (x>= (10+ obs_x_l[21]) && x <= (obs_x_r[21] - 18 )&& y>= (6 + obs_y_t[21] ) && y  <= (obs_y_b[21] - 18))? 1 : 0;
+assign obs_on3[9] = (x>= (11 +  obs_x_l[21]) && x <= (obs_x_r[21]-17)&& y>= ( 7+ obs_y_t[21]) && y  <= (obs_y_b[21] - 18))? 1 : 0;
+assign obs_on3[10] = (x>= ( 12+ obs_x_l[21]) && x <= (obs_x_r[21] - 13 )&& y>= ( 5 + obs_y_t[21]) && y  <= (obs_y_b[21] - 19))? 1 : 0;
+assign obs_on3[11] = (x>= ( 16 + obs_x_l[21]) && x <= (obs_x_r[21] - 12 )&& y>=( 7 + obs_y_t[21]) && y  <= (obs_y_b[21] - 18))? 1 : 0;
+assign obs_on3[12] = (x>= ( 17 + obs_x_l[21]) && x <= (obs_x_r[21] - 11)&& y>= (6 + obs_y_t[21] ) && y  <= (obs_y_b[21] - 18))? 1 : 0;
+assign obs_on3[13] = (x>= ( 18 + obs_x_l[21]) && x <= (obs_x_r[21] - 5 )&& y>= ( 9 + obs_y_t[21] )&& y  <= (obs_y_b[21]-18))? 1 : 0;
+assign obs_on3[14] = (x>= ( 24 + obs_x_l[21]) && x <= (obs_x_r[21] - 2 )&& y>=( 6 + obs_y_t[21] )&& y  <= (obs_y_b[21]-18))? 1 : 0;
+assign obs_on3[15] = (x>= ( 8 + obs_x_l[21]) && x <= (obs_x_r[21] - 9 )&& y>=( 11 + obs_y_t[21] )&& y  <= (obs_y_b[21]-14))? 1 : 0;
+assign obs_on3[16] = (x>= ( 3 + obs_x_l[21]) && x <= (obs_x_r[21] - 4 )&& y>=( 15 + obs_y_t[21] )&& y  <= (obs_y_b[21]-7))? 1 : 0;
+assign obs_on3[17] = (x>= ( 1 + obs_x_l[21]) && x <= (obs_x_r[21] - 18)&& y>=( 22 + obs_y_t[21] )&& y  <= (obs_y_b[21]-3))? 1 : 0;
+assign obs_on3[18] = (x>= ( 17 + obs_x_l[21]) && x <= (obs_x_r[21] - 1 )&& y>=( 22 + obs_y_t[21] )&& y  <= (obs_y_b[21]-3))? 1 : 0;
+assign obs_on3[19] = (x>= ( 19 + obs_x_l[21]) && x <= (obs_x_r[21] - 6 )&& y>=( 26 + obs_y_t[21] )&& y  <= (obs_y_b[21]))? 1 : 0;
+assign obs_on3[20] = (x>= ( 19 + obs_x_l[21]) && x <= (obs_x_r[21] - 6 )&& y>=( 26 + obs_y_t[21] )&& y  <= (obs_y_b[21]))? 1 : 0;
+
+
+//color
+assign obs_on4[0] = (x>= ( 10+ obs_x_l[22]) && x <= (obs_x_r[22] - 18)&& y>=(3+obs_y_t[22]) && y  <= (obs_y_b[22] - 25))? 1 : 0;
+assign obs_on4[1] = (x>= ( 12 + obs_x_l[22]) && x <= (obs_x_r[22] - 13 )&& y>=(3+obs_y_t[22]) && y  <= (obs_y_b[22] - 25))? 1 : 0;
+assign obs_on4[2] = (x>= ( 17+obs_x_l[22]) && x <= (obs_x_r[22] -11)&&y>=(3+obs_y_t[22]) && y  <= (obs_y_b[22] - 25))? 1 : 0;
+assign obs_on4[3] = (x>= ( 1 + obs_x_l[22]) && x <= (obs_x_r[22] - 23 )&& y>= ( 4 + obs_y_t[22]) && y  <= (obs_y_b[22] - 23))? 1 : 0;
+assign obs_on4[4] = (x>= ( 10 + obs_x_l[22]) && x <= (obs_x_r[22] - 11 )&& y>=( 4 + obs_y_t[22]) && y  <= (obs_y_b[22] - 25))? 1 : 0;
+assign obs_on4[5] = (x>= ( 23 + obs_x_l[22]) && x <= (obs_x_r[22] - 1 )&&  y>= (4 + obs_y_t[22]) && y  <= (obs_y_b[22] - 23))? 1 : 0;
+assign obs_on4[6] = (x>= (2+obs_x_l[22]  ) && x <= (obs_x_r[22]-24 )&& y>= ( 6 + obs_y_t[22]) && y  <= (obs_y_b[22] - 18))? 1 : 0;
+assign obs_on4[7] = (x>= ( 5+ obs_x_l[22]) && x <= (obs_x_r[22] - 19 )&& y>= (9+ obs_y_t[22]) && y  <= (obs_y_b[22] - 18))? 1 : 0;
+assign obs_on4[8] = (x>= (10+ obs_x_l[22]) && x <= (obs_x_r[22] - 18 )&& y>= (6 + obs_y_t[22] ) && y  <= (obs_y_b[22] - 18))? 1 : 0;
+assign obs_on4[9] = (x>= (11 +  obs_x_l[22]) && x <= (obs_x_r[22]-17)&& y>= ( 7+ obs_y_t[22]) && y  <= (obs_y_b[22] - 18))? 1 : 0;
+assign obs_on4[10] = (x>= ( 12+ obs_x_l[22]) && x <= (obs_x_r[22] - 13 )&& y>= ( 5 + obs_y_t[22]) && y  <= (obs_y_b[22] - 19))? 1 : 0;
+assign obs_on4[11] = (x>= ( 16 + obs_x_l[22]) && x <= (obs_x_r[22] - 12 )&& y>=( 7 + obs_y_t[22]) && y  <= (obs_y_b[22] - 18))? 1 : 0;
+assign obs_on4[12] = (x>= ( 17 + obs_x_l[22]) && x <= (obs_x_r[22] - 11)&& y>= (6 + obs_y_t[22] ) && y  <= (obs_y_b[22] - 18))? 1 : 0;
+assign obs_on4[13] = (x>= ( 18 + obs_x_l[22]) && x <= (obs_x_r[22] - 5 )&& y>= ( 9 + obs_y_t[22] )&& y  <= (obs_y_b[22]-18))? 1 : 0;
+assign obs_on4[14] = (x>= ( 24 + obs_x_l[22]) && x <= (obs_x_r[22] - 2 )&& y>=( 6 + obs_y_t[22] )&& y  <= (obs_y_b[22]-18))? 1 : 0;
+assign obs_on4[15] = (x>= ( 8 + obs_x_l[22]) && x <= (obs_x_r[22] - 9 )&& y>=( 11 + obs_y_t[22] )&& y  <= (obs_y_b[22]-14))? 1 : 0;
+assign obs_on4[16] = (x>= ( 3 + obs_x_l[22]) && x <= (obs_x_r[22] - 4 )&& y>=( 15 + obs_y_t[22] )&& y  <= (obs_y_b[22]-7))? 1 : 0;
+assign obs_on4[17] = (x>= ( 1 + obs_x_l[22]) && x <= (obs_x_r[22] - 18)&& y>=( 22 + obs_y_t[22] )&& y  <= (obs_y_b[22]-3))? 1 : 0;
+assign obs_on4[18] = (x>= ( 17 + obs_x_l[22]) && x <= (obs_x_r[22] - 1 )&& y>=( 22 + obs_y_t[22] )&& y  <= (obs_y_b[22]-3))? 1 : 0;
+assign obs_on4[19] = (x>= ( 19 + obs_x_l[22]) && x <= (obs_x_r[22] - 6 )&& y>=( 26 + obs_y_t[22] )&& y  <= (obs_y_b[22]))? 1 : 0;
+assign obs_on4[20] = (x>= ( 19 + obs_x_l[22]) && x <= (obs_x_r[22] - 6 )&& y>=( 26 + obs_y_t[22] )&& y  <= (obs_y_b[22]))? 1 : 0;
+
+//color
+assign obs_on5[0] = (x>= ( 10+ obs_x_l[23]) && x <= (obs_x_r[23] - 18)&& y>=(3+obs_y_t[23]) && y  <= (obs_y_b[23] - 25))? 1 : 0;
+assign obs_on5[1] = (x>= ( 12 + obs_x_l[23]) && x <= (obs_x_r[23] - 13 )&& y>=(3+obs_y_t[23]) && y  <= (obs_y_b[23] - 25))? 1 : 0;
+assign obs_on5[2] = (x>= ( 17+obs_x_l[23]) && x <= (obs_x_r[23] -11)&&y>=(3+obs_y_t[23]) && y  <= (obs_y_b[23] - 25))? 1 : 0;
+assign obs_on5[3] = (x>= ( 1 + obs_x_l[23]) && x <= (obs_x_r[23] - 23 )&& y>= ( 4 + obs_y_t[23]) && y  <= (obs_y_b[23] - 23))? 1 : 0;
+assign obs_on5[4] = (x>= ( 10 + obs_x_l[23]) && x <= (obs_x_r[23] - 11 )&& y>=( 4 + obs_y_t[23]) && y  <= (obs_y_b[23] - 25))? 1 : 0;
+assign obs_on5[5] = (x>= ( 23 + obs_x_l[23]) && x <= (obs_x_r[23] - 1 )&&  y>= (4 + obs_y_t[23]) && y  <= (obs_y_b[23] - 23))? 1 : 0;
+assign obs_on5[6] = (x>= (2+obs_x_l[23]  ) && x <= (obs_x_r[23]-24 )&& y>= ( 6 + obs_y_t[23]) && y  <= (obs_y_b[23] - 18))? 1 : 0;
+assign obs_on5[7] = (x>= ( 5+ obs_x_l[23]) && x <= (obs_x_r[23] - 19 )&& y>= (9+ obs_y_t[23]) && y  <= (obs_y_b[23] - 18))? 1 : 0;
+assign obs_on5[8] = (x>= (10+ obs_x_l[23]) && x <= (obs_x_r[23] - 18 )&& y>= (6 + obs_y_t[23] ) && y  <= (obs_y_b[23] - 18))? 1 : 0;
+assign obs_on5[9] = (x>= (11 +  obs_x_l[23]) && x <= (obs_x_r[23]-17)&& y>= ( 7+ obs_y_t[23]) && y  <= (obs_y_b[23] - 18))? 1 : 0;
+assign obs_on5[10] = (x>= ( 12+ obs_x_l[23]) && x <= (obs_x_r[23] - 13 )&& y>= ( 5 + obs_y_t[23]) && y  <= (obs_y_b[23] - 19))? 1 : 0;
+assign obs_on5[11] = (x>= ( 16 + obs_x_l[23]) && x <= (obs_x_r[23] - 12 )&& y>=( 7 + obs_y_t[23]) && y  <= (obs_y_b[23] - 18))? 1 : 0;
+assign obs_on5[12] = (x>= ( 17 + obs_x_l[23]) && x <= (obs_x_r[23] - 11)&& y>= (6 + obs_y_t[23] ) && y  <= (obs_y_b[23] - 18))? 1 : 0;
+assign obs_on5[13] = (x>= ( 18 + obs_x_l[23]) && x <= (obs_x_r[23] - 5 )&& y>= ( 9 + obs_y_t[23] )&& y  <= (obs_y_b[23]-18))? 1 : 0;
+assign obs_on5[14] = (x>= ( 24 + obs_x_l[23]) && x <= (obs_x_r[23] - 2 )&& y>=( 6 + obs_y_t[23] )&& y  <= (obs_y_b[23]-18))? 1 : 0;
+assign obs_on5[15] = (x>= ( 8 + obs_x_l[23]) && x <= (obs_x_r[23] - 9 )&& y>=( 11 + obs_y_t[23] )&& y  <= (obs_y_b[23]-14))? 1 : 0;
+assign obs_on5[16] = (x>= ( 3 + obs_x_l[23]) && x <= (obs_x_r[23] - 4 )&& y>=( 15 + obs_y_t[23] )&& y  <= (obs_y_b[23]-7))? 1 : 0;
+assign obs_on5[17] = (x>= ( 1 + obs_x_l[23]) && x <= (obs_x_r[23] - 18)&& y>=( 22 + obs_y_t[23] )&& y  <= (obs_y_b[23]-3))? 1 : 0;
+assign obs_on5[18] = (x>= ( 17 + obs_x_l[23]) && x <= (obs_x_r[23] - 1 )&& y>=( 22 + obs_y_t[23] )&& y  <= (obs_y_b[23]-3))? 1 : 0;
+assign obs_on5[19] = (x>= ( 19 + obs_x_l[23]) && x <= (obs_x_r[23] - 6 )&& y>=( 26 + obs_y_t[23] )&& y  <= (obs_y_b[23]))? 1 : 0;
+assign obs_on5[20] = (x>= ( 19 + obs_x_l[23]) && x <= (obs_x_r[23] - 6 )&& y>=( 26 + obs_y_t[23] )&& y  <= (obs_y_b[23]))? 1 : 0;
+
+
