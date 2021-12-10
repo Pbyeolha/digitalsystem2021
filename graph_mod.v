@@ -113,45 +113,40 @@ wire [9:0] bomb_x_l, bomb_x_r, bomb_y_t, bomb_y_b;
 wire bomb_on; 
 reg bomb_hit;
 //------------------------------------------------------------------------------------------------------------------------------------------//
-assign bomb_x_l = bomb_x_reg;
-assign bomb_x_r = bomb_x_reg + BOMB_SIZE - 1;
-assign bomb_y_t = bomb_y_reg;
-assign bomb_y_b = bomb_y_reg + BOMB_SIZE -1;
+//assign bomb_x_l = bomb_x_reg;
+//assign bomb_x_r = bomb_x_reg + BOMB_SIZE - 1;
+//assign bomb_y_t = bomb_y_reg;
+//assign bomb_y_b = bomb_y_reg + BOMB_SIZE -1;
 
-//color
-assign bomb_on = (x>=bomb_x_l && x<=bomb_x_r&& y>= bomb_y_t && y<= bomb_y_b)? 1 : 0; //bomb regionion
+////color
+//assign bomb_on = (x>=bomb_x_l && x<=bomb_x_r&& y>= bomb_y_t && y<= bomb_y_b)? 1 : 0; //bomb regionion
 
-always @ (posedge clk or posedge rst) begin
-    if(rst|game_stop) begin
-        bomb_x_reg <= MAX_X / 2;
-        bomb_y_reg <= MAX_Y / 2;
-    end
-    else if(refr_tick)begin
-        bomb_x_reg <= MAX_X / 2;
-        bomb_y_reg <= MAX_Y / 2;
-    end
-    else if ((shot_x_l >= bomb_x_l) && (shot_x_r <= bomb_x_r) && (shot_y_b <= bomb_y_b)) begin
-            bomb_x_reg[0] <= 650;
-            bomb_y_reg[0] <= 0;
-            bomb_hit= 1;
-    end 
-end
+//always @ (posedge clk or posedge rst) begin
+//    if(rst|game_stop) begin
+//        bomb_x_reg <= 300;
+//        bomb_y_reg <= 150;
+//    end
+//    else if(refr_tick)begin
+//        bomb_x_reg <= bomb_x_reg + bomb_vx_reg;
+//        bomb_y_reg <= bomb_y_reg + bomb_vy_reg;
+//    end
+//    else if ((shot_x_l >= bomb_x_l) && (shot_x_r <= bomb_x_r) && (shot_y_b <= bomb_y_b)) begin
+//            bomb_x_reg[0] <= 650;
+//            bomb_y_reg[0] <= 0;
+//            bomb_hit= 1;
+//    end 
+//end
 
-always @ (posedge clk or posedge rst) begin
-    if(rst|game_stop) begin
-        bomb_vy_reg <= -1*SHOT_V; //up
-        bomb_vx_reg <= 0;
-    end else begin
-//            if(reach_bomb) begin 
-//                bomb_vy_reg <= SHOT_V; //down
+//always @ (posedge clk or posedge rst) begin
+//    if(rst|game_stop) begin
+//        bomb_vy_reg <= 0; //up
+//        bomb_vx_reg <= 0;
+//    end else begin
+//                bomb_vy_reg <= 0 ; //down
 //                bomb_vx_reg <= 0;
 //            end
-//            else begin
-                bomb_vy_reg <= SHOT_V; //down
-                bomb_vx_reg <= 0;
-            end
     
-end
+//end
 /*---------------------------------------------------------*/
 // obs - 1stage
 /*---------------------------------------------------------*/
@@ -246,7 +241,7 @@ assign obs_y_b[2] = obs_y_t[2] + OBS_SIZE - 1;
 assign obs_on2[0] = (x>= ( 8 + obs_x_l[2]) && x <= (obs_x_r[2] - 19 )&& y>=obs_y_t[2] && y  <= (obs_y_b[2] - 23))? 1 : 0;
 assign obs_on2[1] = (x>= ( 19 + obs_x_l[2]) && x <= (obs_x_r[2] - 8 )&& y>=obs_y_t[2] && y  <= (obs_y_b[2] - 23))? 1 : 0;
 assign obs_on2[2] = (x>= ( obs_x_l[2]) && x <= (obs_x_r[2] -22)&& y>= ( 6 + obs_y_t[2]) && y  <= (obs_y_b[2] - 16))? 1 : 0;
-assign obs_on2[3] = (x>= ( 7 + obs_x_l[2]) && x <= (obs_x_r[2] - 18 )&& y>= ( 6 + obs_y_t[5]) && y  <= (obs_y_b[2] - 20))? 1 : 0;
+assign obs_on2[3] = (x>= ( 7 + obs_x_l[2]) && x <= (obs_x_r[2] - 18 )&& y>= ( 6 + obs_y_t[2]) && y  <= (obs_y_b[2] - 20))? 1 : 0;
 assign obs_on2[4] = (x>= ( 11 + obs_x_l[2]) && x <= (obs_x_r[2] - 11 )&& y>=( 6 + obs_y_t[2]) && y  <= (obs_y_b[2] - 16))? 1 : 0;
 assign obs_on2[5] = (x>= ( 18 + obs_x_l[2]) && x <= (obs_x_r[2] - 7 )&&  y>= ( 6 + obs_y_t[2]) && y  <= (obs_y_b[2] - 20))? 1 : 0;
 assign obs_on2[6] = (x>= ( obs_x_l[2] + 22 ) && x <= (obs_x_r[2])&& y>= ( 6 + obs_y_t[2]) && y  <= (obs_y_b[2] - 16))? 1 : 0;
@@ -493,7 +488,7 @@ always @ (*) begin
             if(key[4] == 1) state_next = PLAY;
             else state_next = NEWGUN; 
         OVER: begin
-            if(key[4] == 1) begin //key push, ne game
+            if(key[4] == 1) begin //key push, new game
                 state_next = NEWGAME;
             end else begin
                 state_next = OVER;
@@ -613,7 +608,7 @@ assign rgb = (font_bit & score_on)? 3'b111 : //black text
              (shot_on[3]) ? 3'b100 : // red shot
              (shot_on[4]) ? 3'b100 : // red shot
              (gun_on)? 3'b111 : //white gun
-             (bomb_on)? 3'b100 : // red bomb
+//             (bomb_on)? 3'b100 : // red bomb
              (obs_on0[0]) ? 3'b100 :
              (obs_on0[1]) ? 3'b100 :
              (obs_on0[2]) ? 3'b100 :
@@ -659,6 +654,7 @@ assign rgb = (font_bit & score_on)? 3'b111 : //black text
              (obs_on2[12]) ? 3'b100 :
              (obs_on2[13]) ? 3'b100 :
              (obs_on2[14]) ? 3'b100 :
+             (obs_on3[0]) ? 3'b100 :
              (obs_on3[1]) ? 3'b100 :
              (obs_on3[2]) ? 3'b100 :
              (obs_on3[3]) ? 3'b100 :
@@ -673,6 +669,7 @@ assign rgb = (font_bit & score_on)? 3'b111 : //black text
              (obs_on3[12]) ? 3'b100 :
              (obs_on3[13]) ? 3'b100 :
              (obs_on3[14]) ? 3'b100 :
+             (obs_on4[0]) ? 3'b100 :
              (obs_on4[1]) ? 3'b100 :
              (obs_on4[2]) ? 3'b100 :
              (obs_on4[3]) ? 3'b100 :
@@ -686,7 +683,8 @@ assign rgb = (font_bit & score_on)? 3'b111 : //black text
              (obs_on4[11]) ? 3'b100 :
              (obs_on4[12]) ? 3'b100 :
              (obs_on4[13]) ? 3'b100 :
-             (obs_on4[14]) ? 3'b100 :     
+             (obs_on4[14]) ? 3'b100 :
+             (obs_on5[0]) ? 3'b100 :     
              (obs_on5[1]) ? 3'b100 :
              (obs_on5[2]) ? 3'b100 :
              (obs_on5[3]) ? 3'b100 :
