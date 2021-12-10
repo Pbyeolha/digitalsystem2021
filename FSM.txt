@@ -1,0 +1,194 @@
+/*---------------------------------------------------------*/
+// finite state machine for game control
+/*---------------------------------------------------------*/
+    always @ * begin
+        game_stop = 1; 
+        d_clr = 0;
+        d_inc = 0;
+        life_next = life_reg;
+        stage_next = stage_reg;
+        game_over = 0;    
+        case(stage_reg)
+            STAGE1:
+                    case(state_reg)
+                        NEWGAME: begin
+                            d_clr = 1;
+                            if(key[4] == 1) begin
+                                state_next = PLAY;
+                                life_next = 2'b10;
+                            end else begin
+                                state_next = NEWGAME;
+                                life_next = 2'b11;
+                            end
+                        end
+                        PLAY: begin
+                            game_stop = 0;
+                            d_inc = hit_obs;
+                            if(hit_bomb) begin
+                                if(life_reg==2'b00)
+                                    stage_next = OVER;
+                                else begin
+                                    state_next = NEWGUN;
+                                    life_next = life_reg - 1'b1;
+                                end
+                            end else if(hit_obs)
+                             state_next = PLAY;
+                            else if((obs_hit[0] == 1) && (obs_hit[1] ==1) && (obs_hit[2] ==1) && (obs_hit[3] ==1) && (obs_hit[4] == 1 ) && (obs_hit[5] == 1))
+                                stage_next = STAGE2;
+                      end
+                      NEWGUN: 
+                        if(key[4] == 1) state_next = PLAY;
+                        else state_next = NEWGUN;
+                      OVER: begin
+                        if(key[4] == 1) begin
+                            state_next = NEWGAME;
+                        end else begin
+                            state_next = OVER;
+                        end
+                            game_over = 1;
+                      end
+                      default:
+                        state_next = NEWGAME;
+                    endcase
+            STAGE2: 
+                case(state_reg)
+                    NEWGAME: begin
+                        d_clr = 1;
+                        if(key[4] == 1) begin
+                            state_next = PLAY;
+                            life_next = 2'b10;
+                        end else begin
+                            state_next = NEWGAME;
+                            life_next = 2'b11;
+                        end
+                    end
+                    PLAY: begin
+                        game_stop = 0;
+                        d_inc = hit_obs;
+                        if(hit_bomb) begin
+                            if(life_reg==2'b00)
+                                stage_next = OVER;
+                            else begin
+                                state_next = NEWGUN;
+                                life_next = life_reg - 1'b1;
+                            end
+                        end else if(hit_obs)
+                         state_next = PLAY;
+                        else if((obs_hit2[0] == 1) && (obs_hit2[1] ==1) && (obs_hit2[2] ==1) && (obs_hit2[3] ==1) && (obs_hit2[4] == 1 ) && (obs_hit2[5] == 1))
+                            stage_next = STAGE3;
+                  end
+                  NEWGUN: 
+                    if(key[4] == 1) state_next = PLAY;
+                    else state_next = NEWGUN;
+                  OVER: begin
+                    if(key[4] == 1) begin
+                        state_next = NEWGAME;
+                    end else begin
+                        state_next = OVER;
+                    end
+                        game_over = 1;
+                  end
+                  default:
+                    state_next = NEWGAME;
+                endcase 
+            STAGE3: 
+            case(state_reg)
+                NEWGAME: begin
+                    d_clr = 1;
+                    if(key[4] == 1) begin
+                        state_next = PLAY;
+                        life_next = 2'b10;
+                    end else begin
+                        state_next = NEWGAME;
+                        life_next = 2'b11;
+                    end
+                end
+                PLAY: begin
+                    game_stop = 0;
+                    d_inc = hit_obs;
+                    if(hit_bomb) begin
+                        if(life_reg==2'b00)
+                            stage_next = OVER;
+                        else begin
+                            state_next = NEWGUN;
+                            life_next = life_reg - 1'b1;
+                        end
+                    end else if(hit_obs)
+                     state_next = PLAY;
+                    //else if((obs_hit3[0] == 1) && (obs_hit3[1] ==1) && (obs_hit3[2] ==1) && (obs_hit3[3] ==1) && (obs_hit3[4] == 1 ) && (obs_hit3[5] == 1))
+                        stage_next = STAGE4;
+              end
+              NEWGUN: 
+                if(key[4] == 1) state_next = PLAY;
+                else state_next = NEWGUN;
+              OVER: begin
+                if(key[4] == 1) begin
+                    state_next = NEWGAME;
+                end else begin
+                    state_next = OVER;
+                end
+                    game_over = 1;
+              end
+              default:
+                state_next = NEWGAME;
+            endcase 
+            
+            STAGE4:
+        case(state_reg)
+            NEWGAME: begin
+                d_clr = 1;
+                if(key[4] == 1) begin
+                    state_next = PLAY;
+                    life_next = 2'b10;
+                end else begin
+                    state_next = NEWGAME;
+                    life_next = 2'b11;
+                end
+            end
+            PLAY: begin
+                game_stop = 0;
+                d_inc = hit_obs;
+                if(hit_bomb) begin
+                    if(life_reg==2'b00)
+                        stage_next = OVER;
+                    else begin
+                        state_next = NEWGUN;
+                        life_next = life_reg - 1'b1;
+                    end
+                end else if(hit_obs)
+                 state_next = PLAY;
+                //else if((obs_hit4[0] == 1) && (obs_hit4[1] ==1) && (obs_hit4[2] ==1) && (obs_hit4[3] ==1) && (obs_hit4[4] == 1 ) && (obs_hit4[5] == 1))
+                    stage_next = STAGE1;
+          end
+          NEWGUN: 
+            if(key[4] == 1) state_next = PLAY;
+            else state_next = NEWGUN;
+          OVER: begin
+            if(key[4] == 1) begin
+                state_next = NEWGAME;
+            end else begin
+                state_next = OVER;
+            end
+                game_over = 1;
+          end
+          default:
+            state_next = NEWGAME;
+        endcase 
+        
+        default:
+            stage_next = STAGE1;
+        endcase
+    end
+    
+    always @(posedge clk or posedge rst) begin
+        if(rst) begin
+            stage_reg <= STAGE1;
+            state_reg <= NEWGAME; 
+            life_reg <= 0;
+        end
+        else begin
+        stage_reg <= stage_next;
+        state_reg <= state_next; 
+        life_reg <= life_next;
+        end
+    end
