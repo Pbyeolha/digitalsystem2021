@@ -1,43 +1,52 @@
 module graph_mod (clk, rst, x, y, key, key_pulse, rgb);
+
 input clk, rst;
 input [9:0] x, y;
 input [4:0] key, key_pulse; 
-output [2:0] rgb;
+output [2:0] rgb; 
 
-// screen size
+// 화면 크기 설정
 parameter MAX_X = 640; 
 parameter MAX_Y = 480;  
-// gun position
-parameter GUN_Y_B = 470; 
-parameter GUN_Y_T = 420;
-// gun size, velocity
+
+// gun 위치
+parameter GUN_Y_B = 479; 
+parameter GUN_Y_T = 429;
+
+// gun size, 속도
 parameter GUN_X_SIZE = 50; 
 parameter GUN_V = 4;
-// shot size, velocity
-parameter SHOT_SIZE = 6;
-parameter SHOT_V = 7;
-// obs size, velocity
-parameter OBS_SIZE = 30;
-parameter OBS_V = 2;
-//bomb size, velocity
+
+//장애물 속도, 크기
+parameter OBS_SIZE = 40;
+parameter OBS_V = 10;
+
+//장애물 속도, 크기
+parameter bomb_SIZE = 40;
+parameter bomb_V = 15;
+
+wire refr_tick; 
+wire gun_on;
+wire [9:0] gun_x_r, gun_x_l; 
+reg [9:0] gun_x_reg; 
+wire reach_obs, miss_obs;
+reg game_stop, game_over;  
+reg obs, bomb; //장애물, 폭탄
+
 parameter BOMB_SIZE = 40;
 parameter BOMB_V = 10;
-wire refr_tick; 
-wire [9:0] reach_obs, miss_obs;
+
 wire [1:0]reach_wall;
 wire reach_top;
 wire reach_bottom;
-reg game_stop, game_over;  
-reg obs;
+
 //refrernce tick 
 assign refr_tick = (y==MAX_Y-1 && x==MAX_X-1)? 1 : 0; // frame, 1sec
 
 /*---------------------------------------------------------*/
 // gun 
 /*---------------------------------------------------------*/
-wire gun_on;
-wire [9:0] gun_x_r, gun_x_l; 
-reg [9:0] gun_x_reg; 
+
 assign gun_x_l = gun_x_reg; //left
 assign gun_x_r = gun_x_l + GUN_X_SIZE - 1; //right
 assign gun_on = (x>=gun_x_l && x<=gun_x_r && y>=GUN_Y_T && y<=GUN_Y_B)? 1 : 0; //gun position
@@ -345,6 +354,7 @@ always @ (posedge clk or posedge rst) begin
          
     end
 end
+/*-----------------------------------------------------------*/
 // obs - 2stage
 /*---------------------------------------------------------*/
 
@@ -355,21 +365,17 @@ assign obs_y_b[10] = obs_y_t[10] + OBS_SIZE - 1;
 assign obs_y_b[10] = obs_y_t[10] + OBS_SIZE - 1;
 
 //color
-assign obs_on0[0] = (x>= ( 8 + obs_x_l[10]) && x <= (obs_x_r[10] - 19 )&& y>=obs_y_t[10] && y  <= (obs_y_b[10] - 23))? 1 : 0;
-assign obs_on0[1] = (x>= ( 19 + obs_x_l[10]) && x <= (obs_x_r[10] - 8 )&& y>=obs_y_t[10] && y  <= (obs_y_b[10] - 23))? 1 : 0;
-assign obs_on0[2] = (x>= ( obs_x_l[10]) && x <= (obs_x_r[10] -22)&& y>= ( 6 + obs_y_t[10]) && y  <= (obs_y_b[10] - 16))? 1 : 0;
-assign obs_on0[3] = (x>= ( 7 + obs_x_l[10]) && x <= (obs_x_r[10] - 18 )&& y>= ( 6 + obs_y_t[10]) && y  <= (obs_y_b[10] - 20))? 1 : 0;
-assign obs_on0[4] = (x>= ( 11 + obs_x_l[10]) && x <= (obs_x_r[10] - 11 )&& y>=( 6 + obs_y_t[10]) && y  <= (obs_y_b[10] - 16))? 1 : 0;
-assign obs_on0[5] = (x>= ( 18 + obs_x_l[10]) && x <= (obs_x_r[10] - 7 )&&  y>= ( 6 + obs_y_t[10]) && y  <= (obs_y_b[10] - 20))? 1 : 0;
-assign obs_on0[6] = (x>= ( obs_x_l[10] + 22 ) && x <= (obs_x_r[10])&& y>= ( 6 + obs_y_t[10]) && y  <= (obs_y_b[10] - 16))? 1 : 0;
-assign obs_on0[7] = (x>= (  obs_x_l[10]) && x <= (obs_x_r[10] - 22 )&& y>= ( 13+ obs_y_t[10]) && y  <= (obs_y_b[10] - 3))? 1 : 0;
-assign obs_on0[8] = (x>= ( 7 + obs_x_l[10]) && x <= (obs_x_r[10] - 7 )&& y>= (13 + obs_y_t[10] ) && y  <= (obs_y_b[10] - 11))? 1 : 0;
-assign obs_on0[9] = (x>= (22 +  obs_x_l[10]) && x <= (obs_x_r[10])&& y>= ( 13+ obs_y_t[10]) && y  <= (obs_y_b[10] - 3))? 1 : 0;
-assign obs_on0[10] = (x>= ( 7+ obs_x_l[10]) && x <= (obs_x_r[10] - 20 )&& y>= ( 18 + obs_y_t[10]) && y  <= (obs_y_b[10] - 8))? 1 : 0;
-assign obs_on0[11] = (x>= ( 20 + obs_x_l[10]) && x <= (obs_x_r[10] - 7 )&& y>=( 18 + obs_y_t[10]) && y  <= (obs_y_b[10] - 8))? 1 : 0;
-assign obs_on0[12] = (x>= ( 7 + obs_x_l[10]) && x <= (obs_x_r[10] - 7 )&& y>= (21 + obs_y_t[10] ) && y  <= (obs_y_b[10] - 3))? 1 : 0;
-assign obs_on0[13] = (x>= ( 6 + obs_x_l[10]) && x <= (obs_x_r[10] - 19 )&& y>= ( 26 + obs_y_t[10] )&& y  <= (obs_y_b[10]))? 1 : 0;
-assign obs_on0[14] = (x>= ( 19 + obs_x_l[10]) && x <= (obs_x_r[10] - 6 )&& y>=( 26 + obs_y_t[10] )&& y  <= (obs_y_b[10]))? 1 : 0;
+assign obs_on0[0] = (x>= ( 5 + obs_x_l[10]) && x <= (obs_x_r[10] - 6 )&& (2 + y>=obs_y_t[10]) && y  <= (obs_y_b[10] - 21))? 1 : 0;
+assign obs_on0[1] = (x>= ( 5 + obs_x_l[10]) && x <= (obs_x_r[10] - 20 )&& (8+y>=obs_y_t[10]) && y  <= (obs_y_b[10] - 18))? 1 : 0;
+assign obs_on0[2] = (x>= ( 12+ obs_x_l[10]) && x <= (obs_x_r[10] -13)&& y>= ( 8 + obs_y_t[10]) && y  <= (obs_y_b[10] - 18))? 1 : 0;
+assign obs_on0[3] = (x>= ( 19 + obs_x_l[10]) && x <= (obs_x_r[10] - 6 )&& y>= ( 8 + obs_y_t[10]) && y  <= (obs_y_b[10] - 18))? 1 : 0;
+assign obs_on0[4] = (x>= ( obs_x_l[10]) && x <= (obs_x_r[10] - 20 )&& y>=( 11 + obs_y_t[10]) && y  <= (obs_y_b[10] - 10))? 1 : 0;
+assign obs_on0[5] = (x>= ( 18 + obs_x_l[10]) && x <= (obs_x_r[10] - 7 )&&  y>= ( 11 + obs_y_t[10]) && y  <= (obs_y_b[10] - 15))? 1 : 0;
+assign obs_on0[6] = (x>= ( 19+ obs_x_l[10]  ) && x <= (obs_x_r[10])&& y>= ( 11 + obs_y_t[10]) && y  <= (obs_y_b[10] - 10))? 1 : 0;
+assign obs_on0[7] = (x>= ( 5 + obs_x_l[10]) && x <= (obs_x_r[10] - 17 )&& y>= ( 19+ obs_y_t[10]) && y  <= (obs_y_b[10] ))? 1 : 0;
+assign obs_on0[8] = (x>= ( 12 + obs_x_l[10]) && x <= (obs_x_r[10] - 13 )&& y>= (19 + obs_y_t[10] ) && y  <= (obs_y_b[10] -5))? 1 : 0;
+assign obs_on0[9] = (x>= ( 16+  obs_x_l[10]) && x <= (obs_x_r[10]-6 )&& y>= ( 19+ obs_y_t[10]) && y  <= (obs_y_b[10]))? 1 : 0;
+
 
 
 always @ (posedge clk or posedge rst) begin
@@ -398,21 +404,17 @@ assign obs_y_b[11] = obs_y_t[11] + OBS_SIZE - 1;
 assign obs_y_b[11] = obs_y_t[11] + OBS_SIZE - 1;
 
 //color
-assign obs_on0[0] = (x>= ( 8 + obs_x_l[11]) && x <= (obs_x_r[11] - 19 )&& y>=obs_y_t[11] && y  <= (obs_y_b[11] - 23))? 1 : 0;
-assign obs_on0[1] = (x>= ( 19 + obs_x_l[11]) && x <= (obs_x_r[11] - 8 )&& y>=obs_y_t[11] && y  <= (obs_y_b[11] - 23))? 1 : 0;
-assign obs_on0[2] = (x>= ( obs_x_l[11]) && x <= (obs_x_r[11] -22)&& y>= ( 6 + obs_y_t[11]) && y  <= (obs_y_b[11] - 16))? 1 : 0;
-assign obs_on0[3] = (x>= ( 7 + obs_x_l[11]) && x <= (obs_x_r[11] - 18 )&& y>= ( 6 + obs_y_t[11]) && y  <= (obs_y_b[11] - 20))? 1 : 0;
-assign obs_on0[4] = (x>= ( 11 + obs_x_l[11]) && x <= (obs_x_r[11] - 11 )&& y>=( 6 + obs_y_t[11]) && y  <= (obs_y_b[11] - 16))? 1 : 0;
-assign obs_on0[5] = (x>= ( 18 + obs_x_l[11]) && x <= (obs_x_r[11] - 7 )&&  y>= ( 6 + obs_y_t[11]) && y  <= (obs_y_b[11] - 20))? 1 : 0;
-assign obs_on0[6] = (x>= ( obs_x_l[11] + 22 ) && x <= (obs_x_r[11])&& y>= ( 6 + obs_y_t[11]) && y  <= (obs_y_b[11] - 16))? 1 : 0;
-assign obs_on0[7] = (x>= (  obs_x_l[11]) && x <= (obs_x_r[11] - 22 )&& y>= ( 13+ obs_y_t[11]) && y  <= (obs_y_b[11] - 3))? 1 : 0;
-assign obs_on0[8] = (x>= ( 7 + obs_x_l[11]) && x <= (obs_x_r[11] - 7 )&& y>= (13 + obs_y_t[11] ) && y  <= (obs_y_b[11] - 11))? 1 : 0;
-assign obs_on0[9] = (x>= (22 +  obs_x_l[11]) && x <= (obs_x_r[11])&& y>= ( 13+ obs_y_t[11]) && y  <= (obs_y_b[11] - 3))? 1 : 0;
-assign obs_on0[10] = (x>= ( 7+ obs_x_l[11]) && x <= (obs_x_r[11] - 20 )&& y>= ( 18 + obs_y_t[11]) && y  <= (obs_y_b[11] - 8))? 1 : 0;
-assign obs_on0[11] = (x>= ( 20 + obs_x_l[11]) && x <= (obs_x_r[11] - 7 )&& y>=( 18 + obs_y_t[11]) && y  <= (obs_y_b[11] - 8))? 1 : 0;
-assign obs_on0[12] = (x>= ( 7 + obs_x_l[11]) && x <= (obs_x_r[11] - 7 )&& y>= (21 + obs_y_t[11] ) && y  <= (obs_y_b[11] - 3))? 1 : 0;
-assign obs_on0[13] = (x>= ( 6 + obs_x_l[11]) && x <= (obs_x_r[11] - 19 )&& y>= ( 26 + obs_y_t[11] )&& y  <= (obs_y_b[11]))? 1 : 0;
-assign obs_on0[14] = (x>= ( 19 + obs_x_l[11]) && x <= (obs_x_r[11] - 6 )&& y>=( 26 + obs_y_t[11] )&& y  <= (obs_y_b[11]))? 1 : 0;
+assign obs_on0[0] = (x>= ( 5 + obs_x_l[10]) && x <= (obs_x_r[10] - 6 )&& (2 + y>=obs_y_t[10]) && y  <= (obs_y_b[10] - 21))? 1 : 0;
+assign obs_on0[1] = (x>= ( 5 + obs_x_l[10]) && x <= (obs_x_r[10] - 20 )&& (8+y>=obs_y_t[10]) && y  <= (obs_y_b[10] - 18))? 1 : 0;
+assign obs_on0[2] = (x>= ( 12+ obs_x_l[10]) && x <= (obs_x_r[10] -13)&& y>= ( 8 + obs_y_t[10]) && y  <= (obs_y_b[10] - 18))? 1 : 0;
+assign obs_on0[3] = (x>= ( 19 + obs_x_l[10]) && x <= (obs_x_r[10] - 6 )&& y>= ( 8 + obs_y_t[10]) && y  <= (obs_y_b[10] - 18))? 1 : 0;
+assign obs_on0[4] = (x>= ( obs_x_l[10]) && x <= (obs_x_r[10] - 20 )&& y>=( 11 + obs_y_t[10]) && y  <= (obs_y_b[10] - 10))? 1 : 0;
+assign obs_on0[5] = (x>= ( 18 + obs_x_l[10]) && x <= (obs_x_r[10] - 7 )&&  y>= ( 11 + obs_y_t[10]) && y  <= (obs_y_b[10] - 15))? 1 : 0;
+assign obs_on0[6] = (x>= ( 19+ obs_x_l[10]  ) && x <= (obs_x_r[10])&& y>= ( 11 + obs_y_t[10]) && y  <= (obs_y_b[10] - 10))? 1 : 0;
+assign obs_on0[7] = (x>= ( 5 + obs_x_l[10]) && x <= (obs_x_r[10] - 17 )&& y>= ( 19+ obs_y_t[10]) && y  <= (obs_y_b[10] ))? 1 : 0;
+assign obs_on0[8] = (x>= ( 12 + obs_x_l[10]) && x <= (obs_x_r[10] - 13 )&& y>= (19 + obs_y_t[10] ) && y  <= (obs_y_b[10] -5))? 1 : 0;
+assign obs_on0[9] = (x>= ( 16+  obs_x_l[10]) && x <= (obs_x_r[10]-6 )&& y>= ( 19+ obs_y_t[10]) && y  <= (obs_y_b[10]))? 1 : 0;
+
 
 
 always @ (posedge clk or posedge rst) begin
@@ -441,21 +443,17 @@ assign obs_y_b[12] = obs_y_t[12] + OBS_SIZE - 1;
 assign obs_y_b[12] = obs_y_t[12] + OBS_SIZE - 1;
 
 //color
-assign obs_on0[0] = (x>= ( 8 + obs_x_l[12]) && x <= (obs_x_r[12] - 19 )&& y>=obs_y_t[12] && y  <= (obs_y_b[12] - 23))? 1 : 0;
-assign obs_on0[1] = (x>= ( 19 + obs_x_l[12]) && x <= (obs_x_r[12] - 8 )&& y>=obs_y_t[12] && y  <= (obs_y_b[12] - 23))? 1 : 0;
-assign obs_on0[2] = (x>= ( obs_x_l[12]) && x <= (obs_x_r[12] -22)&& y>= ( 6 + obs_y_t[12]) && y  <= (obs_y_b[12] - 16))? 1 : 0;
-assign obs_on0[3] = (x>= ( 7 + obs_x_l[12]) && x <= (obs_x_r[12] - 18 )&& y>= ( 6 + obs_y_t[12]) && y  <= (obs_y_b[12] - 20))? 1 : 0;
-assign obs_on0[4] = (x>= ( 11 + obs_x_l[12]) && x <= (obs_x_r[12] - 11 )&& y>=( 6 + obs_y_t[12]) && y  <= (obs_y_b[12] - 16))? 1 : 0;
-assign obs_on0[5] = (x>= ( 18 + obs_x_l[12]) && x <= (obs_x_r[12] - 7 )&&  y>= ( 6 + obs_y_t[12]) && y  <= (obs_y_b[12] - 20))? 1 : 0;
-assign obs_on0[6] = (x>= ( obs_x_l[12] + 22 ) && x <= (obs_x_r[12])&& y>= ( 6 + obs_y_t[12]) && y  <= (obs_y_b[12] - 16))? 1 : 0;
-assign obs_on0[7] = (x>= (  obs_x_l[12]) && x <= (obs_x_r[12] - 22 )&& y>= ( 13+ obs_y_t[12]) && y  <= (obs_y_b[12] - 3))? 1 : 0;
-assign obs_on0[8] = (x>= ( 7 + obs_x_l[12]) && x <= (obs_x_r[12] - 7 )&& y>= (13 + obs_y_t[12] ) && y  <= (obs_y_b[12] - 11))? 1 : 0;
-assign obs_on0[9] = (x>= (22 +  obs_x_l[12]) && x <= (obs_x_r[12])&& y>= ( 13+ obs_y_t[12]) && y  <= (obs_y_b[12] - 3))? 1 : 0;
-assign obs_on0[10] = (x>= ( 7+ obs_x_l[12]) && x <= (obs_x_r[12] - 20 )&& y>= ( 18 + obs_y_t[12]) && y  <= (obs_y_b[12] - 8))? 1 : 0;
-assign obs_on0[11] = (x>= ( 20 + obs_x_l[12]) && x <= (obs_x_r[12] - 7 )&& y>=( 18 + obs_y_t[12]) && y  <= (obs_y_b[12] - 8))? 1 : 0;
-assign obs_on0[12] = (x>= ( 7 + obs_x_l[12]) && x <= (obs_x_r[12] - 7 )&& y>= (21 + obs_y_t[12] ) && y  <= (obs_y_b[12] - 3))? 1 : 0;
-assign obs_on0[13] = (x>= ( 6 + obs_x_l[12]) && x <= (obs_x_r[12] - 19 )&& y>= ( 26 + obs_y_t[12] )&& y  <= (obs_y_b[12]))? 1 : 0;
-assign obs_on0[14] = (x>= ( 19 + obs_x_l[12]) && x <= (obs_x_r[12] - 6 )&& y>=( 26 + obs_y_t[12] )&& y  <= (obs_y_b[12]))? 1 : 0;
+assign obs_on0[0] = (x>= ( 5 + obs_x_l[10]) && x <= (obs_x_r[10] - 6 )&& (2 + y>=obs_y_t[10]) && y  <= (obs_y_b[10] - 21))? 1 : 0;
+assign obs_on0[1] = (x>= ( 5 + obs_x_l[10]) && x <= (obs_x_r[10] - 20 )&& (8+y>=obs_y_t[10]) && y  <= (obs_y_b[10] - 18))? 1 : 0;
+assign obs_on0[2] = (x>= ( 12+ obs_x_l[10]) && x <= (obs_x_r[10] -13)&& y>= ( 8 + obs_y_t[10]) && y  <= (obs_y_b[10] - 18))? 1 : 0;
+assign obs_on0[3] = (x>= ( 19 + obs_x_l[10]) && x <= (obs_x_r[10] - 6 )&& y>= ( 8 + obs_y_t[10]) && y  <= (obs_y_b[10] - 18))? 1 : 0;
+assign obs_on0[4] = (x>= ( obs_x_l[10]) && x <= (obs_x_r[10] - 20 )&& y>=( 11 + obs_y_t[10]) && y  <= (obs_y_b[10] - 10))? 1 : 0;
+assign obs_on0[5] = (x>= ( 18 + obs_x_l[10]) && x <= (obs_x_r[10] - 7 )&&  y>= ( 11 + obs_y_t[10]) && y  <= (obs_y_b[10] - 15))? 1 : 0;
+assign obs_on0[6] = (x>= ( 19+ obs_x_l[10]  ) && x <= (obs_x_r[10])&& y>= ( 11 + obs_y_t[10]) && y  <= (obs_y_b[10] - 10))? 1 : 0;
+assign obs_on0[7] = (x>= ( 5 + obs_x_l[10]) && x <= (obs_x_r[10] - 17 )&& y>= ( 19+ obs_y_t[10]) && y  <= (obs_y_b[10] ))? 1 : 0;
+assign obs_on0[8] = (x>= ( 12 + obs_x_l[10]) && x <= (obs_x_r[10] - 13 )&& y>= (19 + obs_y_t[10] ) && y  <= (obs_y_b[10] -5))? 1 : 0;
+assign obs_on0[9] = (x>= ( 16+  obs_x_l[10]) && x <= (obs_x_r[10]-6 )&& y>= ( 19+ obs_y_t[10]) && y  <= (obs_y_b[10]))? 1 : 0;
+
 
 
 always @ (posedge clk or posedge rst) begin
@@ -484,21 +482,17 @@ assign obs_y_b[13] = obs_y_t[13] + OBS_SIZE - 1;
 assign obs_y_b[13] = obs_y_t[13] + OBS_SIZE - 1;
 
 //color
-assign obs_on0[0] = (x>= ( 8 + obs_x_l[13]) && x <= (obs_x_r[13] - 19 )&& y>=obs_y_t[13] && y  <= (obs_y_b[13] - 23))? 1 : 0;
-assign obs_on0[1] = (x>= ( 19 + obs_x_l[13]) && x <= (obs_x_r[13] - 8 )&& y>=obs_y_t[13] && y  <= (obs_y_b[13] - 23))? 1 : 0;
-assign obs_on0[2] = (x>= ( obs_x_l[13]) && x <= (obs_x_r[13] -22)&& y>= ( 6 + obs_y_t[13]) && y  <= (obs_y_b[13] - 16))? 1 : 0;
-assign obs_on0[3] = (x>= ( 7 + obs_x_l[13]) && x <= (obs_x_r[13] - 18 )&& y>= ( 6 + obs_y_t[13]) && y  <= (obs_y_b[13] - 20))? 1 : 0;
-assign obs_on0[4] = (x>= ( 11 + obs_x_l[13]) && x <= (obs_x_r[13] - 11 )&& y>=( 6 + obs_y_t[13]) && y  <= (obs_y_b[13] - 16))? 1 : 0;
-assign obs_on0[5] = (x>= ( 18 + obs_x_l[13]) && x <= (obs_x_r[13] - 7 )&&  y>= ( 6 + obs_y_t[13]) && y  <= (obs_y_b[13] - 20))? 1 : 0;
-assign obs_on0[6] = (x>= ( obs_x_l[13] + 22 ) && x <= (obs_x_r[13])&& y>= ( 6 + obs_y_t[13]) && y  <= (obs_y_b[13] - 16))? 1 : 0;
-assign obs_on0[7] = (x>= (  obs_x_l[13]) && x <= (obs_x_r[13] - 22 )&& y>= ( 13+ obs_y_t[13]) && y  <= (obs_y_b[13] - 3))? 1 : 0;
-assign obs_on0[8] = (x>= ( 7 + obs_x_l[13]) && x <= (obs_x_r[13] - 7 )&& y>= (13 + obs_y_t[13] ) && y  <= (obs_y_b[13] - 11))? 1 : 0;
-assign obs_on0[9] = (x>= (22 +  obs_x_l[13]) && x <= (obs_x_r[13])&& y>= ( 13+ obs_y_t[13]) && y  <= (obs_y_b[13] - 3))? 1 : 0;
-assign obs_on0[10] = (x>= ( 7+ obs_x_l[13]) && x <= (obs_x_r[13] - 20 )&& y>= ( 18 + obs_y_t[13]) && y  <= (obs_y_b[13] - 8))? 1 : 0;
-assign obs_on0[11] = (x>= ( 20 + obs_x_l[13]) && x <= (obs_x_r[13] - 7 )&& y>=( 18 + obs_y_t[13]) && y  <= (obs_y_b[13] - 8))? 1 : 0;
-assign obs_on0[12] = (x>= ( 7 + obs_x_l[13]) && x <= (obs_x_r[13] - 7 )&& y>= (21 + obs_y_t[13] ) && y  <= (obs_y_b[13] - 3))? 1 : 0;
-assign obs_on0[13] = (x>= ( 6 + obs_x_l[13]) && x <= (obs_x_r[13] - 19 )&& y>= ( 26 + obs_y_t[13] )&& y  <= (obs_y_b[13]))? 1 : 0;
-assign obs_on0[14] = (x>= ( 19 + obs_x_l[13]) && x <= (obs_x_r[13] - 6 )&& y>=( 26 + obs_y_t[13] )&& y  <= (obs_y_b[13]))? 1 : 0;
+assign obs_on0[0] = (x>= ( 5 + obs_x_l[10]) && x <= (obs_x_r[10] - 6 )&& (2 + y>=obs_y_t[10]) && y  <= (obs_y_b[10] - 21))? 1 : 0;
+assign obs_on0[1] = (x>= ( 5 + obs_x_l[10]) && x <= (obs_x_r[10] - 20 )&& (8+y>=obs_y_t[10]) && y  <= (obs_y_b[10] - 18))? 1 : 0;
+assign obs_on0[2] = (x>= ( 12+ obs_x_l[10]) && x <= (obs_x_r[10] -13)&& y>= ( 8 + obs_y_t[10]) && y  <= (obs_y_b[10] - 18))? 1 : 0;
+assign obs_on0[3] = (x>= ( 19 + obs_x_l[10]) && x <= (obs_x_r[10] - 6 )&& y>= ( 8 + obs_y_t[10]) && y  <= (obs_y_b[10] - 18))? 1 : 0;
+assign obs_on0[4] = (x>= ( obs_x_l[10]) && x <= (obs_x_r[10] - 20 )&& y>=( 11 + obs_y_t[10]) && y  <= (obs_y_b[10] - 10))? 1 : 0;
+assign obs_on0[5] = (x>= ( 18 + obs_x_l[10]) && x <= (obs_x_r[10] - 7 )&&  y>= ( 11 + obs_y_t[10]) && y  <= (obs_y_b[10] - 15))? 1 : 0;
+assign obs_on0[6] = (x>= ( 19+ obs_x_l[10]  ) && x <= (obs_x_r[10])&& y>= ( 11 + obs_y_t[10]) && y  <= (obs_y_b[10] - 10))? 1 : 0;
+assign obs_on0[7] = (x>= ( 5 + obs_x_l[10]) && x <= (obs_x_r[10] - 17 )&& y>= ( 19+ obs_y_t[10]) && y  <= (obs_y_b[10] ))? 1 : 0;
+assign obs_on0[8] = (x>= ( 12 + obs_x_l[10]) && x <= (obs_x_r[10] - 13 )&& y>= (19 + obs_y_t[10] ) && y  <= (obs_y_b[10] -5))? 1 : 0;
+assign obs_on0[9] = (x>= ( 16+  obs_x_l[10]) && x <= (obs_x_r[10]-6 )&& y>= ( 19+ obs_y_t[10]) && y  <= (obs_y_b[10]))? 1 : 0;
+
 
 always @ (posedge clk or posedge rst) begin
     if(rst | game_stop) begin
@@ -527,21 +521,17 @@ assign obs_y_b[14] = obs_y_t[14] + OBS_SIZE - 1;
 assign obs_y_b[14] = obs_y_t[14] + OBS_SIZE - 1;
 
 //color
-assign obs_on0[0] = (x>= ( 8 + obs_x_l[14]) && x <= (obs_x_r[14] - 19 )&& y>=obs_y_t[14] && y  <= (obs_y_b[14] - 23))? 1 : 0;
-assign obs_on0[1] = (x>= ( 19 + obs_x_l[14]) && x <= (obs_x_r[14] - 8 )&& y>=obs_y_t[14] && y  <= (obs_y_b[14] - 23))? 1 : 0;
-assign obs_on0[2] = (x>= ( obs_x_l[14]) && x <= (obs_x_r[14] -22)&& y>= ( 6 + obs_y_t[14]) && y  <= (obs_y_b[14] - 16))? 1 : 0;
-assign obs_on0[3] = (x>= ( 7 + obs_x_l[14]) && x <= (obs_x_r[14] - 18 )&& y>= ( 6 + obs_y_t[14]) && y  <= (obs_y_b[14] - 20))? 1 : 0;
-assign obs_on0[4] = (x>= ( 11 + obs_x_l[14]) && x <= (obs_x_r[14] - 11 )&& y>=( 6 + obs_y_t[14]) && y  <= (obs_y_b[14] - 16))? 1 : 0;
-assign obs_on0[5] = (x>= ( 18 + obs_x_l[14]) && x <= (obs_x_r[14] - 7 )&&  y>= ( 6 + obs_y_t[14]) && y  <= (obs_y_b[14] - 20))? 1 : 0;
-assign obs_on0[6] = (x>= ( obs_x_l[14] + 22 ) && x <= (obs_x_r[14])&& y>= ( 6 + obs_y_t[14]) && y  <= (obs_y_b[14] - 16))? 1 : 0;
-assign obs_on0[7] = (x>= (  obs_x_l[14]) && x <= (obs_x_r[14] - 22 )&& y>= ( 13+ obs_y_t[14]) && y  <= (obs_y_b[14] - 3))? 1 : 0;
-assign obs_on0[8] = (x>= ( 7 + obs_x_l[14]) && x <= (obs_x_r[14] - 7 )&& y>= (13 + obs_y_t[14] ) && y  <= (obs_y_b[14] - 11))? 1 : 0;
-assign obs_on0[9] = (x>= (22 +  obs_x_l[14]) && x <= (obs_x_r[14])&& y>= ( 13+ obs_y_t[14]) && y  <= (obs_y_b[14] - 3))? 1 : 0;
-assign obs_on0[10] = (x>= ( 7+ obs_x_l[14]) && x <= (obs_x_r[14] - 20 )&& y>= ( 18 + obs_y_t[14]) && y  <= (obs_y_b[14] - 8))? 1 : 0;
-assign obs_on0[11] = (x>= ( 20 + obs_x_l[14]) && x <= (obs_x_r[14] - 7 )&& y>=( 18 + obs_y_t[14]) && y  <= (obs_y_b[14] - 8))? 1 : 0;
-assign obs_on0[12] = (x>= ( 7 + obs_x_l[14]) && x <= (obs_x_r[14] - 7 )&& y>= (21 + obs_y_t[14] ) && y  <= (obs_y_b[14] - 3))? 1 : 0;
-assign obs_on0[13] = (x>= ( 6 + obs_x_l[14]) && x <= (obs_x_r[14] - 19 )&& y>= ( 26 + obs_y_t[14] )&& y  <= (obs_y_b[14]))? 1 : 0;
-assign obs_on0[14] = (x>= ( 19 + obs_x_l[14]) && x <= (obs_x_r[14] - 6 )&& y>=( 26 + obs_y_t[14] )&& y  <= (obs_y_b[14]))? 1 : 0;
+assign obs_on0[0] = (x>= ( 5 + obs_x_l[10]) && x <= (obs_x_r[10] - 6 )&& (2 + y>=obs_y_t[10]) && y  <= (obs_y_b[10] - 21))? 1 : 0;
+assign obs_on0[1] = (x>= ( 5 + obs_x_l[10]) && x <= (obs_x_r[10] - 20 )&& (8+y>=obs_y_t[10]) && y  <= (obs_y_b[10] - 18))? 1 : 0;
+assign obs_on0[2] = (x>= ( 12+ obs_x_l[10]) && x <= (obs_x_r[10] -13)&& y>= ( 8 + obs_y_t[10]) && y  <= (obs_y_b[10] - 18))? 1 : 0;
+assign obs_on0[3] = (x>= ( 19 + obs_x_l[10]) && x <= (obs_x_r[10] - 6 )&& y>= ( 8 + obs_y_t[10]) && y  <= (obs_y_b[10] - 18))? 1 : 0;
+assign obs_on0[4] = (x>= ( obs_x_l[10]) && x <= (obs_x_r[10] - 20 )&& y>=( 11 + obs_y_t[10]) && y  <= (obs_y_b[10] - 10))? 1 : 0;
+assign obs_on0[5] = (x>= ( 18 + obs_x_l[10]) && x <= (obs_x_r[10] - 7 )&&  y>= ( 11 + obs_y_t[10]) && y  <= (obs_y_b[10] - 15))? 1 : 0;
+assign obs_on0[6] = (x>= ( 19+ obs_x_l[10]  ) && x <= (obs_x_r[10])&& y>= ( 11 + obs_y_t[10]) && y  <= (obs_y_b[10] - 10))? 1 : 0;
+assign obs_on0[7] = (x>= ( 5 + obs_x_l[10]) && x <= (obs_x_r[10] - 17 )&& y>= ( 19+ obs_y_t[10]) && y  <= (obs_y_b[10] ))? 1 : 0;
+assign obs_on0[8] = (x>= ( 12 + obs_x_l[10]) && x <= (obs_x_r[10] - 13 )&& y>= (19 + obs_y_t[10] ) && y  <= (obs_y_b[10] -5))? 1 : 0;
+assign obs_on0[9] = (x>= ( 16+  obs_x_l[10]) && x <= (obs_x_r[10]-6 )&& y>= ( 19+ obs_y_t[10]) && y  <= (obs_y_b[10]))? 1 : 0;
+
 
 always @ (posedge clk or posedge rst) begin
     if(rst | game_stop) begin
@@ -570,21 +560,17 @@ assign obs_y_b[15] = obs_y_t[15] + OBS_SIZE - 1;
 assign obs_y_b[15] = obs_y_t[15] + OBS_SIZE - 1;
 
 //color
-assign obs_on0[0] = (x>= ( 8 + obs_x_l[15]) && x <= (obs_x_r[15] - 19 )&& y>=obs_y_t[15] && y  <= (obs_y_b[15] - 23))? 1 : 0;
-assign obs_on0[1] = (x>= ( 19 + obs_x_l[15]) && x <= (obs_x_r[15] - 8 )&& y>=obs_y_t[15] && y  <= (obs_y_b[15] - 23))? 1 : 0;
-assign obs_on0[2] = (x>= ( obs_x_l[15]) && x <= (obs_x_r[15] -22)&& y>= ( 6 + obs_y_t[15]) && y  <= (obs_y_b[15] - 16))? 1 : 0;
-assign obs_on0[3] = (x>= ( 7 + obs_x_l[15]) && x <= (obs_x_r[15] - 18 )&& y>= ( 6 + obs_y_t[15]) && y  <= (obs_y_b[15] - 20))? 1 : 0;
-assign obs_on0[4] = (x>= ( 11 + obs_x_l[15]) && x <= (obs_x_r[15] - 11 )&& y>=( 6 + obs_y_t[15]) && y  <= (obs_y_b[15] - 16))? 1 : 0;
-assign obs_on0[5] = (x>= ( 18 + obs_x_l[15]) && x <= (obs_x_r[15] - 7 )&&  y>= ( 6 + obs_y_t[15]) && y  <= (obs_y_b[15] - 20))? 1 : 0;
-assign obs_on0[6] = (x>= ( obs_x_l[15] + 22 ) && x <= (obs_x_r[15])&& y>= ( 6 + obs_y_t[15]) && y  <= (obs_y_b[15] - 16))? 1 : 0;
-assign obs_on0[7] = (x>= (  obs_x_l[15]) && x <= (obs_x_r[15] - 22 )&& y>= ( 13+ obs_y_t[15]) && y  <= (obs_y_b[15] - 3))? 1 : 0;
-assign obs_on0[8] = (x>= ( 7 + obs_x_l[15]) && x <= (obs_x_r[15] - 7 )&& y>= (13 + obs_y_t[15] ) && y  <= (obs_y_b[15] - 11))? 1 : 0;
-assign obs_on0[9] = (x>= (22 +  obs_x_l[15]) && x <= (obs_x_r[15])&& y>= ( 13+ obs_y_t[15]) && y  <= (obs_y_b[15] - 3))? 1 : 0;
-assign obs_on0[10] = (x>= ( 7+ obs_x_l[15]) && x <= (obs_x_r[15] - 20 )&& y>= ( 18 + obs_y_t[15]) && y  <= (obs_y_b[15] - 8))? 1 : 0;
-assign obs_on0[11] = (x>= ( 20 + obs_x_l[15]) && x <= (obs_x_r[15] - 7 )&& y>=( 18 + obs_y_t[15]) && y  <= (obs_y_b[15] - 8))? 1 : 0;
-assign obs_on0[12] = (x>= ( 7 + obs_x_l[15]) && x <= (obs_x_r[15] - 7 )&& y>= (21 + obs_y_t[15] ) && y  <= (obs_y_b[15] - 3))? 1 : 0;
-assign obs_on0[13] = (x>= ( 6 + obs_x_l[15]) && x <= (obs_x_r[15] - 19 )&& y>= ( 26 + obs_y_t[15] )&& y  <= (obs_y_b[15]))? 1 : 0;
-assign obs_on0[14] = (x>= ( 19 + obs_x_l[15]) && x <= (obs_x_r[15] - 6 )&& y>=( 26 + obs_y_t[15] )&& y  <= (obs_y_b[15]))? 1 : 0;
+assign obs_on0[0] = (x>= ( 5 + obs_x_l[10]) && x <= (obs_x_r[10] - 6 )&& (2 + y>=obs_y_t[10]) && y  <= (obs_y_b[10] - 21))? 1 : 0;
+assign obs_on0[1] = (x>= ( 5 + obs_x_l[10]) && x <= (obs_x_r[10] - 20 )&& (8+y>=obs_y_t[10]) && y  <= (obs_y_b[10] - 18))? 1 : 0;
+assign obs_on0[2] = (x>= ( 12+ obs_x_l[10]) && x <= (obs_x_r[10] -13)&& y>= ( 8 + obs_y_t[10]) && y  <= (obs_y_b[10] - 18))? 1 : 0;
+assign obs_on0[3] = (x>= ( 19 + obs_x_l[10]) && x <= (obs_x_r[10] - 6 )&& y>= ( 8 + obs_y_t[10]) && y  <= (obs_y_b[10] - 18))? 1 : 0;
+assign obs_on0[4] = (x>= ( obs_x_l[10]) && x <= (obs_x_r[10] - 20 )&& y>=( 11 + obs_y_t[10]) && y  <= (obs_y_b[10] - 10))? 1 : 0;
+assign obs_on0[5] = (x>= ( 18 + obs_x_l[10]) && x <= (obs_x_r[10] - 7 )&&  y>= ( 11 + obs_y_t[10]) && y  <= (obs_y_b[10] - 15))? 1 : 0;
+assign obs_on0[6] = (x>= ( 19+ obs_x_l[10]  ) && x <= (obs_x_r[10])&& y>= ( 11 + obs_y_t[10]) && y  <= (obs_y_b[10] - 10))? 1 : 0;
+assign obs_on0[7] = (x>= ( 5 + obs_x_l[10]) && x <= (obs_x_r[10] - 17 )&& y>= ( 19+ obs_y_t[10]) && y  <= (obs_y_b[10] ))? 1 : 0;
+assign obs_on0[8] = (x>= ( 12 + obs_x_l[10]) && x <= (obs_x_r[10] - 13 )&& y>= (19 + obs_y_t[10] ) && y  <= (obs_y_b[10] -5))? 1 : 0;
+assign obs_on0[9] = (x>= ( 16+  obs_x_l[10]) && x <= (obs_x_r[10]-6 )&& y>= ( 19+ obs_y_t[10]) && y  <= (obs_y_b[10]))? 1 : 0;
+
 
 always @ (posedge clk or posedge rst) begin
     if(rst | game_stop) begin
@@ -1183,23 +1169,117 @@ end
 /*---------------------------------------------------------*/
 // bomb
 /*---------------------------------------------------------*/
-wire [9:0] bomb_x_l, bomb_x_r, bomb_y_t, bomb_y_b; 
-reg bomb_x_reg, bomb_y_reg;
-wire bomb_on;
-//assign bomb_x_l = bomb_x_reg; // left
-//assign bomb_x_r = bomb_x_l + bomb_SIZE - 1; //right
-//assign bomb_y_t = bomb_y_reg;
-//assign bomb_y_b = bomb_y_t + bomb_SIZE - 1;
-//assign bomb_on = (x>=bomb_x_l && x<=bomb_x_r && y>=bomb_y_t && y<=bomb_y_b)? 1 : 0; //bomb region
-//always @ (posedge clk or posedge rst) begin
-//    if(rst | game_stop) begin
-//        bomb_x_reg <= MAX_X - rand;
-//        bomb_y_reg <= MAX_Y;
-//    end    
-//    else if(refr_tick) begin
-//        bomb_y_reg <= bomb_y_reg + bomb_V;
-//    end
-//end
+wire [11:0] bomb_left, bomb_right, bomb_y_t, bomb_y_b; 
+reg [11:0] bomb_x_reg, bomb_y_reg;
+wire bomb_on0[13:0], bomb_on1[13:0], bomb_on2[13:0], bomb_on3[13:0];
+
+assign bomb_left[0] = bomb_x_reg[0]; //장애물의 왼쪽
+assign bomb_right[0] = bomb_left[0] + bomb_SIZE - 1; //장애물의 오른쪽
+assign bomb_y_t[0] = bomb_y_reg[0];
+assign bomb_y_b[0] = bomb_y_t[0] + bomb_SIZE - 1;
+
+always @ (posedge clk or posedge rst) begin
+    if(rst | game_stop) begin
+        bomb_x_reg[0] <= MAX_X/rand;
+        bomb <= 0;
+    end    
+    else if(refr_tick) begin
+        bomb <= 1;
+        //fall_down <= 1;
+        bomb_y_reg[0] <= bomb_y_reg[0] + bomb_V;
+    end
+end
+//color
+assign bomb_on0[0] = (x>= ( 16 + bomb_left[0]) && x <= (bomb_right[0] -10  )&& y>=bomb_y_t[0] && y  <= (bomb_y_b[0] - 28))? 1 : 0;
+assign bomb_on0[1] = (x>= ( 15 + bomb_left[0]) && x <= (bomb_right[0] -13  )&& y>=(1 +bomb_y_t[0]) && y  <= (bomb_y_b[0] - 27))? 1 : 0;
+assign bomb_on0[2] = (x>= ( 14 + bomb_left[0]) && x <= (bomb_right[0] -14  )&& y>=(2 +bomb_y_t[0]) && y  <= (bomb_y_b[0] - 25))? 1 : 0;
+assign bomb_on0[3] = (x>= ( 1 + bomb_left[0]) && x <= (bomb_right[0] -26 )&& y>=(13 +bomb_y_t[0]) && y  <= (bomb_y_b[0] - 8))? 1 : 0;
+assign bomb_on0[4] = (x>= ( 3 + bomb_left[0]) && x <= (bomb_right[0] -24 )&& y>=( 11 +bomb_y_t[0]) && y  <= (bomb_y_b[0] - 6 ))? 1 : 0;
+assign bomb_on0[5] = (x>= ( 5 + bomb_left[0]) && x <= (bomb_right[0] -24 )&& y>=( 9 +bomb_y_t[0]) && y  <= (bomb_y_b[0] - 4 ))? 1 : 0;
+assign bomb_on0[6] = (x>= ( 7 + bomb_left[0]) && x <= (bomb_right[0] -22 )&& y>=( 7 +bomb_y_t[0]) && y  <= (bomb_y_b[0] -2 ))? 1 : 0;
+assign bomb_on0[7] = (x>= ( 9 + bomb_left[0]) && x <= (bomb_right[0] -20 )&& y>=( 5 +bomb_y_t[0]) && y  <= (bomb_y_b[0]  ))? 1 : 0;
+assign bomb_on0[8] = (x>= ( 12 + bomb_left[0]) && x <= (bomb_right[0] -17 )&& y>=( 5 +bomb_y_t[0]) && y  <= (bomb_y_b[0]  ))? 1 : 0;
+assign bomb_on0[9] = (x>= ( 16 + bomb_left[0]) && x <= (bomb_right[0] -13 )&& y>=( 5 +bomb_y_t[0]) && y  <= (bomb_y_b[0]  ))? 1 : 0;
+assign bomb_on0[10] = (x>= ( 20 + bomb_left[0]) && x <= (bomb_right[0] -9 )&& y>=( 7 +bomb_y_t[0]) && y  <= (bomb_y_b[0] - 2 ))? 1 : 0;
+assign bomb_on0[11] = (x>= ( 22 + bomb_left[0]) && x <= (bomb_right[0] -7 )&& y>=( 9 +bomb_y_t[0]) && y  <= (bomb_y_b[0] - 4 ))? 1 : 0;
+assign bomb_on0[12] = (x>= ( 24 + bomb_left[0]) && x <= (bomb_right[0] -5 )&& y>=( 11 +bomb_y_t[0]) && y  <= (bomb_y_b[0] - 6 ))? 1 : 0;
+assign bomb_on0[13] = (x>= ( 26 + bomb_left[0]) && x <= (bomb_right[0] -3 )&& y>=( 13 +bomb_y_t[0]) && y  <= (bomb_y_b[0] - 8 ))? 1 : 0;
+
+
+
+
+
+
+assign bomb_left[1] = bomb_x_reg[1]; //장애물의 왼쪽
+assign bomb_right[1] = bomb_left[1] + bomb_SIZE - 1; //장애물의 오른쪽
+assign bomb_y_t[1] = bomb_y_reg[1];
+assign bomb_y_b[1] = bomb_y_t[1] + bomb_SIZE - 1;
+
+always @ (posedge clk or posedge rst) begin
+    if(rst | game_stop) begin
+        bomb_x_reg[1] <= MAX_X/rand;
+        bomb <= 0;
+    end    
+    else if(refr_tick) begin
+        bomb <= 1;
+        //fall_down <= 1;
+        bomb_y_reg[1] <= bomb_y_reg[1] + bomb_V;
+    end
+end
+
+//color
+assign bomb_on1[0] = (x>= ( 16 + bomb_left[1]) && x <= (bomb_right[1] -10  )&& y>=bomb_y_t[1] && y  <= (bomb_y_b[1] - 28))? 1 : 0;
+assign bomb_on1[1] = (x>= ( 15 + bomb_left[1]) && x <= (bomb_right[1] -13  )&& y>=(1 +bomb_y_t[1]) && y  <= (bomb_y_b[1] - 27))? 1 : 0;
+assign bomb_on1[2] = (x>= ( 14 + bomb_left[1]) && x <= (bomb_right[1] -14  )&& y>=(2 +bomb_y_t[1]) && y  <= (bomb_y_b[1] - 25))? 1 : 0;
+assign bomb_on1[3] = (x>= ( 1 + bomb_left[1]) && x <= (bomb_right[1] -26 )&& y>=(13 +bomb_y_t[1]) && y  <= (bomb_y_b[1] - 8))? 1 : 0;
+assign bomb_on1[4] = (x>= ( 3 + bomb_left[1]) && x <= (bomb_right[1] -24 )&& y>=( 11 +bomb_y_t[1]) && y  <= (bomb_y_b[1] - 6 ))? 1 : 0;
+assign bomb_on1[5] = (x>= ( 5 + bomb_left[1]) && x <= (bomb_right[1] -24 )&& y>=( 9 +bomb_y_t[1]) && y  <= (bomb_y_b[1] - 4 ))? 1 : 0;
+assign bomb_on1[6] = (x>= ( 7 + bomb_left[1]) && x <= (bomb_right[1] -22 )&& y>=( 7 +bomb_y_t[1]) && y  <= (bomb_y_b[1] -2 ))? 1 : 0;
+assign bomb_on1[7] = (x>= ( 9 + bomb_left[1]) && x <= (bomb_right[1] -20 )&& y>=( 5 +bomb_y_t[1]) && y  <= (bomb_y_b[1]  ))? 1 : 0;
+assign bomb_on1[8] = (x>= ( 12 + bomb_left[1]) && x <= (bomb_right[1] -17 )&& y>=( 5 +bomb_y_t[1]) && y  <= (bomb_y_b[1]  ))? 1 : 0;
+assign bomb_on1[9] = (x>= ( 16 + bomb_left[1]) && x <= (bomb_right[1] -13 )&& y>=( 5 +bomb_y_t[1]) && y  <= (bomb_y_b[1]  ))? 1 : 0;
+assign bomb_on1[10] = (x>= ( 20 + bomb_left[1]) && x <= (bomb_right[1] -9 )&& y>=( 7 +bomb_y_t[1]) && y  <= (bomb_y_b[1] - 2 ))? 1 : 0;
+assign bomb_on1[11] = (x>= ( 22 + bomb_left[1]) && x <= (bomb_right[1] -7 )&& y>=( 9 +bomb_y_t[1]) && y  <= (bomb_y_b[1] - 4 ))? 1 : 0;
+assign bomb_on1[12] = (x>= ( 24 + bomb_left[1]) && x <= (bomb_right[1] -5 )&& y>=( 11 +bomb_y_t[1]) && y  <= (bomb_y_b[1] - 6 ))? 1 : 0;
+assign bomb_on1[13] = (x>= ( 26 + bomb_left[1]) && x <= (bomb_right[1] -3 )&& y>=( 13 +bomb_y_t[1]) && y  <= (bomb_y_b[1] - 8 ))? 1 : 0;
+
+
+
+
+
+
+assign bomb_left[2] = bomb_x_reg[2]; //장애물의 왼쪽
+assign bomb_right[2] = bomb_left[2] + bomb_SIZE - 1; //장애물의 오른쪽
+assign bomb_y_t[2] = bomb_y_reg[2];
+assign bomb_y_b[2] = bomb_y_t[2] + bomb_SIZE - 1;
+
+always @ (posedge clk or posedge rst) begin
+    if(rst | game_stop) begin
+        bomb_x_reg[2] <= MAX_X/rand;
+        bomb <= 0;
+    end    
+    else if(refr_tick) begin
+        bomb <= 1;
+        //fall_down <= 1;
+        bomb_y_reg[2] <= bomb_y_reg[2] + bomb_V;
+    end
+end
+//color
+assign bomb_on2[0] = (x>= ( 16 + bomb_left[2]) && x <= (bomb_right[2] -10  )&& y>=bomb_y_t[2] && y  <= (bomb_y_b[2] - 28))? 1 : 0;
+assign bomb_on2[1] = (x>= ( 15 + bomb_left[2]) && x <= (bomb_right[2] -13  )&& y>=(1 +bomb_y_t[2]) && y  <= (bomb_y_b[2] - 27))? 1 : 0;
+assign bomb_on2[2] = (x>= ( 14 + bomb_left[2]) && x <= (bomb_right[2] -14  )&& y>=(2 +bomb_y_t[2]) && y  <= (bomb_y_b[2] - 25))? 1 : 0;
+assign bomb_on2[3] = (x>= ( 1 + bomb_left[2]) && x <= (bomb_right[2] -26 )&& y>=(13 +bomb_y_t[2]) && y  <= (bomb_y_b[2] - 8))? 1 : 0;
+assign bomb_on2[4] = (x>= ( 3 + bomb_left[2]) && x <= (bomb_right[2] -24 )&& y>=( 11 +bomb_y_t[2]) && y  <= (bomb_y_b[2] - 6 ))? 1 : 0;
+assign bomb_on2[5] = (x>= ( 5 + bomb_left[2]) && x <= (bomb_right[2] -24 )&& y>=( 9 +bomb_y_t[2]) && y  <= (bomb_y_b[2] - 4 ))? 1 : 0;
+assign bomb_on2[6] = (x>= ( 7 + bomb_left[2]) && x <= (bomb_right[2] -22 )&& y>=( 7 +bomb_y_t[2]) && y  <= (bomb_y_b[2] -2 ))? 1 : 0;
+assign bomb_on2[7] = (x>= ( 9 + bomb_left[2]) && x <= (bomb_right[2] -20 )&& y>=( 5 +bomb_y_t[2]) && y  <= (bomb_y_b[2]  ))? 1 : 0;
+assign bomb_on2[8] = (x>= ( 12 + bomb_left[2]) && x <= (bomb_right[2] -17 )&& y>=( 5 +bomb_y_t[2]) && y  <= (bomb_y_b[2]  ))? 1 : 0;
+assign bomb_on2[9] = (x>= ( 16 + bomb_left[2]) && x <= (bomb_right[2] -13 )&& y>=( 5 +bomb_y_t[2]) && y  <= (bomb_y_b[2]  ))? 1 : 0;
+assign bomb_on2[10] = (x>= ( 20 + bomb_left[2]) && x <= (bomb_right[2] -9 )&& y>=( 7 +bomb_y_t[2]) && y  <= (bomb_y_b[2] - 2 ))? 1 : 0;
+assign bomb_on2[11] = (x>= ( 22 + bomb_left[2]) && x <= (bomb_right[2] -7 )&& y>=( 9 +bomb_y_t[2]) && y  <= (bomb_y_b[2] - 4 ))? 1 : 0;
+assign bomb_on2[12] = (x>= ( 24 + bomb_left[2]) && x <= (bomb_right[2] -5 )&& y>=( 11 +bomb_y_t[2]) && y  <= (bomb_y_b[2] - 6 ))? 1 : 0;
+assign bomb_on2[13] = (x>= ( 26 + bomb_left[2]) && x <= (bomb_right[2] -3 )&& y>=( 13 +bomb_y_t[2]) && y  <= (bomb_y_b[2] - 8 ))? 1 : 0;
+
 
 /*---------------------------------------------------------*/
 // if hit, score ++
