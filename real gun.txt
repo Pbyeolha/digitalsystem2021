@@ -1,0 +1,15 @@
+wire gun_on0[2:0];
+assign gun_x_l = gun_x_reg; //left
+assign gun_x_r = gun_x_l + GUN_X_SIZE - 1; //right
+assign gun_on = (x>=gun_x_l && x<=gun_x_r && y>=GUN_Y_T && y<=GUN_Y_B)? 1 : 0; //gun position
+always @ (posedge clk or posedge rst) begin
+    if (rst | game_stop) gun_x_reg <= (MAX_X - GUN_X_SIZE)/2; //if game stop, game begin middle
+    else if (refr_tick) 
+        if (key==5'h11 && gun_x_r <= MAX_X -1 - GUN_V) gun_x_reg <= gun_x_reg + GUN_V; //move left
+        else if (key==5'h13 && gun_x_l >=GUN_V) gun_x_reg <= gun_x_reg - GUN_V;  //move right
+end
+
+//color
+assign gun_on0[0] = (x>= (22 + gun_x_l) && x <= (gun_x_r - 23)&& y>=( 6+GUN_Y_T) && y  <= (GUN_Y_B - 38))? 1 : 0;
+assign gun_on0[1] = (x>= (14 + gun_x_l) && x <= (gun_x_r - 15 )&& y>=(22+GUN_Y_T) && y  <= (GUN_Y_B - 23))? 1 : 0;
+assign gun_on0[2] = (x>= ( gun_x_l) && x <= (gun_x_r )&& y>=( 37+ GUN_Y_T) && y  <= GUN_Y_B )? 1 : 0;
