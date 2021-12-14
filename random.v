@@ -18,20 +18,20 @@ wire [1:0] fd_back0, fd_back1, fd_back2, fd_back3, fd_back4, fd_back5;
     assign fd_back0[0] = sreg0[13] ^ sreg0[2];
     assign fd_back0[1] = sreg0[9] ^ sreg0[3];
     
-    assign fd_back1[0] = sreg0[14] ^ sreg0[2];
-    assign fd_back1[1] = sreg0[19] ^ sreg0[0];
+    assign fd_back1[0] = sreg1[14] ^ sreg1[2];
+    assign fd_back1[1] = sreg1[19] ^ sreg1[0];
     
-    assign fd_back2[0] = sreg0[17] ^ sreg0[1];
-    assign fd_back2[1] = sreg0[18] ^ sreg0[1];
+    assign fd_back2[0] = sreg2[17] ^ sreg2[1];
+    assign fd_back2[1] = sreg2[18] ^ sreg2[1];
     
-    assign fd_back3[0] = sreg0[18] ^ sreg0[8];
-    assign fd_back3[1] = sreg0[13] ^ sreg0[3];
+    assign fd_back3[0] = sreg3[18] ^ sreg3[8];
+    assign fd_back3[1] = sreg3[13] ^ sreg3[3];
     
-    assign fd_back4[0] = sreg0[1] ^ sreg0[0];
-    assign fd_back4[1] = sreg0[9] ^ sreg0[4];
+    assign fd_back4[0] = sreg4[1] ^ sreg4[0];
+    assign fd_back4[1] = sreg4[9] ^ sreg4[4];
     
-    assign fd_back5[0] = sreg0[18] ^ sreg0[3];
-    assign fd_back5[1] = sreg0[11] ^ sreg0[8];
+    assign fd_back5[0] = sreg5[18] ^ sreg5[3];
+    assign fd_back5[1] = sreg5[11] ^ sreg5[8];
 
    
     always @ (posedge clk) begin

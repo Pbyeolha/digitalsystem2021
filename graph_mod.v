@@ -14,7 +14,7 @@ parameter GUN_Y_T = 420;
 parameter GUN_X_SIZE = 60; 
 parameter GUN_V = 4;
 // shot size, velocity
-parameter SHOT_SIZE = 6;
+parameter SHOT_SIZE = 12;
 parameter SHOT_V = 5;
 // obs size, velocity
 parameter OBS_SIZE = 30;
@@ -22,12 +22,15 @@ parameter OBS_V = 2;
 //bomb size, velocity
 parameter BOMB_SIZE = 30;
 parameter BOMB_V = 10;
+//FSM
+parameter NEWGAME=2'b00, PLAY=2'b01, NEWGUN=2'b10, OVER=2'b11;
+parameter STAGE0 = 3'b000, STAGE1 = 3'b001, STAGE2 = 3'b010, STAGE3 = 3'b011, STAGE4 = 3'b100;
 
 wire refr_tick; 
 wire [9:0] reach_obs, reach_bomb;
 wire reach_top, reach_bottom, wall_left_3, wall_right_3, wall_left_4, wall_right_4;
 
-reg game_stop, game_over;  
+reg game_stop, game_over, game_clear;  
 
 //refrernce tick 
 assign refr_tick = (y==MAX_Y-1 && x==MAX_X-1)? 1 : 0; // frame, 1sec
@@ -60,11 +63,11 @@ assign shot_y_t = shot_y_reg;
 assign shot_y_b = shot_y_reg + SHOT_SIZE -1;
 
 //color
-assign shot_on[0] = (x>=shot_x_l && x<= (shot_x_r-5) && y>= (2+shot_y_t) && y<= (shot_y_b - 2))? 1 : 0; //shotregionion
-assign shot_on[1] = (x>=(1+shot_x_l) && x<= (shot_x_r-4) && y>= (1+shot_y_t) && y<= (shot_y_b - 1))? 1 : 0; //shotregionion
-assign shot_on[2] = (x>=(2+shot_x_l) && x<= (shot_x_r-2) && y>= (shot_y_t) && y<= (shot_y_b))? 1 : 0; //shotregionion
-assign shot_on[3] = (x>=(4+shot_x_l) && x<= (shot_x_r-1) && y>= (1+shot_y_t) && y<= (shot_y_b - 1))? 1 : 0; //shotregionion
-assign shot_on[4] = (x>=(5+shot_x_l) && x<= (shot_x_r) && y>= (2+shot_y_t) && y<= (shot_y_b - 2))? 1 : 0; //shotregionion
+assign shot_on[0] = (x>=shot_x_l && x<= (shot_x_r-2) && y>= (4+shot_y_t) && y<= (shot_y_b - 4))? 1 : 0; //shotregionion
+assign shot_on[1] = (x>=(2+shot_x_l) && x<= (shot_x_r-4  ) && y>= (2+shot_y_t) && y<= (shot_y_b - 2))? 1 : 0; //shotregionion
+assign shot_on[2] = (x>=(4+shot_x_l) && x<= (shot_x_r-4) && y>= (shot_y_t) && y<= (shot_y_b))? 1 : 0; //shotregionion
+assign shot_on[3] = (x>=(6+shot_x_l) && x<= (shot_x_r-2) && y>= (2+shot_y_t) && y<= (shot_y_b - 2))? 1 : 0; //shotregionion
+assign shot_on[4] = (x>=(8+shot_x_l) && x<= (shot_x_r) && y>= (+shot_y_t) && y<= (shot_y_b - 4))? 1 : 0; //shotregionion
 
 always @ (posedge clk or posedge rst) begin
     if(rst|game_stop) begin
@@ -271,6 +274,7 @@ assign obs_on0[12] = (x>= ( 7 + obs_x_l[0]) && x <= (obs_x_r[0] - 7 )&& y>= (21 
 assign obs_on0[13] = (x>= ( 6 + obs_x_l[0]) && x <= (obs_x_r[0] - 19 )&& y>= ( 26 + obs_y_t[0] )&& y  <= (obs_y_b[0]))? 1 : 0;
 assign obs_on0[14] = (x>= ( 19 + obs_x_l[0]) && x <= (obs_x_r[0] - 6 )&& y>=( 26 + obs_y_t[0] )&& y  <= (obs_y_b[0]))? 1 : 0;
 
+if(STAGE1) begin
 always @ (posedge clk or posedge rst) begin
    if(rst | game_stop) begin
         obs_x_reg[0] <= rand0 + 30; 
@@ -285,6 +289,7 @@ always @ (posedge clk or posedge rst) begin
         obs_y_reg[0] <= 0;
         obs_hit[0] = 1;
     end
+end
 end
 //--------------------------------------------------------------------------------------------------------------------------------//
 assign obs_x_l[1] = obs_x_reg[1]; 
@@ -309,6 +314,8 @@ assign obs_on1[12] = (x>= ( 7 + obs_x_l[1]) && x <= (obs_x_r[1] - 7 )&& y>= (21 
 assign obs_on1[13] = (x>= ( 6 + obs_x_l[1]) && x <= (obs_x_r[1] - 19 )&& y>= ( 26 + obs_y_t[1] )&& y  <= (obs_y_b[1]))? 1 : 0;
 assign obs_on1[14] = (x>= ( 19 + obs_x_l[1]) && x <= (obs_x_r[1] - 6 )&& y>=( 26 + obs_y_t[1] )&& y  <= (obs_y_b[1]))? 1 : 0;
 
+
+if(STAGE1) begin
 always @ (posedge clk or posedge rst) begin
     if(rst | game_stop) begin
         obs_x_reg[1] <= rand1+ 30; 
@@ -323,6 +330,7 @@ always @ (posedge clk or posedge rst) begin
            obs_y_reg[1] <= 0;
            obs_hit[1] = 1;
        end
+end
 end
 //--------------------------------------------------------------------------------------------------------------------------------//
 assign obs_x_l[2] = obs_x_reg[2]; 
@@ -347,6 +355,8 @@ assign obs_on2[12] = (x>= ( 7 + obs_x_l[2]) && x <= (obs_x_r[2] - 7 )&& y>= (21 
 assign obs_on2[13] = (x>= ( 6 + obs_x_l[2]) && x <= (obs_x_r[2] - 19 )&& y>= ( 26 + obs_y_t[2] )&& y  <= (obs_y_b[2]))? 1 : 0;
 assign obs_on2[14] = (x>= ( 19 + obs_x_l[2]) && x <= (obs_x_r[2] - 6 )&& y>=( 26 + obs_y_t[2] )&& y  <= (obs_y_b[2]))? 1 : 0;
 
+
+if(STAGE1) begin
 always @ (posedge clk or posedge rst) begin
     if(rst | game_stop) begin
         obs_x_reg[2] <= rand2+ 30; 
@@ -361,6 +371,7 @@ always @ (posedge clk or posedge rst) begin
            obs_y_reg[2] <= 0;
            obs_hit[2] = 1;
        end
+end
 end
 //--------------------------------------------------------------------------------------------------------------------------------//
 assign obs_x_l[3] = obs_x_reg[3]; 
@@ -385,6 +396,8 @@ assign obs_on3[12] = (x>= ( 7 + obs_x_l[3]) && x <= (obs_x_r[3] - 7 )&& y>= (21 
 assign obs_on3[13] = (x>= ( 6 + obs_x_l[3]) && x <= (obs_x_r[3] - 19 )&& y>= ( 26 + obs_y_t[3] )&& y  <= (obs_y_b[3]))? 1 : 0;
 assign obs_on3[14] = (x>= ( 19 + obs_x_l[3]) && x <= (obs_x_r[3] - 6 )&& y>=( 26 + obs_y_t[3] )&& y  <= (obs_y_b[3]))? 1 : 0;
 
+
+if(STAGE1) begin
 always @ (posedge clk or posedge rst) begin
     if(rst | game_stop) begin
         obs_x_reg[3] <= rand3+ 30; 
@@ -399,6 +412,7 @@ always @ (posedge clk or posedge rst) begin
            obs_y_reg[3] <= 0;
            obs_hit[3] = 1;
        end
+end
 end
 //--------------------------------------------------------------------------------------------------------------------------------//
 assign obs_x_l[4] = obs_x_reg[4]; 
@@ -461,7 +475,7 @@ assign obs_on5[12] = (x>= ( 7 + obs_x_l[5]) && x <= (obs_x_r[5] - 7 )&& y>= (21 
 assign obs_on5[13] = (x>= ( 6 + obs_x_l[5]) && x <= (obs_x_r[5] - 19 )&& y>= ( 26 + obs_y_t[5] )&& y  <= (obs_y_b[5]))? 1 : 0;
 assign obs_on5[14] = (x>= ( 19 + obs_x_l[5]) && x <= (obs_x_r[5] - 6 )&& y>=( 26 + obs_y_t[5] )&& y  <= (obs_y_b[5]))? 1 : 0;
 
-
+if(STAGE1) begin
 always @ (posedge clk or posedge rst) begin
     if(rst | game_stop) begin
         obs_x_reg[5] <= rand5+ 30; 
@@ -476,6 +490,7 @@ always @ (posedge clk or posedge rst) begin
            obs_y_reg[5] <= 0;
            obs_hit[5] = 1;
        end
+end
 end
 
 //velocity
@@ -500,8 +515,8 @@ assign obs_y_b[6] = obs_y_t[6] + OBS_SIZE - 1;
 assign obs_y_b[6] = obs_y_t[6] + OBS_SIZE - 1;
 
 //color
-assign obs_on6[0] = (x>= ( 5 + obs_x_l[6]) && x <= (obs_x_r[6] - 6 )&& (2 + y>=obs_y_t[6]) && y  <= (obs_y_b[6] - 21))? 1 : 0;
-assign obs_on6[1] = (x>= ( 5 + obs_x_l[6]) && x <= (obs_x_r[6] - 20 )&& (8+y>=obs_y_t[6]) && y  <= (obs_y_b[6] - 18))? 1 : 0;
+assign obs_on6[0] = (x>= ( 5 + obs_x_l[6]) && x <= (obs_x_r[6] - 6 )&& y >=(2 +obs_y_t[6]) && y  <= (obs_y_b[6] - 21))? 1 : 0;
+assign obs_on6[1] = (x>= ( 5 + obs_x_l[6]) && x <= (obs_x_r[6] - 20 )&& y >= (8+obs_y_t[6]) && y  <= (obs_y_b[6] - 18))? 1 : 0;
 assign obs_on6[2] = (x>= ( 12+ obs_x_l[6]) && x <= (obs_x_r[6] -13)&& y>= ( 8 + obs_y_t[6]) && y  <= (obs_y_b[6] - 18))? 1 : 0;
 assign obs_on6[3] = (x>= ( 19 + obs_x_l[6]) && x <= (obs_x_r[6] - 6 )&& y>= ( 8 + obs_y_t[6]) && y  <= (obs_y_b[6] - 18))? 1 : 0;
 assign obs_on6[4] = (x>= ( obs_x_l[6]) && x <= (obs_x_r[6] - 20 )&& y>=( 11 + obs_y_t[6]) && y  <= (obs_y_b[6] - 10))? 1 : 0;
@@ -511,6 +526,7 @@ assign obs_on6[7] = (x>= ( 5 + obs_x_l[6]) && x <= (obs_x_r[6] - 17 )&& y>= ( 19
 assign obs_on6[8] = (x>= ( 12 + obs_x_l[6]) && x <= (obs_x_r[6] - 13 )&& y>= (19 + obs_y_t[6] ) && y  <= (obs_y_b[6] -5))? 1 : 0;
 assign obs_on6[9] = (x>= ( 16+  obs_x_l[6]) && x <= (obs_x_r[6]-6 )&& y>= ( 19+ obs_y_t[6]) && y  <= (obs_y_b[6]))? 1 : 0;
 
+if(STAGE2) begin
 always @ (posedge clk or posedge rst) begin
     if(rst | game_stop) begin
         obs_x_reg[6] <= 20; 
@@ -523,7 +539,9 @@ always @ (posedge clk or posedge rst) begin
      else if ((shot_x_l >= obs_x_l[6]) && (shot_x_r <= obs_x_r[6]) && (shot_y_b <= obs_y_b[6])) begin
            obs_x_reg[6] <= 650;
            obs_y_reg[6] <= 0;
+           obs_hit[6] = 1;
        end
+end
 end
 //--------------------------------------------------------------------------------------------------------------------------------//
 assign obs_x_l[7] = obs_x_reg[7]; 
@@ -533,8 +551,8 @@ assign obs_y_b[7] = obs_y_t[7] + OBS_SIZE - 1;
 assign obs_y_b[7] = obs_y_t[7] + OBS_SIZE - 1;
 
 //color
-assign obs_on7[0] = (x>= ( 5 + obs_x_l[7]) && x <= (obs_x_r[7] - 6 )&& (2 + y>=obs_y_t[7]) && y  <= (obs_y_b[7] - 21))? 1 : 0;
-assign obs_on7[1] = (x>= ( 5 + obs_x_l[7]) && x <= (obs_x_r[7] - 20 )&& (8+y>=obs_y_t[7]) && y  <= (obs_y_b[7] - 18))? 1 : 0;
+assign obs_on7[0] = (x>= ( 5 + obs_x_l[7]) && x <= (obs_x_r[7] - 6 )&& y >=(2 + obs_y_t[7]) && y  <= (obs_y_b[7] - 21))? 1 : 0;
+assign obs_on7[1] = (x>= ( 5 + obs_x_l[7]) && x <= (obs_x_r[7] - 20 )&& y >=(8+obs_y_t[7]) && y  <= (obs_y_b[7] - 18))? 1 : 0;
 assign obs_on7[2] = (x>= ( 12+ obs_x_l[7]) && x <= (obs_x_r[7] -13)&& y>= ( 8 + obs_y_t[7]) && y  <= (obs_y_b[7] - 18))? 1 : 0;
 assign obs_on7[3] = (x>= ( 19 + obs_x_l[7]) && x <= (obs_x_r[7] - 6 )&& y>= ( 8 + obs_y_t[7]) && y  <= (obs_y_b[7] - 18))? 1 : 0;
 assign obs_on7[4] = (x>= ( obs_x_l[7]) && x <= (obs_x_r[7] - 20 )&& y>=( 11 + obs_y_t[7]) && y  <= (obs_y_b[7] - 10))? 1 : 0;
@@ -544,10 +562,11 @@ assign obs_on7[7] = (x>= ( 5 + obs_x_l[7]) && x <= (obs_x_r[7] - 17 )&& y>= ( 19
 assign obs_on7[8] = (x>= ( 12 + obs_x_l[7]) && x <= (obs_x_r[7] - 13 )&& y>= (19 + obs_y_t[7] ) && y  <= (obs_y_b[7] -5))? 1 : 0;
 assign obs_on7[9] = (x>= ( 16+  obs_x_l[7]) && x <= (obs_x_r[7]-6 )&& y>= ( 19+ obs_y_t[7]) && y  <= (obs_y_b[7]))? 1 : 0;
 
+if(STAGE2) begin
 always @ (posedge clk or posedge rst) begin
     if(rst | game_stop) begin
         obs_x_reg[7] <= 84; 
-        obs_y_reg[7] <= 150; 
+        obs_y_reg[7] <= 0; 
     end    
     else if (refr_tick) begin
         obs_x_reg[7] <= obs_x_reg[7] + obs2_vx_reg; 
@@ -556,7 +575,9 @@ always @ (posedge clk or posedge rst) begin
      else if ((shot_x_l >= obs_x_l[7]) && (shot_x_r <= obs_x_r[7]) && (shot_y_b <= obs_y_b[7])) begin
            obs_x_reg[7] <= 650;
            obs_y_reg[7] <= 0;
+           obs_hit[7] = 1;
        end
+end
 end
 //--------------------------------------------------------------------------------------------------------------------------------//
 assign obs_x_l[8] = obs_x_reg[8]; 
@@ -566,8 +587,8 @@ assign obs_y_b[8] = obs_y_t[8] + OBS_SIZE - 1;
 assign obs_y_b[8] = obs_y_t[8] + OBS_SIZE - 1;
 
 //color
-assign obs_on8[0] = (x>= ( 5 + obs_x_l[8]) && x <= (obs_x_r[8] - 6 )&& (2 + y>=obs_y_t[8]) && y  <= (obs_y_b[8] - 21))? 1 : 0;
-assign obs_on8[1] = (x>= ( 5 + obs_x_l[8]) && x <= (obs_x_r[8] - 20 )&& (8+y>=obs_y_t[8]) && y  <= (obs_y_b[8] - 18))? 1 : 0;
+assign obs_on8[0] = (x>= ( 5 + obs_x_l[8]) && x <= (obs_x_r[8] - 6 )&& y >=(2 +obs_y_t[8]) && y  <= (obs_y_b[8] - 21))? 1 : 0;
+assign obs_on8[1] = (x>= ( 5 + obs_x_l[8]) && x <= (obs_x_r[8] - 20 )&& y >=(8+obs_y_t[8]) && y  <= (obs_y_b[8] - 18))? 1 : 0;
 assign obs_on8[2] = (x>= ( 12+ obs_x_l[8]) && x <= (obs_x_r[8] -13)&& y>= ( 8 + obs_y_t[8]) && y  <= (obs_y_b[8] - 18))? 1 : 0;
 assign obs_on8[3] = (x>= ( 19 + obs_x_l[8]) && x <= (obs_x_r[8] - 6 )&& y>= ( 8 + obs_y_t[8]) && y  <= (obs_y_b[8] - 18))? 1 : 0;
 assign obs_on8[4] = (x>= ( obs_x_l[8]) && x <= (obs_x_r[8] - 20 )&& y>=( 11 + obs_y_t[8]) && y  <= (obs_y_b[8] - 10))? 1 : 0;
@@ -577,10 +598,11 @@ assign obs_on8[7] = (x>= ( 5 + obs_x_l[8]) && x <= (obs_x_r[8] - 17 )&& y>= ( 19
 assign obs_on8[8] = (x>= ( 12 + obs_x_l[8]) && x <= (obs_x_r[8] - 13 )&& y>= (19 + obs_y_t[8] ) && y  <= (obs_y_b[8] -5))? 1 : 0;
 assign obs_on8[9] = (x>= ( 16+  obs_x_l[8]) && x <= (obs_x_r[8]-6 )&& y>= ( 19+ obs_y_t[8]) && y  <= (obs_y_b[8]))? 1 : 0;
 
+if(STAGE2) begin
 always @ (posedge clk or posedge rst) begin
     if(rst | game_stop) begin
         obs_x_reg[8] <= 148; 
-        obs_y_reg[8] <= 150; 
+        obs_y_reg[8] <= 0; 
     end    
     else if (refr_tick) begin
         obs_x_reg[8] <= obs_x_reg[8] + obs2_vx_reg; 
@@ -589,7 +611,9 @@ always @ (posedge clk or posedge rst) begin
      else if ((shot_x_l >= obs_x_l[8]) && (shot_x_r <= obs_x_r[8]) && (shot_y_b <= obs_y_b[8])) begin
            obs_x_reg[8] <= 650;
            obs_y_reg[8] <= 0;
+           obs_hit[8] = 1;
        end
+end
 end
 //--------------------------------------------------------------------------------------------------------------------------------//
 assign obs_x_l[9] = obs_x_reg[9]; 
@@ -599,8 +623,8 @@ assign obs_y_b[9] = obs_y_t[9] + OBS_SIZE - 1;
 assign obs_y_b[9] = obs_y_t[9] + OBS_SIZE - 1;
 
 //color
-assign obs_on9[0] = (x>= ( 5 + obs_x_l[9]) && x <= (obs_x_r[9] - 6 )&& (2 + y>=obs_y_t[9]) && y  <= (obs_y_b[9] - 21))? 1 : 0;
-assign obs_on9[1] = (x>= ( 5 + obs_x_l[9]) && x <= (obs_x_r[9] - 20 )&& (8+y>=obs_y_t[9]) && y  <= (obs_y_b[9] - 18))? 1 : 0;
+assign obs_on9[0] = (x>= ( 5 + obs_x_l[9]) && x <= (obs_x_r[9] - 6 )&& y >=(2 +obs_y_t[9]) && y  <= (obs_y_b[9] - 21))? 1 : 0;
+assign obs_on9[1] = (x>= ( 5 + obs_x_l[9]) && x <= (obs_x_r[9] - 20 )&& y >=(8+obs_y_t[9]) && y  <= (obs_y_b[9] - 18))? 1 : 0;
 assign obs_on9[2] = (x>= ( 12+ obs_x_l[9]) && x <= (obs_x_r[9] -13)&& y>= ( 8 + obs_y_t[9]) && y  <= (obs_y_b[9] - 18))? 1 : 0;
 assign obs_on9[3] = (x>= ( 19 + obs_x_l[9]) && x <= (obs_x_r[9] - 6 )&& y>= ( 8 + obs_y_t[9]) && y  <= (obs_y_b[9] - 18))? 1 : 0;
 assign obs_on9[4] = (x>= ( obs_x_l[9]) && x <= (obs_x_r[9] - 20 )&& y>=( 11 + obs_y_t[9]) && y  <= (obs_y_b[9] - 10))? 1 : 0;
@@ -610,10 +634,11 @@ assign obs_on9[7] = (x>= ( 5 + obs_x_l[9]) && x <= (obs_x_r[9] - 17 )&& y>= ( 19
 assign obs_on9[8] = (x>= ( 12 + obs_x_l[9]) && x <= (obs_x_r[9] - 13 )&& y>= (19 + obs_y_t[9] ) && y  <= (obs_y_b[9] -5))? 1 : 0;
 assign obs_on9[9] = (x>= ( 16+  obs_x_l[9]) && x <= (obs_x_r[9]-6 )&& y>= ( 19+ obs_y_t[9]) && y  <= (obs_y_b[9]))? 1 : 0;
 
+if(STAGE2) begin
 always @ (posedge clk or posedge rst) begin
     if(rst | game_stop) begin
         obs_x_reg[9] <= 212; 
-        obs_y_reg[9] <= 150; 
+        obs_y_reg[9] <= 10; 
     end    
     else if (refr_tick) begin
         obs_x_reg[9] <= obs_x_reg[9] + obs2_vx_reg; 
@@ -622,7 +647,9 @@ always @ (posedge clk or posedge rst) begin
      else if ((shot_x_l >= obs_x_l[9]) && (shot_x_r <= obs_x_r[9]) && (shot_y_b <= obs_y_b[9])) begin
            obs_x_reg[9] <= 650;
            obs_y_reg[9] <= 0;
+           obs_hit[9] = 1;
        end
+end
 end
 //--------------------------------------------------------------------------------------------------------------------------------//
 assign obs_x_l[10] = obs_x_reg[10]; 
@@ -632,8 +659,8 @@ assign obs_y_b[10] = obs_y_t[10] + OBS_SIZE - 1;
 assign obs_y_b[10] = obs_y_t[10] + OBS_SIZE - 1;
 
 //color
-assign obs_on10[0] = (x>= ( 5 + obs_x_l[10]) && x <= (obs_x_r[10] - 6 )&& (2 + y>=obs_y_t[10]) && y  <= (obs_y_b[10] - 21))? 1 : 0;
-assign obs_on10[1] = (x>= ( 5 + obs_x_l[10]) && x <= (obs_x_r[10] - 20 )&& (8+y>=obs_y_t[10]) && y  <= (obs_y_b[10] - 18))? 1 : 0;
+assign obs_on10[0] = (x>= ( 5 + obs_x_l[10]) && x <= (obs_x_r[10] - 6 )&& y >=(2 + obs_y_t[10]) && y  <= (obs_y_b[10] - 21))? 1 : 0;
+assign obs_on10[1] = (x>= ( 5 + obs_x_l[10]) && x <= (obs_x_r[10] - 20 )&& y >=(8+obs_y_t[10]) && y  <= (obs_y_b[10] - 18))? 1 : 0;
 assign obs_on10[2] = (x>= ( 12+ obs_x_l[10]) && x <= (obs_x_r[10] -13)&& y>= ( 8 + obs_y_t[10]) && y  <= (obs_y_b[10] - 18))? 1 : 0;
 assign obs_on10[3] = (x>= ( 19 + obs_x_l[10]) && x <= (obs_x_r[10] - 6 )&& y>= ( 8 + obs_y_t[10]) && y  <= (obs_y_b[10] - 18))? 1 : 0;
 assign obs_on10[4] = (x>= ( obs_x_l[10]) && x <= (obs_x_r[10] - 20 )&& y>=( 11 + obs_y_t[10]) && y  <= (obs_y_b[10] - 10))? 1 : 0;
@@ -643,10 +670,11 @@ assign obs_on10[7] = (x>= ( 5 + obs_x_l[10]) && x <= (obs_x_r[10] - 17 )&& y>= (
 assign obs_on10[8] = (x>= ( 12 + obs_x_l[10]) && x <= (obs_x_r[10] - 13 )&& y>= (19 + obs_y_t[10] ) && y  <= (obs_y_b[10] -5))? 1 : 0;
 assign obs_on10[9] = (x>= ( 16+  obs_x_l[10]) && x <= (obs_x_r[10]-6 )&& y>= ( 19+ obs_y_t[10]) && y  <= (obs_y_b[10]))? 1 : 0;
 
+if(STAGE2) begin
 always @ (posedge clk or posedge rst) begin
     if(rst | game_stop) begin
         obs_x_reg[10] <= 276; 
-        obs_y_reg[10] <= 150; 
+        obs_y_reg[10] <= 0; 
     end    
     else if (refr_tick) begin
         obs_x_reg[10] <= obs_x_reg[10] + obs2_vx_reg; 
@@ -655,7 +683,9 @@ always @ (posedge clk or posedge rst) begin
     else if ((shot_x_l >= obs_x_l[10]) && (shot_x_r <= obs_x_r[10]) && (shot_y_b <= obs_y_b[10])) begin
                obs_x_reg[10] <= 650;
                obs_y_reg[10] <= 0;
+               obs_hit[10] = 1;
            end
+end
 end
 //--------------------------------------------------------------------------------------------------------------------------------//
 assign obs_x_l[11] = obs_x_reg[11]; 
@@ -665,8 +695,8 @@ assign obs_y_b[11] = obs_y_t[11] + OBS_SIZE - 1;
 assign obs_y_b[11] = obs_y_t[11] + OBS_SIZE - 1;
 
 //color
-assign obs_on11[0] = (x>= ( 5 + obs_x_l[11]) && x <= (obs_x_r[11] - 6 )&& (2 + y>=obs_y_t[11]) && y  <= (obs_y_b[11] - 21))? 1 : 0;
-assign obs_on11[1] = (x>= ( 5 + obs_x_l[11]) && x <= (obs_x_r[11] - 20 )&& (8+y>=obs_y_t[11]) && y  <= (obs_y_b[11] - 18))? 1 : 0;
+assign obs_on11[0] = (x>= ( 5 + obs_x_l[11]) && x <= (obs_x_r[11] - 6 )&& y >= (2 +obs_y_t[11]) && y  <= (obs_y_b[11] - 21))? 1 : 0;
+assign obs_on11[1] = (x>= ( 5 + obs_x_l[11]) && x <= (obs_x_r[11] - 20 )&& y >= (8+obs_y_t[11]) && y  <= (obs_y_b[11] - 18))? 1 : 0;
 assign obs_on11[2] = (x>= ( 12+ obs_x_l[11]) && x <= (obs_x_r[11] -13)&& y>= ( 8 + obs_y_t[11]) && y  <= (obs_y_b[11] - 18))? 1 : 0;
 assign obs_on11[3] = (x>= ( 19 + obs_x_l[11]) && x <= (obs_x_r[11] - 6 )&& y>= ( 8 + obs_y_t[11]) && y  <= (obs_y_b[11] - 18))? 1 : 0;
 assign obs_on11[4] = (x>= ( obs_x_l[11]) && x <= (obs_x_r[11] - 20 )&& y>=( 11 + obs_y_t[11]) && y  <= (obs_y_b[11] - 10))? 1 : 0;
@@ -676,11 +706,11 @@ assign obs_on11[7] = (x>= ( 5 + obs_x_l[11]) && x <= (obs_x_r[11] - 17 )&& y>= (
 assign obs_on11[8] = (x>= ( 12 + obs_x_l[11]) && x <= (obs_x_r[11] - 13 )&& y>= (19 + obs_y_t[11] ) && y  <= (obs_y_b[11] -5))? 1 : 0;
 assign obs_on11[9] = (x>= ( 16+  obs_x_l[11]) && x <= (obs_x_r[11]-6 )&& y>= ( 19+ obs_y_t[11]) && y  <= (obs_y_b[11]))? 1 : 0;
 
-
+if(STAGE2) begin
 always @ (posedge clk or posedge rst) begin
     if(rst | game_stop) begin
         obs_x_reg[11] <= 340; 
-        obs_y_reg[11] <= 150; 
+        obs_y_reg[11] <= 0; 
     end    
     else if (refr_tick) begin
         obs_x_reg[11] <= obs_x_reg[11] + obs2_vx_reg; 
@@ -689,7 +719,9 @@ always @ (posedge clk or posedge rst) begin
     else if ((shot_x_l >= obs_x_l[11]) && (shot_x_r <= obs_x_r[11]) && (shot_y_b <= obs_y_b[11])) begin
                    obs_x_reg[11] <= 650;
                    obs_y_reg[11] <= 0;
+                   obs_hit[11] = 1;
     end
+end
 end
 
 //velocity
@@ -746,7 +778,8 @@ always @ (posedge clk or posedge rst) begin
         end
     else if ((shot_x_l >= obs_x_l[12]) && (shot_x_r <= obs_x_r[12]) && (shot_y_b <= obs_y_b[12])) begin
                            obs_x_reg[12] <= 650;
-                           obs_y_reg[20] <= 0;
+                           obs_y_reg[12] <= 0;
+                           obs_hit[12] = 1;
                        end
 end
 //--------------------------------------------------------------------------------------------------------------------------------//
@@ -792,6 +825,7 @@ always @ (posedge clk or posedge rst) begin
    else if ((shot_x_l >= obs_x_l[13]) && (shot_x_r <= obs_x_r[13]) && (shot_y_b <= obs_y_b[13])) begin
                            obs_x_reg[13] <= 650;
                            obs_y_reg[13] <= 0;
+                           obs_hit[13] = 1;
                        end
 end
 //--------------------------------------------------------------------------------------------------------------------------------//
@@ -837,6 +871,7 @@ always @ (posedge clk or posedge rst) begin
     else if ((shot_x_l >= obs_x_l[14]) && (shot_x_r <= obs_x_r[14]) && (shot_y_b <= obs_y_b[14])) begin
                            obs_x_reg[14] <= 650;
                            obs_y_reg[14] <= 0;
+                           obs_hit[14] = 1;
                        end
 end
 //--------------------------------------------------------------------------------------------------------------------------------//
@@ -882,6 +917,7 @@ always @ (posedge clk or posedge rst) begin
     else if ((shot_x_l >= obs_x_l[15]) && (shot_x_r <= obs_x_r[15]) && (shot_y_b <= obs_y_b[15])) begin
                            obs_x_reg[15] <= 650;
                            obs_y_reg[15] <= 0;
+                           obs_hit[15] = 1;
                        end
 end
 //--------------------------------------------------------------------------------------------------------------------------------//
@@ -928,6 +964,7 @@ always @ (posedge clk or posedge rst) begin
     else if ((shot_x_l >= obs_x_l[16]) && (shot_x_r <= obs_x_r[16]) && (shot_y_b <= obs_y_b[16])) begin
                            obs_x_reg[16] <= 650;
                            obs_y_reg[16] <= 0;
+                           obs_hit[16] = 1;
                        end
 end
 //--------------------------------------------------------------------------------------------------------------------------------//
@@ -974,6 +1011,7 @@ always @ (posedge clk or posedge rst) begin
     else if ((shot_x_l >= obs_x_l[17]) && (shot_x_r <= obs_x_r[17]) && (shot_y_b <= obs_y_b[17])) begin
                            obs_x_reg[17] <= 650;
                            obs_y_reg[17] <= 0;
+                           obs_hit[17] = 1;
                        end
 end
 
@@ -1017,6 +1055,7 @@ always @ (posedge clk or posedge rst) begin
     else if ((shot_x_l >= obs_x_l[18]) && (shot_x_r <= obs_x_r[18]) && (shot_y_b <= obs_y_b[18])) begin
                            obs_x_reg[18] <= 650;
                            obs_y_reg[18] <= 0;
+                           obs_hit[18] = 1;
                        end
 end
 //--------------------------------------------------------------------------------------------------------------------------------//
@@ -1040,6 +1079,7 @@ always @ (posedge clk or posedge rst) begin
     else if ((shot_x_l >= obs_x_l[19]) && (shot_x_r <= obs_x_r[19]) && (shot_y_b <= obs_y_b[19])) begin
                            obs_x_reg[19] <= 650;
                            obs_y_reg[19] <= 0;
+                           obs_hit[19] = 1;
                        end
 end
 //--------------------------------------------------------------------------------------------------------------------------------//
@@ -1063,6 +1103,7 @@ always @ (posedge clk or posedge rst) begin
     else if ((shot_x_l >= obs_x_l[20]) && (shot_x_r <= obs_x_r[20]) && (shot_y_b <= obs_y_b[20])) begin
                            obs_x_reg[20] <= 650;
                            obs_y_reg[20] <= 0;
+                           obs_hit[20] = 1;
                        end
 end
 //--------------------------------------------------------------------------------------------------------------------------------//
@@ -1087,6 +1128,7 @@ always @ (posedge clk or posedge rst) begin
     else if ((shot_x_l >= obs_x_l[21]) && (shot_x_r <= obs_x_r[21]) && (shot_y_b <= obs_y_b[21])) begin
                            obs_x_reg[21] <= 650;
                            obs_y_reg[21] <= 0;
+                           obs_hit[21] = 1;
                        end
 end
 //--------------------------------------------------------------------------------------------------------------------------------//
@@ -1110,6 +1152,7 @@ always @ (posedge clk or posedge rst) begin
     else if ((shot_x_l >= obs_x_l[22]) && (shot_x_r <= obs_x_r[22]) && (shot_y_b <= obs_y_b[22])) begin
                            obs_x_reg[22] <= 650;
                            obs_y_reg[22] <= 0;
+                           obs_hit[22] = 1;
                        end
 end
 //--------------------------------------------------------------------------------------------------------------------------------//
@@ -1133,6 +1176,7 @@ always @ (posedge clk or posedge rst) begin
     else if ((shot_x_l >= obs_x_l[23]) && (shot_x_r <= obs_x_r[23]) && (shot_y_b <= obs_y_b[23])) begin
                            obs_x_reg[23] <= 650;
                            obs_y_reg[23] <= 0;
+                           obs_hit[23] = 1;
                        end
 end
 
@@ -1187,7 +1231,6 @@ end
 /*---------------------------------------------------------*/
 // finite state machine for game control
 /*---------------------------------------------------------*/
-parameter NEWGAME=3'b00, PLAY=3'b01, NEWGUN=3'b10, OVER=3'b11;
 reg [2:0] state_reg, state_next;
 reg [1:0] life_reg, life_next;
 reg [1:0] stage_reg, stage_next;
@@ -1206,11 +1249,11 @@ always @ (*) begin
             if(key[4] == 1) begin //if key push,
                 state_next = PLAY; //game start
                 life_next = 2'b10; //left life 2
-                stage_next = 2'b01; //stage 1
+                stage_next = STAGE1; //stage 1
             end else begin
                 state_next = NEWGAME; //no key push,
                 life_next = 2'b11; //left life 3
-                stage_next = 2'b00; //stage init
+                stage_next = STAGE0; //stage init
             end
          end
          PLAY: begin
@@ -1228,7 +1271,13 @@ always @ (*) begin
 //            end
 //            else if(hit_obs)  begin //hit obs
                 if((obs_hit[0] == 1) && (obs_hit[1] ==1) && (obs_hit[2] ==1) && (obs_hit[3] ==1) && (obs_hit[4] == 1) && (obs_hit[5] == 1))
-                    stage_next = 2'b10;
+                    stage_next = STAGE2;
+                 else if((obs_hit[6] == 1) && (obs_hit[7] ==1) && (obs_hit[8] ==1) && (obs_hit[9] ==1) && (obs_hit[10] == 1) && (obs_hit[11] == 1))
+                    stage_next = STAGE3;
+                 else if((obs_hit[12] == 1) && (obs_hit[13] ==1) && (obs_hit[14] ==1) && (obs_hit[15] ==1) && (obs_hit[16] == 1) && (obs_hit[17] == 1))
+                    stage_next = STAGE4;
+                 else if((obs_hit[18] == 1) && (obs_hit[19] ==1) && (obs_hit[20] ==1) && (obs_hit[21] ==1) && (obs_hit[22] == 1) && (obs_hit[23] == 1))
+                    game_clear = 1;
             //end
             else state_next = PLAY;
          end
@@ -1418,6 +1467,7 @@ assign rgb = (font_bit & score_on)? 3'b111 : //black text
              (obs_on0[12]) ? 3'b100 :
              (obs_on0[13]) ? 3'b100 :
              (obs_on0[14]) ? 3'b100 :
+             
              (obs_on1[0]) ? 3'b100 :
              (obs_on1[1]) ? 3'b100 :
              (obs_on1[2]) ? 3'b100 :
@@ -1433,6 +1483,7 @@ assign rgb = (font_bit & score_on)? 3'b111 : //black text
              (obs_on1[12]) ? 3'b100 :
              (obs_on1[13]) ? 3'b100 :
              (obs_on1[14]) ? 3'b100 :
+             
              (obs_on2[0]) ? 3'b100 :
              (obs_on2[1]) ? 3'b100 :
              (obs_on2[2]) ? 3'b100 :
@@ -1448,6 +1499,7 @@ assign rgb = (font_bit & score_on)? 3'b111 : //black text
              (obs_on2[12]) ? 3'b100 :
              (obs_on2[13]) ? 3'b100 :
              (obs_on2[14]) ? 3'b100 :
+             
              (obs_on3[0]) ? 3'b100 :
              (obs_on3[1]) ? 3'b100 :
              (obs_on3[2]) ? 3'b100 :
@@ -1463,6 +1515,7 @@ assign rgb = (font_bit & score_on)? 3'b111 : //black text
              (obs_on3[12]) ? 3'b100 :
              (obs_on3[13]) ? 3'b100 :
              (obs_on3[14]) ? 3'b100 :
+             
              (obs_on4[0]) ? 3'b100 :
              (obs_on4[1]) ? 3'b100 :
              (obs_on4[2]) ? 3'b100 :
@@ -1478,6 +1531,7 @@ assign rgb = (font_bit & score_on)? 3'b111 : //black text
              (obs_on4[12]) ? 3'b100 :
              (obs_on4[13]) ? 3'b100 :
              (obs_on4[14]) ? 3'b100 :
+             
              (obs_on5[0]) ? 3'b100 :     
              (obs_on5[1]) ? 3'b100 :
              (obs_on5[2]) ? 3'b100 :
@@ -1492,7 +1546,79 @@ assign rgb = (font_bit & score_on)? 3'b111 : //black text
              (obs_on5[11]) ? 3'b100 :
              (obs_on5[12]) ? 3'b100 :
              (obs_on5[13]) ? 3'b100 :
-             (obs_on5[14]) ? 3'b100 :                                 
+             (obs_on5[14]) ? 3'b100 : 
+             
+             (obs_on6[0]) ? 3'b100 : //2stage
+             (obs_on6[1]) ? 3'b100 :
+             (obs_on6[2]) ? 3'b100 :
+             (obs_on6[3]) ? 3'b100 :
+             (obs_on6[4]) ? 3'b100 :
+             (obs_on6[5]) ? 3'b100 :
+             (obs_on6[6]) ? 3'b100 :
+             (obs_on6[7]) ? 3'b100 :
+             (obs_on6[8]) ? 3'b100 :
+             (obs_on6[9]) ? 3'b100 :
+             (obs_on0[10]) ? 3'b100 :
+
+             (obs_on7[0]) ? 3'b100 :
+             (obs_on7[1]) ? 3'b100 :
+             (obs_on7[2]) ? 3'b100 :
+             (obs_on7[3]) ? 3'b100 :
+             (obs_on7[4]) ? 3'b100 :
+             (obs_on7[5]) ? 3'b100 :
+             (obs_on7[6]) ? 3'b100 :
+             (obs_on7[7]) ? 3'b100 :
+             (obs_on7[8]) ? 3'b100 :
+             (obs_on7[9]) ? 3'b100 :
+
+             (obs_on8[0]) ? 3'b100 :
+             (obs_on8[1]) ? 3'b100 :
+             (obs_on8[2]) ? 3'b100 :
+             (obs_on8[3]) ? 3'b100 :
+             (obs_on8[4]) ? 3'b100 :
+             (obs_on8[5]) ? 3'b100 :
+             (obs_on8[6]) ? 3'b100 :
+             (obs_on8[7]) ? 3'b100 :
+             (obs_on8[8]) ? 3'b100 :
+             (obs_on8[9]) ? 3'b100 :
+
+             (obs_on9[0]) ? 3'b100 :
+             (obs_on9[1]) ? 3'b100 :
+             (obs_on9[2]) ? 3'b100 :
+             (obs_on9[3]) ? 3'b100 :
+             (obs_on9[4]) ? 3'b100 :
+             (obs_on9[5]) ? 3'b100 :
+             (obs_on9[6]) ? 3'b100 :
+             (obs_on9[7]) ? 3'b100 :
+             (obs_on9[8]) ? 3'b100 :
+             (obs_on9[9]) ? 3'b100 :
+
+             (obs_on10[0]) ? 3'b100 :
+             (obs_on10[1]) ? 3'b100 :
+             (obs_on10[2]) ? 3'b100 :
+             (obs_on10[3]) ? 3'b100 :
+             (obs_on10[4]) ? 3'b100 :
+             (obs_on10[5]) ? 3'b100 :
+             (obs_on10[6]) ? 3'b100 :
+             (obs_on10[7]) ? 3'b100 :
+             (obs_on10[8]) ? 3'b100 :
+             (obs_on10[9]) ? 3'b100 :
+
+             (obs_on11[0]) ? 3'b100 :     
+             (obs_on11[1]) ? 3'b100 :
+             (obs_on11[2]) ? 3'b100 :
+             (obs_on11[3]) ? 3'b100 :
+             (obs_on11[4]) ? 3'b100 :
+             (obs_on11[5]) ? 3'b100 :
+             (obs_on11[6]) ? 3'b100 :
+             (obs_on11[7]) ? 3'b100 :
+             (obs_on11[8]) ? 3'b100 :
+             (obs_on11[9]) ? 3'b100 :
+             (obs_on11[10]) ? 3'b100 :
+             (obs_on11[11]) ? 3'b100 :
+             (obs_on11[12]) ? 3'b100 :
+             (obs_on11[13]) ? 3'b100 :
+             (obs_on11[14]) ? 3'b100 :                                             
              
              3'b000; //black background
 endmodule
