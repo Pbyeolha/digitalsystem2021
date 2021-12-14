@@ -1,0 +1,23 @@
+wire reach_wall_b[1:0];
+reg [11:0]bomb0_left, bomb0_right;
+reg [11:0] bomb_vx_reg, bomb_vy_reg;
+assign reach_wall_b[0] = (bomb0_left <= MAX_X) ? 1 : 0 ; // right wall
+assign reach_wall_b[1] = (bomb0_right  <= 640-MAX_X) ? 1 : 0 ; //left wall
+
+always @ (posedge clk or posedge rst) begin
+    if(rst | game_stop) begin
+        bomb_vy_reg <= 0;
+        bomb_vx_reg <= OBS_V; //left
+    end else if(refr_tick) begin
+          if(reach_bottom) begin 
+                bomb_vy_reg <= 0; 
+                bomb_vx_reg <= 0;
+                end
+          else if(reach_wall[0]) bomb_vx_reg <= -1*BOMB_V; // reach wall go left
+          else if(reach_wall[1]) bomb_vx_reg <= BOMB_V; // reach wall go right
+          else  begin
+            bomb_vy_reg <= 0;
+            bomb_vx_reg <= BOMB_V; //left
+          end
+    end
+end
