@@ -11,10 +11,11 @@ module top(
     );
 wire clk;  
 wire [9:0] x, y; 
+wire [19:0] seed; 
 wire [2:0] rgb;
 wire video_on; 
 wire [4:0] key_tmp, key, key_pulse;
-
+wire [9:0] rnd;
 /////////////////////////////////
 clk_wiz_0 clk_inst (clk, rst, , clk_100mhz); 
 keypad #(.CLK_KHZ(25175)) keypad_inst (clk, rst, key_io[7:4], key_io[3:0], key_tmp); 
