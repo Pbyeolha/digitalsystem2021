@@ -1,0 +1,52 @@
+/*---------------------------------------------------------*/
+// shot
+reg [9:0] shot_x_reg, shot_y_reg;
+reg [9:0] shot_vy_reg, shot_vx_reg;
+wire [9:0] shot_x_l, shot_x_r, shot_y_t, shot_y_b;
+wire shot_on[4:0]; 
+assign shot_x_l = shot_x_reg;
+assign shot_x_r = shot_x_reg + SHOT_SIZE - 1;
+assign shot_y_t = shot_y_reg;
+assign shot_y_b = shot_y_reg + SHOT_SIZE -1;
+
+//color
+assign shot_on0[0] = (x>= (3 + shot_x_l) && x <= (shot_x_r - 3)&& y>=( shot_y_t) && y  <= (shot_y_b - 7))? 1 : 0;
+assign shot_on0[1] = (x>= (2 + shot_x_l) && x <= (shot_x_r - 2 )&& y>=(1+shot_y_t) && y  <= (shot_y_b - 6))? 1 : 0;
+assign shot_on0[2] = (x>= (1 + shot_x_l) && x <= (shot_x_r -1)&& y>=(2+ shot_y_t) && y  <= shot_y_b -5)? 1 : 0;
+assign shot_on0[3] = (x>= ( shot_x_l) && x <= (shot_x_r  )&& y>=(3+shot_y_t) && y  <= (shot_y_b - 3))? 1 : 0;
+assign shot_on0[4] = (x>= (1 + shot_x_l) && x <= (shot_x_r - 1 )&& y>=(5+shot_y_t) && y  <= (shot_y_b - 2))? 1 : 0;
+assign shot_on0[5] = (x>= (2 + shot_x_l) && x <= (shot_x_r - 2 )&& y>=(6+shot_y_t) && y  <= (shot_y_b -1))? 1 : 0;
+assign shot_on0[6] = (x>= (3 + shot_x_l) && x <= (shot_x_r - 3 )&& y>=(7+shot_y_t) && y  <= (shot_y_b ))? 1 : 0;
+
+
+always @ (posedge clk or posedge rst) begin
+    if(rst|game_stop) begin
+        shot_x_reg <= (gun_x_l + gun_x_r) / 2;
+        shot_y_reg <= (GUN_Y_B + GUN_Y_T) / 2;
+    end
+    else if(refr_tick)begin
+        shot_x_reg <= (gun_x_l + gun_x_r) / 2;
+        shot_y_reg <= (GUN_Y_B + GUN_Y_T) / 2;
+        if(key == 5'h15) begin
+           shot_y_reg <= shot_y_reg + shot_vy_reg;
+           shot_x_reg <= shot_x_reg + shot_vx_reg;
+        end
+    end 
+end
+
+always @ (posedge clk or posedge rst) begin
+    if(rst|game_stop) begin
+        shot_vy_reg <= -1*SHOT_V; //up
+        shot_vx_reg <= 0;
+    end else begin
+            if(reach_obs) begin 
+                shot_vy_reg <= -1*SHOT_V; //up //fix
+                shot_vx_reg <= 0;
+            end
+            else begin
+                shot_vy_reg <= -1*SHOT_V; //up
+                shot_vx_reg <= 0;
+            end
+    end
+end
+/*---------------------------------------------------------*/
