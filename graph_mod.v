@@ -30,6 +30,12 @@ wire refr_tick;
 wire [9:0] reach_obs, reach_bomb;
 wire reach_top, reach_bottom, wall_left_3_1, wall_left_3_2, wall_left_3_3, wall_left_3_4, wall_left_3_5, wall_left_3_6, 
      wall_right_3_1, wall_right_3_2, wall_right_3_3, wall_right_3_4, wall_right_3_5, wall_right_3_6, wall_left_4, wall_right_4;
+///jy///
+wire  wall_left_4_1, wall_left_4_2, wall_left_4_3, wall_left_4_4, wall_left_4_5, wall_left_4_6, 
+         wall_right_4_1, wall_right_4_2, wall_right_4_3, wall_right_4_4, wall_right_4_5, wall_right_4_6;
+wire reach_top_4,reach_top_4_1,reach_top_4_2,reach_top_4_3,reach_top_4_4,reach_top_4_5,reach_top_4_6, 
+reach_bottom_4,reach_bottom_4_1,reach_bottom_4_2,reach_bottom_4_3,reach_bottom_4_4,reach_bottom_4_5,reach_bottom_4_6;
+
 
 reg game_stop, game_over, game_clear;  
 reg stage1, stage2, stage3, stage4 = 0;
@@ -128,8 +134,9 @@ reg [19:0] S1; wire [7:0] randB0_x, randB1_x, randB2_x;
 reg [19:0] S1_y; wire [7:0] randB0_y, randB1_y, randB2_y;
 random_bomb1S(rst, clk, S1, randB0_x, randB1_x,randB2_x);
 random_bomb1S_y(rst, clk, S1_y, randB0_y, randB1_y,randB2_y);
+
 /*---------------------------------------------------------*/
-// bomb - 1stage
+// bomb
 /*---------------------------------------------------------*/
 reg [9:0] bomb_x_reg[11:0], bomb_y_reg[11:0];
 reg [9:0] bomb1_vy_reg, bomb1_vx_reg, bomb2_vy_reg, bomb2_vx_reg, bomb3_vy_reg, bomb3_vx_reg ;
@@ -260,8 +267,9 @@ end
 // obs - 1stage / 0~5
 /*---------------------------------------------------------*/
 reg [9:0] obs_x_reg [23:0], obs_y_reg [23:0];
-reg [9:0] obs1_vy_reg, obs1_vx_reg , obs2_vx_reg ,obs2_vy_reg, obs4_vy_reg, obs4_vx_reg; //velocity
-reg[9:0] obs3_vx_reg[11:0], obs3_vy_reg;
+reg [9:0] obs1_vy_reg, obs1_vx_reg , obs2_vx_reg ,obs2_vy_reg; //velocity
+reg[9:0] obs3_vx_reg[6:0], obs3_vy_reg;
+reg[9:0] obs4_vx_reg[6:0], obs4_vy_reg[6:0];
 wire [9:0] obs_x_l[23:0], obs_x_r[23:0], obs_y_t[23:0], obs_y_b[23:0];
 wire obs_on0[14:0], obs_on1[14:0], obs_on2[14:0], obs_on3[14:0], obs_on4[14:0], obs_on5[14:0], //1stage
         obs_on6[14:0], obs_on7[14:0], obs_on8[14:0], obs_on9[14:0], obs_on10[14:0], obs_on11[14:0], //2stage
@@ -1169,16 +1177,16 @@ always @ (posedge clk or posedge rst) begin
         obs_score[18] <= 0;
     end    
     else if(refr_tick) begin
-        obs_x_reg[18] <= obs_x_reg[18] + obs4_vx_reg; 
-        obs_y_reg[18] <= obs_y_reg[18] + obs4_vy_reg;
+        obs_x_reg[18] <= obs_x_reg[18] + obs4_vx_reg[0]; 
+        obs_y_reg[18] <= obs_y_reg[18] + obs4_vy_reg[0];
         obs_score[18] <= 0;
         end
     else if ((shot_x_l >= obs_x_l[18]) && (shot_x_r <= obs_x_r[18]) && (shot_y_b <= obs_y_b[18])) begin
-                           obs_x_reg[18] <= 650;
-                           obs_y_reg[18] <= 0;
-                           obs_hit[18] = 1;
-                           obs_score[18] <= 1;
-                       end
+        obs_x_reg[18] <= 650;
+        obs_y_reg[18] <= 0;
+        obs_hit[18] = 1;
+        obs_score[18] <= 1;
+   end
   end
 end
 //--------------------------------------------------------------------------------------------------------------------------------//
@@ -1218,16 +1226,16 @@ always @ (posedge clk or posedge rst) begin
         obs_score[19] <= 0;
     end    
     else if (refr_tick) begin
-        obs_x_reg[19] <= obs_x_reg[19] + obs4_vx_reg; 
-        obs_y_reg[19] <= obs_y_reg[19] + obs4_vy_reg;
+        obs_x_reg[19] <= obs_x_reg[19] + obs4_vx_reg[1]; 
+        obs_y_reg[19] <= obs_y_reg[19] + obs4_vy_reg[1];
         obs_score[19] <= 0;
         end
     else if ((shot_x_l >= obs_x_l[19]) && (shot_x_r <= obs_x_r[19]) && (shot_y_b <= obs_y_b[19])) begin
-                           obs_x_reg[19] <= 650;
-                           obs_y_reg[19] <= 0;
-                           obs_hit[19] = 1;
-                           obs_score[19] <= 1;
-                       end
+        obs_x_reg[19] <= 650;
+        obs_y_reg[19] <= 0;
+        obs_hit[19] = 1;
+        obs_score[19] <= 1;
+    end
    end
 end
 //--------------------------------------------------------------------------------------------------------------------------------//
@@ -1267,16 +1275,16 @@ always @ (posedge clk or posedge rst) begin
         obs_score[20] <= 0;
     end    
     else if (refr_tick) begin
-        obs_x_reg[20] <= obs_x_reg[20] + obs4_vx_reg; 
-        obs_y_reg[20] <= obs_y_reg[20] + obs4_vy_reg;
+        obs_x_reg[20] <= obs_x_reg[20] + obs4_vx_reg[2]; 
+        obs_y_reg[20] <= obs_y_reg[20] + obs4_vy_reg[2];
         obs_score[20] <= 0;
         end
     else if ((shot_x_l >= obs_x_l[20]) && (shot_x_r <= obs_x_r[20]) && (shot_y_b <= obs_y_b[20])) begin
-                           obs_x_reg[20] <= 650;
-                           obs_y_reg[20] <= 0;
-                           obs_hit[20] = 1;
-                           obs_score[20] <= 1;
-                       end
+        obs_x_reg[20] <= 650;
+        obs_y_reg[20] <= 0;
+        obs_hit[20] = 1;
+        obs_score[20] <= 1;
+    end
   end
 end
 //--------------------------------------------------------------------------------------------------------------------------------//
@@ -1316,16 +1324,16 @@ always @ (posedge clk or posedge rst) begin
         obs_score[21] <= 0; 
     end    
     else if (refr_tick) begin
-        obs_x_reg[21] <= obs_x_reg[21] + obs4_vx_reg; 
-        obs_y_reg[21] <= obs_y_reg[21] + obs4_vy_reg;
+        obs_x_reg[21] <= obs_x_reg[21] + obs4_vx_reg[3]; 
+        obs_y_reg[21] <= obs_y_reg[21] + obs4_vy_reg[3];
         obs_score[21] <= 0; 
         end
     else if ((shot_x_l >= obs_x_l[21]) && (shot_x_r <= obs_x_r[21]) && (shot_y_b <= obs_y_b[21])) begin
-                           obs_x_reg[21] <= 650;
-                           obs_y_reg[21] <= 0;
-                           obs_hit[21] = 1;
-                           obs_score[21] <= 1; 
-                       end
+        obs_x_reg[21] <= 650;
+        obs_y_reg[21] <= 0;
+        obs_hit[21] = 1;
+        obs_score[21] <= 1; 
+    end
   end
 end
 //--------------------------------------------------------------------------------------------------------------------------------//
@@ -1365,16 +1373,16 @@ always @ (posedge clk or posedge rst) begin
         obs_score[22] <= 0; 
     end    
     else if (refr_tick) begin
-        obs_x_reg[22] <= obs_x_reg[22] + obs4_vx_reg; 
-        obs_y_reg[22] <= obs_y_reg[22] + obs4_vy_reg;
+        obs_x_reg[22] <= obs_x_reg[22] + obs4_vx_reg[4]; 
+        obs_y_reg[22] <= obs_y_reg[22] + obs4_vy_reg[4];
         obs_score[22] <= 0; 
         end
     else if ((shot_x_l >= obs_x_l[22]) && (shot_x_r <= obs_x_r[22]) && (shot_y_b <= obs_y_b[22])) begin
-                           obs_x_reg[22] <= 650;
-                           obs_y_reg[22] <= 0;
-                           obs_hit[22] = 1;
-                           obs_score[22] <= 1; 
-                       end
+        obs_x_reg[22] <= 650;
+        obs_y_reg[22] <= 0;
+        obs_hit[22] = 1;
+        obs_score[22] <= 1; 
+    end
   end
 end
 //--------------------------------------------------------------------------------------------------------------------------------//
@@ -1414,37 +1422,130 @@ always @ (posedge clk or posedge rst) begin
         obs_score[23] <= 0; 
     end    
     else if (refr_tick) begin
-        obs_x_reg[23] <= obs_x_reg[23] + obs4_vx_reg; 
-        obs_y_reg[23] <= obs_y_reg[23] + obs4_vy_reg;
+        obs_x_reg[23] <= obs_x_reg[23] + obs4_vx_reg[5]; 
+        obs_y_reg[23] <= obs_y_reg[23] + obs4_vy_reg[5];
         obs_score[23] <= 0; 
         end
     else if ((shot_x_l >= obs_x_l[23]) && (shot_x_r <= obs_x_r[23]) && (shot_y_b <= obs_y_b[23])) begin
-                           obs_x_reg[23] <= 650;
-                           obs_y_reg[23] <= 0;
-                           obs_hit[23] = 1;
-                           obs_score[23] <= 1; 
-                       end
+        obs_x_reg[23] <= 650;
+        obs_y_reg[23] <= 0;
+        obs_hit[23] = 1;
+        obs_score[23] <= 1; 
+    end
   end
 end
 
-assign wall_right_4 = ((obs_x_r[18] == MAX_X) || (obs_x_r[19] == MAX_X) || (obs_x_r[20] == MAX_X) || (obs_x_r[21] == MAX_X) || (obs_x_r[22] == MAX_X) || (obs_x_r[23] == MAX_X)) ? 1 : 0 ; // right wall
-assign wall_left_4 = ((obs_x_l[18] == 640-MAX_X) || (obs_x_l[19] == 640-MAX_X) || (obs_x_l[20] == 640-MAX_X) || (obs_x_l[21] == 640-MAX_X) || (obs_x_l[22] == 640-MAX_X) || (obs_x_l[23] == 640-MAX_X)) ? 1 : 0 ; //left wall
-assign reach_bottom = ((obs_y_b[18] > MAX_Y-1) || (obs_y_b[19] > MAX_Y-1) || (obs_y_b[20] > MAX_Y-1) || (obs_y_b[21] > MAX_Y-1) || (obs_y_b[22] > MAX_Y-1) || (obs_y_b[23] > MAX_Y-1))? 1 :0; // bottom 
-assign reach_top = ((obs_y_t[18] == 0) || (obs_y_t[19] == 0) || (obs_y_t[20] == 0) || (obs_y_t[21] == 0) || (obs_y_t[22] == 0) || (obs_y_t[23] == 0))? 1:0; // top 
+//assign wall_right_4 = ((obs_x_r[18] == MAX_X) || (obs_x_r[19] == MAX_X) || (obs_x_r[20] == MAX_X) || (obs_x_r[21] == MAX_X) || (obs_x_r[22] == MAX_X) || (obs_x_r[23] == MAX_X)) ? 1 : 0 ; // right wall
+//assign wall_left_4 = ((obs_x_l[18] == 640-MAX_X) || (obs_x_l[19] == 640-MAX_X) || (obs_x_l[20] == 640-MAX_X) || (obs_x_l[21] == 640-MAX_X) || (obs_x_l[22] == 640-MAX_X) || (obs_x_l[23] == 640-MAX_X)) ? 1 : 0 ; //left wall
+//assign reach_bottom = ((obs_y_b[18] > MAX_Y-1) || (obs_y_b[19] > MAX_Y-1) || (obs_y_b[20] > MAX_Y-1) || (obs_y_b[21] > MAX_Y-1) || (obs_y_b[22] > MAX_Y-1) || (obs_y_b[23] > MAX_Y-1))? 1 :0; // bottom 
+//assign reach_top = ((obs_y_t[18] == 0) || (obs_y_t[19] == 0) || (obs_y_t[20] == 0) || (obs_y_t[21] == 0) || (obs_y_t[22] == 0) || (obs_y_t[23] == 0))? 1:0; // top 
+
+assign wall_right_4_1 = (obs_x_r[18] == MAX_X) ? 1 : 0 ; // right wall
+assign wall_right_4_2 = (obs_x_r[19] == MAX_X) ? 1 : 0 ; // right wall
+assign wall_right_4_3 = (obs_x_r[20] == MAX_X) ? 1 : 0 ; // right wall
+assign wall_right_4_4 = (obs_x_r[21] == MAX_X) ? 1 : 0 ; // right wall
+assign wall_right_4_5 = (obs_x_r[22] == MAX_X) ? 1 : 0 ; // right wall
+assign wall_right_4_6 = (obs_x_r[23] == MAX_X) ? 1 : 0 ; // right wall
+
+assign wall_left_4_1 = (obs_x_l[18] == 0) ? 1 : 0 ; //left wall
+assign wall_left_4_2 = (obs_x_l[19] == 0) ? 1 : 0 ; //left wall
+assign wall_left_4_3 = (obs_x_l[20] == 0) ? 1 : 0 ; //left wall
+assign wall_left_4_4 = (obs_x_l[21] == 0) ? 1 : 0 ; //left wall
+assign wall_left_4_5 = (obs_x_l[22] == 0) ? 1 : 0 ; //left wall
+assign wall_left_4_6 = (obs_x_l[23] == 0) ? 1 : 0 ; //left wall
+
+assign reach_bottom_4_1 = (obs_y_b[18] > MAX_Y-1) ? 1 : 0 ; //bottom wall
+assign reach_bottom_4_2 = (obs_y_b[19] > MAX_Y-1) ? 1 : 0 ;
+assign reach_bottom_4_3 = (obs_y_b[20] > MAX_Y-1) ? 1 : 0 ;
+assign reach_bottom_4_4 = (obs_y_b[21] > MAX_Y-1) ? 1 : 0 ;
+assign reach_bottom_4_5 = (obs_y_b[22] > MAX_Y-1) ? 1 : 0 ;
+assign reach_bottom_4_6 = (obs_y_b[23] > MAX_Y-1) ? 1 : 0 ;
+
+assign reach_top_4_1 = (obs_y_t[18] == 0) ? 1 : 0 ; //top wall
+assign reach_top_4_2 = (obs_y_t[19] == 0) ? 1 : 0 ;
+assign reach_top_4_3 = (obs_y_t[20] == 0) ? 1 : 0 ;
+assign reach_top_4_4 = (obs_y_t[21] == 0) ? 1 : 0 ;
+assign reach_top_4_5 = (obs_y_t[22] == 0) ? 1 : 0 ;
+assign reach_top_4_6 = (obs_y_t[23] == 0) ? 1 : 0 ;
+
+
 
 always @ (posedge clk or posedge rst) begin
     if(rst | game_stop) begin
-        obs4_vy_reg <= -1*OBS_V;
-        obs4_vx_reg <= OBS_V; 
-     end 
-     else begin 
-                  if(reach_bottom) obs4_vy_reg <= -1*OBS_V;
-                 else if(reach_top) obs4_vy_reg <= OBS_V; 
-                 else if(wall_right_4) obs4_vx_reg <= -1*OBS_V; // reach wall go left
-                 else if(wall_left_4) obs4_vx_reg <= OBS_V; // reach wall go right
-                 end
+        if(wall_right_4_1) begin obs4_vx_reg[0] <= -1*OBS_V; obs4_vy_reg[0] <= 0; end// reach wall go left
+        else if(wall_right_4_2) begin obs4_vx_reg[1] <= -1*OBS_V; obs4_vy_reg[1] <= 0; end
+        else if(wall_right_4_3) begin obs4_vx_reg[2] <= -1*OBS_V; obs4_vy_reg[2] <= 0; end
+        else if(wall_right_4_4) begin obs4_vx_reg[3] <= -1*OBS_V; obs4_vy_reg[3] <= 0; end
+        else if(wall_right_4_5) begin obs4_vx_reg[4] <= -1*OBS_V; obs4_vy_reg[4] <= 0; end
+        else if(wall_right_4_6) begin obs4_vx_reg[5] <= -1*OBS_V; obs4_vy_reg[5] <= 0; end
+        else if(wall_left_4_1) begin obs4_vx_reg[0] <= OBS_V; obs4_vy_reg[0] <= 0; end// reach wall go right
+        else if(wall_left_4_2) begin obs4_vx_reg[1] <= OBS_V; obs4_vy_reg[1] <= 0; end
+        else if(wall_left_4_3) begin obs4_vx_reg[2] <= OBS_V; obs4_vy_reg[2] <= 0; end
+        else if(wall_left_4_4) begin obs4_vx_reg[3] <= OBS_V; obs4_vy_reg[3] <= 0; end
+        else if(wall_left_4_5) begin obs4_vx_reg[4] <= OBS_V; obs4_vy_reg[4] <= 0; end
+        else if(wall_left_4_6) begin obs4_vx_reg[5] <= OBS_V; obs4_vy_reg[5] <= 0; end
+        
+        else if(reach_top_4_1) begin obs4_vy_reg[0] <= OBS_V;  obs4_vx_reg[0] <= 0; end// reach wall go down
+        else if(reach_top_4_2) begin obs4_vy_reg[1] <= OBS_V; obs4_vx_reg[1] <= 0; end
+        else if(reach_top_4_3) begin obs4_vy_reg[2] <= OBS_V; obs4_vx_reg[2] <= 0; end
+        else if(reach_top_4_4) begin obs4_vy_reg[3] <= OBS_V; obs4_vx_reg[3] <= 0; end
+        else if(reach_top_4_5) begin obs4_vy_reg[4] <= OBS_V; obs4_vx_reg[4] <= 0; end
+        else if(reach_top_4_6) begin obs4_vy_reg[5] <= OBS_V; obs4_vx_reg[5] <= 0; end
+        else if(reach_bottom_4_1) begin obs4_vy_reg[0] <= -1*OBS_V;  obs4_vx_reg[0] <= 0; end// reach wall go left
+        else if(reach_bottom_4_2) begin obs4_vy_reg[1] <= -1*OBS_V; obs4_vx_reg[1] <= 0; end
+        else if(reach_bottom_4_3) begin obs4_vy_reg[2] <= -1*OBS_V; obs4_vx_reg[2] <= 0; end
+        else if(reach_bottom_4_4) begin obs4_vy_reg[3] <= -1*OBS_V; obs4_vx_reg[3] <= 0; end
+        else if(reach_bottom_4_5) begin obs4_vy_reg[4] <= -1*OBS_V; obs4_vx_reg[4] <= 0; end
+        else if(reach_bottom_4_6) begin obs4_vy_reg[5] <= -1*OBS_V; obs4_vx_reg[5] <= 0; end
+
+    end 
+    else begin
+            if(wall_right_4_1) begin obs4_vx_reg[0] <= -1*OBS_V;  obs4_vy_reg[0] <= 0; end// reach wall go left
+            else if(wall_right_4_2) begin obs4_vx_reg[1] <= -1*OBS_V; obs4_vy_reg[1] <= 0; end
+            else if(wall_right_4_3) begin obs4_vx_reg[2] <= -1*OBS_V; obs4_vy_reg[2] <= 0; end
+            else if(wall_right_4_4) begin obs4_vx_reg[3] <= -1*OBS_V; obs4_vy_reg[3] <= 0; end
+            else if(wall_right_4_5) begin obs4_vx_reg[4] <= -1*OBS_V; obs4_vy_reg[4] <= 0; end
+            else if(wall_right_4_6) begin obs4_vx_reg[5] <= -1*OBS_V; obs4_vy_reg[5] <= 0; end
+            else if(wall_left_4_1) begin obs4_vx_reg[0] <= OBS_V; obs4_vy_reg[0] <= 0; end // reach wall go right
+            else if(wall_left_4_2) begin obs4_vx_reg[1] <= OBS_V; obs4_vy_reg[1] <= 0; end
+            else if(wall_left_4_3) begin obs4_vx_reg[2] <= OBS_V; obs4_vy_reg[2] <= 0; end
+            else if(wall_left_4_4) begin obs4_vx_reg[3] <= OBS_V; obs4_vy_reg[3] <= 0; end
+            else if(wall_left_4_5) begin obs4_vx_reg[4] <= OBS_V; obs4_vy_reg[4] <= 0; end
+            else if(wall_left_4_6) begin obs4_vx_reg[5] <= OBS_V; obs4_vy_reg[5] <= 0; end
+            
+             else if(reach_bottom_4_1) begin obs4_vy_reg[0] <= -1*OBS_V;  obs4_vx_reg[0] <= 0; end// reach wall go left
+             else if(reach_bottom_4_2) begin obs4_vy_reg[1] <= -1*OBS_V; obs4_vx_reg[1] <= 0; end
+             else if(reach_bottom_4_3) begin obs4_vy_reg[2] <= -1*OBS_V; obs4_vx_reg[2] <= 0; end
+             else if(reach_bottom_4_4) begin obs4_vy_reg[3] <= -1*OBS_V; obs4_vx_reg[3] <= 0; end
+             else if(reach_bottom_4_5) begin obs4_vy_reg[4] <= -1*OBS_V; obs4_vx_reg[4] <= 0; end
+             else if(reach_bottom_4_6) begin obs4_vy_reg[5] <= -1*OBS_V; obs4_vx_reg[5] <= 0; end
+             else if(reach_top_4_1) begin obs4_vy_reg[0] <= OBS_V;  obs4_vx_reg[0] <= 0; end// reach wall go down
+             else if(reach_top_4_2) begin obs4_vy_reg[1] <= OBS_V; obs4_vx_reg[1] <= 0; end
+             else if(reach_top_4_3) begin obs4_vy_reg[2] <= OBS_V; obs4_vx_reg[2] <= 0; end
+             else if(reach_top_4_4) begin obs4_vy_reg[3] <= OBS_V; obs4_vx_reg[3] <= 0; end
+             else if(reach_top_4_5) begin obs4_vy_reg[4] <= OBS_V; obs4_vx_reg[4] <= 0; end
+             else if(reach_top_4_6) begin obs4_vy_reg[5] <= OBS_V; obs4_vx_reg[5] <= 0; end
+     end
+end     
+
+//assign wall_right_4 = ((obs_x_r[18] == MAX_X) || (obs_x_r[19] == MAX_X) || (obs_x_r[20] == MAX_X) || (obs_x_r[21] == MAX_X) || (obs_x_r[22] == MAX_X) || (obs_x_r[23] == MAX_X)) ? 1 : 0 ; // right wall
+//assign wall_left_4 = ((obs_x_l[18] == 640-MAX_X) || (obs_x_l[19] == 640-MAX_X) || (obs_x_l[20] == 640-MAX_X) || (obs_x_l[21] == 640-MAX_X) || (obs_x_l[22] == 640-MAX_X) || (obs_x_l[23] == 640-MAX_X)) ? 1 : 0 ; //left wall
+//assign reach_bottom = ((obs_y_b[18] > MAX_Y-1) || (obs_y_b[19] > MAX_Y-1) || (obs_y_b[20] > MAX_Y-1) || (obs_y_b[21] > MAX_Y-1) || (obs_y_b[22] > MAX_Y-1) || (obs_y_b[23] > MAX_Y-1))? 1 :0; // bottom 
+//assign reach_top = ((obs_y_t[18] == 0) || (obs_y_t[19] == 0) || (obs_y_t[20] == 0) || (obs_y_t[21] == 0) || (obs_y_t[22] == 0) || (obs_y_t[23] == 0))? 1:0; // top 
+
+//always @ (posedge clk or posedge rst) begin
+  //  if(rst | game_stop) begin
+    //    obs4_vy_reg <= -1*OBS_V;
+     //   obs4_vx_reg <= OBS_V; 
+     //end 
+     //else begin 
+       //           if(reach_bottom) obs4_vy_reg <= -1*OBS_V;
+         //        else if(reach_top) obs4_vy_reg <= OBS_V; 
+          //       else if(wall_right_4) obs4_vx_reg <= -1*OBS_V; // reach wall go left
+           //      else if(wall_left_4) obs4_vx_reg <= OBS_V; // reach wall go right
+           //      end
           
-end
+//end
 /*---------------------------------------------------------*/
 // if hit_obs, score ++
 /*---------------------------------------------------------*/
