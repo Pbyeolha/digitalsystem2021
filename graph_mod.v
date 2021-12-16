@@ -19,12 +19,7 @@ parameter SHOT_V = 5;
 // obs size, velocity
 parameter OBS_SIZE = 30;
 parameter OBS_V = 1;
-parameter OBS_V_1 = 1;
-parameter OBS_V_2 = 1;
-parameter OBS_V_3 = 1;
-parameter OBS_V_4 = 1;
-parameter OBS_V_5 = 1;
-parameter OBS_V_6 = 1;
+
 //bomb size, velocity
 parameter BOMB_SIZE = 30;
 parameter BOMB_V = 5;
@@ -42,7 +37,7 @@ wire wall_left_4_1, wall_left_4_2, wall_left_4_3, wall_left_4_4, wall_left_4_5, 
 wire wall_right_4_1, wall_right_4_2, wall_right_4_3, wall_right_4_4, wall_right_4_5, wall_right_4_6;
 
 reg game_stop, game_over, game_clear;  
-reg stage1, stage2, stage3, stage4 = 0;
+reg stage1, stage2, stage3, stage4;
 
 //refrernce tick 
 assign refr_tick = (y==MAX_Y-1 && x==MAX_X-1)? 1 : 0; // frame, 1sec
@@ -228,8 +223,8 @@ always @ (posedge clk or posedge rst) begin
             bomb_hit[1] = 1;
             bomb_score[1] = 1;
     end 
- end
-
+ 
+end
 //--------------------------------------------------------------------------------------------------------------------------------//
 assign bomb_x_l[2] = bomb_x_reg[2];
 assign bomb_x_r[2] = bomb_x_reg[2] + BOMB_SIZE - 1;
@@ -270,8 +265,8 @@ always @ (posedge clk or posedge rst) begin
             bomb_hit[2] = 1;
             bomb_score[2] = 1;
     end 
-    end
-
+    
+end
 always @ (posedge clk or posedge rst) begin
     if(rst|game_stop) begin
         bomb1_vy_reg <= 0; 
@@ -279,7 +274,8 @@ always @ (posedge clk or posedge rst) begin
     end else if(bomb_hit[0] == 1) begin
         bomb1_vy_reg <= 0;
         bomb1_vx_reg <= 0;
-    end else begin
+    end 
+    else begin
         bomb1_vy_reg <= 0 ; 
         bomb1_vx_reg <= BOMB_V;
    end
@@ -623,7 +619,7 @@ always @ (posedge clk or posedge rst) begin
     end    
     else if(refr_tick) begin
         obs_x_reg[6] <= obs_x_reg[6] + obs2_vx_reg; 
-        obs_y_reg[6] <= obs_y_reg[6] + obs2_vy_reg - 2;
+        obs_y_reg[6] <= obs_y_reg[6] + obs2_vy_reg;
         obs_score[6] <= 0;
         end
      else if ((shot_x_l >= obs_x_l[6]) && (shot_x_r <= obs_x_r[6]) && (shot_y_b <= obs_y_b[6])) begin
@@ -656,7 +652,7 @@ always @ (posedge clk or posedge rst) begin
  if(stage2 == 1) begin
     if(rst | game_stop) begin
         obs_x_reg[7] <= 140; 
-        obs_y_reg[7] <= 0; 
+        obs_y_reg[7] <= 40; 
         obs_score[7] <= 0;
     end    
     else if (refr_tick) begin
@@ -694,12 +690,12 @@ always @ (posedge clk or posedge rst) begin
  if(stage2 == 1) begin
     if(rst | game_stop) begin
         obs_x_reg[8] <= 210; 
-        obs_y_reg[8] <= 0; 
+        obs_y_reg[8] <= 20; 
         obs_score[8] <= 0;
     end    
     else if (refr_tick) begin
         obs_x_reg[8] <= obs_x_reg[8] + obs2_vx_reg; 
-        obs_y_reg[8] <= obs_y_reg[8] + obs2_vy_reg - 1;
+        obs_y_reg[8] <= obs_y_reg[8] + obs2_vy_reg;
         obs_score[8] <= 0;
         end
      else if ((shot_x_l >= obs_x_l[8]) && (shot_x_r <= obs_x_r[8]) && (shot_y_b <= obs_y_b[8])) begin
@@ -732,12 +728,12 @@ always @ (posedge clk or posedge rst) begin
  if(stage2 == 1) begin
     if(rst | game_stop) begin
         obs_x_reg[9] <= 330; 
-        obs_y_reg[9] <= 0; 
+        obs_y_reg[9] <= 110; 
         obs_score[9] <= 0;
     end    
     else if (refr_tick) begin
-        obs_x_reg[9] <= obs_x_reg[9] + obs2_vx_reg ; 
-        obs_y_reg[9] <= obs_y_reg[9] + obs2_vy_reg + 3;
+        obs_x_reg[9] <= obs_x_reg[9] + obs2_vx_reg; 
+        obs_y_reg[9] <= obs_y_reg[9] + obs2_vy_reg;
         obs_score[9] <= 0;
         end
      else if ((shot_x_l >= obs_x_l[9]) && (shot_x_r <= obs_x_r[9]) && (shot_y_b <= obs_y_b[9])) begin
@@ -770,12 +766,12 @@ always @ (posedge clk or posedge rst) begin
  if(stage2 == 1) begin
     if(rst | game_stop) begin
         obs_x_reg[10] <= 400; 
-        obs_y_reg[10] <= 0; 
+        obs_y_reg[10] <= 230; 
         obs_score[10] <= 0;
     end    
     else if (refr_tick) begin
         obs_x_reg[10] <= obs_x_reg[10] + obs2_vx_reg; 
-        obs_y_reg[10] <= obs_y_reg[10] + obs2_vy_reg + 1;
+        obs_y_reg[10] <= obs_y_reg[10] + obs2_vy_reg;
         obs_score[10] <= 0;
         end
     else if ((shot_x_l >= obs_x_l[10]) && (shot_x_r <= obs_x_r[10]) && (shot_y_b <= obs_y_b[10])) begin
@@ -808,12 +804,12 @@ always @ (posedge clk or posedge rst) begin
  if(stage2 == 1) begin
     if(rst | game_stop) begin
         obs_x_reg[11] <= 500; 
-        obs_y_reg[11] <= 0; 
+        obs_y_reg[11] <= 19; 
         obs_score[11] <= 0;
     end    
     else if (refr_tick) begin
         obs_x_reg[11] <= obs_x_reg[11] + obs2_vx_reg; 
-        obs_y_reg[11] <= obs_y_reg[11] + obs2_vy_reg + 2;
+        obs_y_reg[11] <= obs_y_reg[11] + obs2_vy_reg;
         obs_score[11] <= 0;
         end
     else if ((shot_x_l >= obs_x_l[11]) && (shot_x_r <= obs_x_r[11]) && (shot_y_b <= obs_y_b[11])) begin
@@ -870,12 +866,12 @@ assign obs_on12[21] = (x>= ( 27 + obs_x_l[12]) && x <= (obs_x_r[12]  )&& y>=( 19
 always @ (posedge clk or posedge rst) begin
  if(stage3) begin
     if(rst | game_stop) begin
-        obs_x_reg[12] <= 0; 
+        obs_x_reg[12] <= 3; 
         obs_y_reg[12] <= 30; 
         obs_score[12] <= 0;
     end    
     else if(refr_tick) begin
-        obs_x_reg[12] <= obs_x_reg[12] + obs3_vx_reg[0] - 3; 
+        obs_x_reg[12] <= obs_x_reg[12] + obs3_vx_reg[0]; 
         obs_y_reg[12] <= obs_y_reg[12] + obs3_vy_reg;
         obs_score[12] <= 0;
         end
@@ -920,12 +916,12 @@ assign obs_on13[21] = (x>= ( 27 + obs_x_l[13]) && x <= (obs_x_r[13]  )&& y>=( 19
 always @ (posedge clk or posedge rst) begin
   if(stage3) begin
     if(rst | game_stop) begin
-        obs_x_reg[13] <= 0; 
+        obs_x_reg[13] <= 23; 
         obs_y_reg[13] <= 120; 
         obs_score[13] <= 0;
     end    
     else if (refr_tick) begin
-        obs_x_reg[13] <= obs_x_reg[13] + obs3_vx_reg[1] - 1; 
+        obs_x_reg[13] <= obs_x_reg[13] + obs3_vx_reg[1]; 
         obs_y_reg[13] <= obs_y_reg[13] + obs3_vy_reg;
         obs_score[13] <= 0;
         end
@@ -970,12 +966,12 @@ assign obs_on14[21] = (x>= ( 27 + obs_x_l[14]) && x <= (obs_x_r[14]  )&& y>=( 19
 always @ (posedge clk or posedge rst) begin
   if(stage3 == 1) begin
     if(rst | game_stop) begin
-        obs_x_reg[14] <= 0; 
+        obs_x_reg[14] <= 68; 
         obs_y_reg[14] <= 180; 
         obs_score[14] <= 0;
     end    
     else if (refr_tick) begin
-        obs_x_reg[14] <= obs_x_reg[14] + obs3_vx_reg[2] - 2; 
+        obs_x_reg[14] <= obs_x_reg[14] + obs3_vx_reg[2]; 
         obs_y_reg[14] <= obs_y_reg[14] + obs3_vy_reg;
          obs_score[14] <= 0;
         end
@@ -1020,7 +1016,7 @@ assign obs_on15[21] = (x>= ( 27 + obs_x_l[15]) && x <= (obs_x_r[15]  )&& y>=( 19
 always @ (posedge clk or posedge rst) begin
  if(stage3 == 1) begin
     if(rst | game_stop) begin
-        obs_x_reg[15] <= 0; 
+        obs_x_reg[15] <= 581; 
         obs_y_reg[15] <= 210; 
         obs_score[15] <= 0;
     end    
@@ -1070,12 +1066,12 @@ assign obs_on16[21] = (x>= ( 27 + obs_x_l[16]) && x <= (obs_x_r[16]  )&& y>=( 19
 always @ (posedge clk or posedge rst) begin
  if(stage3 == 1) begin
     if(rst | game_stop) begin
-        obs_x_reg[16] <= 0; 
+        obs_x_reg[16] <= 312; 
         obs_y_reg[16] <= 300; 
         obs_score[16] <= 0;
     end    
     else if (refr_tick) begin
-        obs_x_reg[16] <= obs_x_reg[16] + obs3_vx_reg[4] + 1; 
+        obs_x_reg[16] <= obs_x_reg[16] + obs3_vx_reg[4]; 
         obs_y_reg[16] <= obs_y_reg[16] + obs3_vy_reg;
         obs_score[16] <= 0;
         end
@@ -1121,12 +1117,12 @@ assign obs_on17[21] = (x>= ( 27 + obs_x_l[17]) && x <= (obs_x_r[17]  )&& y>=( 19
 always @ (posedge clk or posedge rst) begin
  if(stage3 == 1) begin
     if(rst | game_stop) begin
-        obs_x_reg[17] <= 0; 
+        obs_x_reg[17] <= 269; 
         obs_y_reg[17] <= 400; 
         obs_score[17] <= 0;
     end    
     else if (refr_tick) begin
-        obs_x_reg[17] <= obs_x_reg[17] + obs3_vx_reg[5] + 2; 
+        obs_x_reg[17] <= obs_x_reg[17] + obs3_vx_reg[5]; 
         obs_y_reg[17] <= obs_y_reg[17] + obs3_vy_reg;
         obs_score[17] <= 0;
         end
@@ -1259,7 +1255,7 @@ always @ (posedge clk or posedge rst) begin
         obs_score[18] <= 0;
     end    
     else if(refr_tick) begin
-        obs_x_reg[18] <= obs_x_reg[18] + obs4_vx_reg[0] + 1; 
+        obs_x_reg[18] <= obs_x_reg[18] + obs4_vx_reg[0]; 
         obs_y_reg[18] <= obs_y_reg[18] + obs4_vy_reg[0];
         obs_score[18] <= 0;
         end
@@ -1309,7 +1305,7 @@ always @ (posedge clk or posedge rst) begin
     end    
     else if (refr_tick) begin
         obs_x_reg[19] <= obs_x_reg[19] + obs4_vx_reg[1]; 
-        obs_y_reg[19] <= obs_y_reg[19] + obs4_vy_reg[1] + 1;
+        obs_y_reg[19] <= obs_y_reg[19] + obs4_vy_reg[1];
         obs_score[19] <= 0;
         end
     else if ((shot_x_l >= obs_x_l[19]) && (shot_x_r <= obs_x_r[19]) && (shot_y_b <= obs_y_b[19]) && (shot_y_t >= obs_y_t[19])) begin
@@ -1357,7 +1353,7 @@ always @ (posedge clk or posedge rst) begin
         obs_score[20] <= 0;
     end    
     else if (refr_tick) begin
-        obs_x_reg[20] <= obs_x_reg[20] + obs4_vx_reg[2] + 2; 
+        obs_x_reg[20] <= obs_x_reg[20] + obs4_vx_reg[2]; 
         obs_y_reg[20] <= obs_y_reg[20] + obs4_vy_reg[2];
         obs_score[20] <= 0;
         end
@@ -1407,7 +1403,7 @@ always @ (posedge clk or posedge rst) begin
     end    
     else if (refr_tick) begin
         obs_x_reg[21] <= obs_x_reg[21] + obs4_vx_reg[3]; 
-        obs_y_reg[21] <= obs_y_reg[21] + obs4_vy_reg[3] - 2;
+        obs_y_reg[21] <= obs_y_reg[21] + obs4_vy_reg[3];
         obs_score[21] <= 0; 
         end
     else if ((shot_x_l >= obs_x_l[21]) && (shot_x_r <= obs_x_r[21]) && (shot_y_b <= obs_y_b[21]) && (shot_y_t >= obs_y_t[21])) begin
@@ -1455,7 +1451,7 @@ always @ (posedge clk or posedge rst) begin
         obs_score[22] <= 0; 
     end    
     else if (refr_tick) begin
-        obs_x_reg[22] <= obs_x_reg[22] + obs4_vx_reg[4] + 3; 
+        obs_x_reg[22] <= obs_x_reg[22] + obs4_vx_reg[4]; 
         obs_y_reg[22] <= obs_y_reg[22] + obs4_vy_reg[4];
         obs_score[22] <= 0; 
         end
@@ -1504,8 +1500,8 @@ always @ (posedge clk or posedge rst) begin
         obs_score[23] <= 0; 
     end    
     else if (refr_tick) begin
-        obs_x_reg[23] <= obs_x_reg[23] + obs4_vx_reg[5] - 1; 
-        obs_y_reg[23] <= obs_y_reg[23] + obs4_vy_reg[5] + 2;
+        obs_x_reg[23] <= obs_x_reg[23] + obs4_vx_reg[5]; 
+        obs_y_reg[23] <= obs_y_reg[23] + obs4_vy_reg[5];
         obs_score[23] <= 0; 
         end
     else if ((shot_x_l >= obs_x_l[23]) && (shot_x_r <= obs_x_r[23]) && (shot_y_b <= obs_y_b[23]) && (shot_y_t >= obs_y_t[23])) begin
@@ -1657,22 +1653,18 @@ end
 // if hit_obs, score ++
 /*---------------------------------------------------------*/
 reg d_inc, d_clr;
-wire hit_obs, hit_bomb, shot_bomb, bomb;
-wire hit_score, life_score;
+wire hit_obs, hit_bomb, hit_minus;
+wire hit_score;
 reg [3:0] dig0, dig1;
-reg [1:0] life_reg, life_next;
 
 //assign hit = ((shot_y_t <= obs_y_b[0]) || (shot_y_t <= obs_y_b[1]) | (shot_y_t <= obs_y_b[2]) | (shot_y_t <= obs_y_b[3]) | (shot_y_t <= obs_y_b[4]) | (shot_y_t <= obs_y_b[5]))? 1 : 0; //hit socre
 assign reach_obs = ((obs_score[0] == 1) || (obs_score[1] ==1) || (obs_score[2] ==1) || (obs_score[3] ==1) || (obs_score[4] == 1 ) || (obs_score[5] == 1)  || (obs_score[6] == 1) || (obs_score[7] ==1) || (obs_score[8] ==1) || (obs_score[9] ==1) || (obs_score[10] == 1 ) || (obs_score[11] == 1) || (obs_score[12] == 1) || (obs_score[13] ==1) || (obs_score[14] ==1) || (obs_score[15] ==1) || (obs_score[16] == 1 ) || (obs_score[17] == 1) || (obs_score[18] == 1) || (obs_score[19] ==1) || (obs_score[20] ==1) || (obs_score[21] ==1) || (obs_score[22] == 1 ) || (obs_score[23] == 1))? 1 : 0; //hit obs
-assign reach_bomb = ((bomb_score[0] == 1) || (bomb_score[1] ==1) || (bomb_score[2] ==1))? 1 : 0; //hit bomb
-assign shot_bomb = ((bomb_hit[0] == 1) || (bomb_hit[1] == 1) || (bomb_hit[2] == 1))? 1 : 0; //bomb shot
+assign reach_bomb = ((bomb_hit[0] == 1) || (bomb_hit[1] ==1) || (bomb_hit[2] ==1))? 1 : 0; //hit bomb
+
 assign hit_obs = (reach_obs==1 && refr_tick == 1)? 1 : 0; //hit obs
 assign hit_bomb = (reach_bomb ==1 && refr_tick == 1)? 1 : 0; //hit bomb
 assign hit_score = (hit_obs == 1 && refr_tick ==1)? 1 : 0; //hit socre
-assign life_score = (hit_bomb == 1 && refr_tick == 1)? 1 : 0; // life -1
-assign bomb = (shot_bomb == 1 && refr_tick == 1)? 1 : 0; // 
-
-
+assign hit_minus = (hit_bomb == 1 && refr_tick == 1)? 1 : 0;
 always @ (posedge clk or posedge rst) begin
     if(rst | d_clr) begin
         dig1 <= 0;
@@ -1687,21 +1679,14 @@ always @ (posedge clk or posedge rst) begin
         else dig0 <= dig0+1; //1
     end
 end
-
-always @ (posedge clk or posedge rst) begin
-    if(rst) begin
-        life_reg <= 2'b11; // life_reg = 3(init)
-    end
-    else if(life_score) begin
-        life_reg <= life_reg - 1'b1;
-    end
-end
-
 /*---------------------------------------------------------*/
 // finite state machine for game control
 /*---------------------------------------------------------*/
 reg [2:0] state_reg, state_next;
+reg [1:0] life_reg, life_next;
 reg [1:0] stage_reg, stage_next;
+wire button;
+assign button = (bomb_hit[0] == 1 || bomb_hit[1] == 1 || bomb_hit[2] == 1) ? 1 : 0;
 always @ (*) begin
     game_stop = 1; 
     d_clr = 0;
@@ -1715,7 +1700,7 @@ always @ (*) begin
             d_clr = 1; //score init
             if(key[4] == 1) begin //if key push,
                 state_next = PLAY; //game start
-                life_next = 2'b11; //left life 2
+                life_next = 2'b11; //left life 3
                 stage_next = 2'b00; //stage 0
                 stage1 = 1;
                 stage2 = 0;
@@ -1727,39 +1712,130 @@ always @ (*) begin
                 stage_next = 2'b00; //stage init
             end
          end
-         PLAY: begin
-            game_stop = 0; //game running
-            d_inc = hit_obs;
-               if(bomb) begin
-                    if (life_reg==2'b00) begin //no left life
-                        //state_next = OVER; //gameover
-                        game_over = 1;
-                    end
-                    else begin //yes left life
-                           state_next = PLAY;
-                    end
-                end                  
-            //else if(life_reg == 2'b00) game_over = 1;    
-            else if((stage1 == 1) && (obs_hit[0] == 1) && (obs_hit[1] ==1) && (obs_hit[2] ==1) && (obs_hit[3] ==1) && (obs_hit[4] == 1) && (obs_hit[5] == 1)) begin
+          PLAY: begin
+                    game_stop = 0; //game running
+                    d_inc = hit_obs;
+                    stage1 = 1;              
+                    //life_next = 2'b11;
+                    if(bomb_hit[0] == 1 || bomb_hit[1] == 1 || bomb_hit[2] == 1) begin
+                                                                                                       life_next = 2'b10;
+                                                                                                       state_next = PLAY;
+                                                                                                     
+                                                                                                       if(((bomb_hit[0] == 1) && (bomb_hit[1] == 1)) || ((bomb_hit[0] == 1) && (bomb_hit[2] == 1)) || ((bomb_hit[1] == 1) && (bomb_hit[2] == 1))) begin
+                                                                                                           life_next = 2'b01;
+                                                                                                           state_next = PLAY;
+                                                                                                           
+                                                                                                           if(bomb_hit[2] == 1 && bomb_hit[1] == 1 && bomb_hit[0] == 1) begin
+                                                                                                               life_next = 2'b00;
+                                                                                                               game_over = 1;
+                                                                                                               game_stop = 1;
+                                                                                                            end 
+                                                                                                       end  
+                                                                                                     end           
+             else if((obs_hit[0] == 1) && (obs_hit[1] ==1) && (obs_hit[2] ==1) && (obs_hit[3] ==1) && (obs_hit[4] == 1) && (obs_hit[5] == 1)) begin
                     stage_next = 2'b01; //stage1
                     state_next = PLAY;
+                    
                     stage2 = 1;
+                    if(bomb_hit[0] == 1 || bomb_hit[1] == 1 || bomb_hit[2] == 1) begin
+                                                                                   life_next = 2'b10;
+                                                                                   state_next = PLAY;
+                                                                                 
+                                                                                   if(((bomb_hit[0] == 1) && (bomb_hit[1] == 1)) || ((bomb_hit[0] == 1) && (bomb_hit[2] == 1)) || ((bomb_hit[1] == 1) && (bomb_hit[2] == 1))) begin
+                                                                                       life_next = 2'b01;
+                                                                                       state_next = PLAY;
+                                                                                       
+                                                                                       if(bomb_hit[2] == 1 && bomb_hit[1] == 1 && bomb_hit[0] == 1) begin
+                                                                                           life_next = 2'b00;
+                                                                                           game_over = 1;
+                                                                                           game_stop = 1;
+                                                                                        end 
+                                                                                   end
+                                                                               end
                 if((obs_hit[6] == 1) && (obs_hit[7] ==1) && (obs_hit[8] ==1) && (obs_hit[9] ==1) && (obs_hit[10] == 1) && (obs_hit[11] == 1)) begin
                     stage_next = 2'b10; //stage2
                     state_next = PLAY;
+                   
                     stage3 = 1;
+                     if(bomb_hit[0] == 1 || bomb_hit[1] == 1 || bomb_hit[2] == 1) begin
+                                                                                                       life_next = 2'b10;
+                                                                                                       state_next = PLAY;
+                                                                                                       
+                                                                                                       if(((bomb_hit[0] == 1) && (bomb_hit[1] == 1)) || ((bomb_hit[0] == 1) && (bomb_hit[2] == 1)) || ((bomb_hit[1] == 1) && (bomb_hit[2] == 1))) begin
+                                                                                                           life_next = 2'b01;
+                                                                                                           state_next = PLAY;
+                                                                                                           
+                                                                                                           if(bomb_hit[2] == 1 && bomb_hit[1] == 1 && bomb_hit[0] == 1) begin
+                                                                                                               life_next = 2'b00;
+                                                                                                               game_over = 1;
+                                                                                                               state_next = NEWGAME;
+                                                                                                            end 
+                                                                                                       end
+                                                                                                   end
                     if((obs_hit[12] == 1) && (obs_hit[13] ==1) && (obs_hit[14] ==1) && (obs_hit[15] ==1) && (obs_hit[16] == 1) && (obs_hit[17] == 1)) begin
                         stage_next = 2'b11; //stage3
                         state_next = PLAY;
+                        
                         stage4 = 1;
-                            if((stage4 == 1) && (obs_hit[18] == 1) && (obs_hit[19] ==1) && (obs_hit[20] ==1) && (obs_hit[21] ==1) && (obs_hit[22] == 1) && (obs_hit[23] == 1)) begin
+                         if(bomb_hit[0] == 1 || bomb_hit[1] == 1 || bomb_hit[2] == 1) begin
+                                                                                                           life_next = 2'b10;
+                                                                                                           state_next = PLAY;
+                                                                                                           
+                                                                                                           if(((bomb_hit[0] == 1) && (bomb_hit[1] == 1)) || ((bomb_hit[0] == 1) && (bomb_hit[2] == 1)) || ((bomb_hit[1] == 1) && (bomb_hit[2] == 1))) begin
+                                                                                                               life_next = 2'b01;
+                                                                                                               state_next = PLAY;
+                                                                                                               
+                                                                                                               if(bomb_hit[2] == 1 && bomb_hit[1] == 1 && bomb_hit[0] == 1) begin
+                                                                                                                   life_next = 2'b00;
+                                                                                                                   game_over = 1;
+                                                                                                                   state_next = NEWGAME;
+                                                                                                                end 
+                                                                                                           end
+                                                                                                       end
+                            if((obs_hit[18] == 1) && (obs_hit[19] ==1) && (obs_hit[20] ==1) && (obs_hit[21] ==1) && (obs_hit[22] == 1) && (obs_hit[23] == 1)) begin
                                 game_clear = 1;
+                                if(bomb_hit[0] == 1 || bomb_hit[1] == 1 || bomb_hit[2] == 1) begin
+                                                                                                                   life_next = 2'b10;
+                                                                                                                   state_next = PLAY;
+                                                                                                                   
+                                                                                                                   if(((bomb_hit[0] == 1) && (bomb_hit[1] == 1)) || ((bomb_hit[0] == 1) && (bomb_hit[2] == 1)) || ((bomb_hit[1] == 1) && (bomb_hit[2] == 1))) begin
+                                                                                                                       life_next = 2'b01;
+                                                                                                                       state_next = PLAY;
+                                                                                                                       
+                                                                                                                       if(bomb_hit[2] == 1 && bomb_hit[1] == 1 && bomb_hit[0] == 1) begin
+                                                                                                                           life_next = 2'b00;
+                                                                                                                           game_over = 1;
+                                                                                                                           state_next = NEWGAME;
+                                                                                                                        end 
+                                                                                                                   end
+                                                                                                               end
                             end
                     end
                 end
             end
-            else state_next = PLAY;
+            else begin
+                if((obs_hit[18] == 1) && (obs_hit[19] ==1) && (obs_hit[20] ==1) && (obs_hit[21] ==1) && (obs_hit[22] == 1) && (obs_hit[23] == 1)) begin
+                                            game_clear = 1;
+                                            if(bomb_hit[0] == 1 || bomb_hit[1] == 1 || bomb_hit[2] == 1) begin
+                                                                                                                               life_next = 2'b10;
+                                                                                                                               state_next = PLAY;
+                                                                                                                               
+                                                                                                                               if(((bomb_hit[0] == 1) && (bomb_hit[1] == 1)) || ((bomb_hit[0] == 1) && (bomb_hit[2] == 1)) || ((bomb_hit[1] == 1) && (bomb_hit[2] == 1))) begin
+                                                                                                                                   life_next = 2'b01;
+                                                                                                                                   state_next = PLAY;
+                                                                                                                                   
+                                                                                                                                   if(bomb_hit[2] == 1 && bomb_hit[1] == 1 && bomb_hit[0] == 1) begin
+                                                                                                                                       life_next = 2'b00;
+                                                                                                                                       game_over = 1;
+                                                                                                                                       state_next = NEWGAME;
+                                                                                                                                    end 
+                                                                                                                               end
+                                                                                                                           end
+                                                                                                                         end  
+              else state_next = PLAY;
+            end
          end
+         
          NEWGUN: begin
             if(key[4] == 1) state_next = PLAY;
             else state_next = NEWGUN;
