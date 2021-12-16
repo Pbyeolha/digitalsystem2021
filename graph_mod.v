@@ -145,7 +145,7 @@ reg [9:0] bomb_x_reg[11:0], bomb_y_reg[11:0];
 reg [9:0] bomb1_vy_reg, bomb1_vx_reg, bomb2_vy_reg, bomb2_vx_reg, bomb3_vy_reg, bomb3_vx_reg ;
 wire [9:0] bomb_x_l[11:0], bomb_x_r[11:0], bomb_y_t[11:0], bomb_y_b[11:0];
 wire bomb_on0[13:0], bomb_on1[13:0], bomb_on2[13:0], bomb_on3[13:0]; 
-reg bomb_hit[11:0];
+reg bomb_hit[11:0], bomb_score[11:0];
 //------------------------------------------------------------------------------------------------------------------------------------------//
 assign bomb_x_l[0] = bomb_x_reg[0];
 assign bomb_x_r[0] = bomb_x_reg[0] + BOMB_SIZE - 1;
@@ -173,17 +173,18 @@ always @ (posedge clk or posedge rst) begin
     if(rst|game_stop) begin
         bomb_x_reg[0] <= randB0_x + 30;
         bomb_y_reg[0] <= randB0_y + 30;
-        //bomb_hit[0] = 0;
+        bomb_score[0] = 0;
     end
     else if(refr_tick)begin
         bomb_x_reg[0] <= bomb_x_reg[0] + bomb1_vx_reg;
         bomb_y_reg[0] <= bomb_y_reg[0] + bomb1_vy_reg;
-        //bomb_hit[0] = 0;
+        bomb_score[0] = 0;
     end
     else if ((shot_x_l >= bomb_x_l[0]) && (shot_x_r <= bomb_x_r[0]) && (shot_y_b <= bomb_y_b[0]) && (shot_y_t >= bomb_y_t[0])) begin
             bomb_x_reg[0] <= 650;
             bomb_y_reg[0] <= 0;
             bomb_hit[0] = 1;
+            bomb_score[0] = 1;
     end 
 
 end
@@ -214,17 +215,18 @@ always @ (posedge clk or posedge rst) begin
     if(rst|game_stop) begin
         bomb_x_reg[1] <= randB1_x + 30;
         bomb_y_reg[1] <= randB1_y + 30;
-        //bomb_hit[1] = 0;
+        bomb_score[1] = 0;
     end
     else if(refr_tick)begin
         bomb_x_reg[1] <= bomb_x_reg[1] + bomb2_vx_reg;
         bomb_y_reg[1] <= bomb_y_reg[1] + bomb2_vy_reg;
-        //bomb_hit[1] = 0;
+        bomb_score[1] = 0;
     end
     else if ((shot_x_l >= bomb_x_l[1]) && (shot_x_r <= bomb_x_r[1]) && (shot_y_b <= bomb_y_b[1]) && (shot_y_t >= bomb_y_t[1])) begin
             bomb_x_reg[1] <= 650;
             bomb_y_reg[1] <= 0;
             bomb_hit[1] = 1;
+            bomb_score[1] = 1;
     end 
  end
 
@@ -255,17 +257,18 @@ always @ (posedge clk or posedge rst) begin
     if(rst|game_stop) begin
         bomb_x_reg[2] <= randB2_x + 30;
         bomb_y_reg[2] <= randB2_y + 30;
-        //bomb_hit[2] = 0;
+        bomb_score[2] = 0;
     end
     else if(refr_tick)begin
         bomb_x_reg[2] <= bomb_x_reg[2] + bomb3_vx_reg;
         bomb_y_reg[2] <= bomb_y_reg[2] + bomb3_vy_reg;
-        //bomb_hit[2] = 0;
+        bomb_score[2] = 0;
     end
     else if ((shot_x_l >= bomb_x_l[2]) && (shot_x_r <= bomb_x_r[2]) && (shot_y_b <= bomb_y_b[2]) && (shot_y_t >= bomb_y_t[2])) begin
             bomb_x_reg[2] <= 650;
             bomb_y_reg[2] <= 0;
             bomb_hit[2] = 1;
+            bomb_score[2] = 1;
     end 
     end
 
@@ -1654,17 +1657,21 @@ end
 // if hit_obs, score ++
 /*---------------------------------------------------------*/
 reg d_inc, d_clr;
-wire hit_obs, hit_bomb, hit;
-wire hit_score;
+wire hit_obs, hit_bomb, shot_bomb, bomb;
+wire hit_score, life_score;
 reg [3:0] dig0, dig1;
+reg [1:0] life_reg, life_next;
 
 //assign hit = ((shot_y_t <= obs_y_b[0]) || (shot_y_t <= obs_y_b[1]) | (shot_y_t <= obs_y_b[2]) | (shot_y_t <= obs_y_b[3]) | (shot_y_t <= obs_y_b[4]) | (shot_y_t <= obs_y_b[5]))? 1 : 0; //hit socre
 assign reach_obs = ((obs_score[0] == 1) || (obs_score[1] ==1) || (obs_score[2] ==1) || (obs_score[3] ==1) || (obs_score[4] == 1 ) || (obs_score[5] == 1)  || (obs_score[6] == 1) || (obs_score[7] ==1) || (obs_score[8] ==1) || (obs_score[9] ==1) || (obs_score[10] == 1 ) || (obs_score[11] == 1) || (obs_score[12] == 1) || (obs_score[13] ==1) || (obs_score[14] ==1) || (obs_score[15] ==1) || (obs_score[16] == 1 ) || (obs_score[17] == 1) || (obs_score[18] == 1) || (obs_score[19] ==1) || (obs_score[20] ==1) || (obs_score[21] ==1) || (obs_score[22] == 1 ) || (obs_score[23] == 1))? 1 : 0; //hit obs
-assign reach_bomb = ((bomb_hit[0] == 1) || (bomb_hit[1] ==1) || (bomb_hit[2] ==1))? 1 : 0; //hit bomb
-
+assign reach_bomb = ((bomb_score[0] == 1) || (bomb_score[1] ==1) || (bomb_score[2] ==1))? 1 : 0; //hit bomb
+assign shot_bomb = ((bomb_hit[0] == 1) || (bomb_hit[1] == 1) || (bomb_hit[2] == 1))? 1 : 0; //bomb shot
 assign hit_obs = (reach_obs==1 && refr_tick == 1)? 1 : 0; //hit obs
 assign hit_bomb = (reach_bomb ==1 && refr_tick == 1)? 1 : 0; //hit bomb
 assign hit_score = (hit_obs == 1 && refr_tick ==1)? 1 : 0; //hit socre
+assign life_score = (hit_bomb == 1 && refr_tick == 1)? 1 : 0; // life -1
+assign bomb = (shot_bomb == 1 && refr_tick == 1)? 1 : 0; // 
+
 
 always @ (posedge clk or posedge rst) begin
     if(rst | d_clr) begin
@@ -1680,11 +1687,20 @@ always @ (posedge clk or posedge rst) begin
         else dig0 <= dig0+1; //1
     end
 end
+
+always @ (posedge clk or posedge rst) begin
+    if(rst) begin
+        life_reg <= 2'b11; // life_reg = 3(init)
+    end
+    else if(life_score) begin
+        life_reg <= life_reg - 1'b1;
+    end
+end
+
 /*---------------------------------------------------------*/
 // finite state machine for game control
 /*---------------------------------------------------------*/
 reg [2:0] state_reg, state_next;
-reg [1:0] life_reg, life_next;
 reg [1:0] stage_reg, stage_next;
 always @ (*) begin
     game_stop = 1; 
@@ -1714,14 +1730,13 @@ always @ (*) begin
          PLAY: begin
             game_stop = 0; //game running
             d_inc = hit_obs;
-               if(hit_bomb) begin
+               if(bomb) begin
                     if (life_reg==2'b00) begin //no left life
                         //state_next = OVER; //gameover
                         game_over = 1;
                     end
                     else begin //yes left life
                            state_next = PLAY;
-                           life_next = life_reg-1'b1; //- life
                     end
                 end                  
             //else if(life_reg == 2'b00) game_over = 1;    
