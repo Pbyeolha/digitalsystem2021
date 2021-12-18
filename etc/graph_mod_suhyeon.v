@@ -5,23 +5,23 @@ input [9:0] x, y;
 input [4:0] key, key_pulse; 
 output [2:0] rgb; 
 
-// È­¸é Å©±â ¼³Á¤
+// í™”ë©´ í¬ê¸° ì„¤ì •
 parameter MAX_X = 640; 
 parameter MAX_Y = 480;  
 
-// gun À§Ä¡
+// gun ìœ„ì¹˜
 parameter GUN_Y_B = 479; 
 parameter GUN_Y_T = 429;
 
-// gun size, ¼Óµµ
+// gun size, ì†ë„
 parameter GUN_X_SIZE = 50; 
 parameter GUN_V = 4;
 
-//Àå¾Ö¹° ¼Óµµ, Å©±â
+//ì¥ì• ë¬¼ ì†ë„, í¬ê¸°
 parameter obs_SIZE = 40;
 parameter obs_V = 10;
 
-//Àå¾Ö¹° ¼Óµµ, Å©±â
+//ì¥ì• ë¬¼ ì†ë„, í¬ê¸°
 parameter bomb_SIZE = 40;
 parameter bomb_V = 15;
 
@@ -31,50 +31,50 @@ wire [9:0] gun_x_r, gun_x_l;
 reg [9:0] gun_x_reg; 
 wire reach_obs, miss_obs;
 reg game_stop, game_over;  
-reg obs, bomb; //Àå¾Ö¹°, ÆøÅº
+reg obs, bomb; //ì¥ì• ë¬¼, í­íƒ„
 
 //refrernce tick 
-assign refr_tick = (y==MAX_Y-1 && x==MAX_X-1)? 1 : 0; // ¸Å ÇÁ·¹ÀÓ¸¶´Ù ÇÑ clk µ¿¾È¸¸ 1ÀÌ µÊ. 
+assign refr_tick = (y==MAX_Y-1 && x==MAX_X-1)? 1 : 0; // ë§¤ í”„ë ˆì„ë§ˆë‹¤ í•œ clk ë™ì•ˆë§Œ 1ì´ ë¨. 
 
 /*---------------------------------------------------------*/
-// gunÀÇ À§Ä¡ °áÁ¤
+// gunì˜ ìœ„ì¹˜ ê²°ì •
 /*---------------------------------------------------------*/
-assign gun_x_l = gun_x_reg; //gunÀÇ ¿ŞÂÊ
-assign gun_x_r = gun_x_reg + GUN_X_SIZE - 1; //gunÀÇ ¿À¸¥ÂÊ
+assign gun_x_l = gun_x_reg; //gunì˜ ì™¼ìª½
+assign gun_x_r = gun_x_reg + GUN_X_SIZE - 1; //gunì˜ ì˜¤ë¥¸ìª½
 
-assign gun_on = (x>=gun_x_l && x<=gun_x_r && y>=GUN_Y_T && GUN_Y_B)? 1 : 0; //gunÀÇ ¿µ¿ª
+assign gun_on = (x>=gun_x_l && x<=gun_x_r && y>=GUN_Y_T && GUN_Y_B)? 1 : 0; //gunì˜ ì˜ì—­
 
 always @ (posedge clk or posedge rst) begin
-    if (rst | game_stop) gun_x_reg <= (MAX_X - GUN_X_SIZE)/2; //gameÀÌ ¸ØÃß¸é Áß°£¿¡¼­ ½ÃÀÛ
+    if (rst | game_stop) gun_x_reg <= (MAX_X - GUN_X_SIZE)/2; //gameì´ ë©ˆì¶”ë©´ ì¤‘ê°„ì—ì„œ ì‹œì‘
     else if (refr_tick) 
         if (key==5'h11 && gun_x_r <= MAX_X -1 - GUN_V) gun_x_reg <= gun_x_reg + GUN_V; //move right
         else if (key==5'h13 && gun_x_l >=GUN_V) gun_x_reg <= gun_x_reg - GUN_V;  //move left
 end
 
 /*---------------------------------------------------------*/
-// gun¿¡¼­ ÃÑ ³ª°¡´Â °Å
+// gunì—ì„œ ì´ ë‚˜ê°€ëŠ” ê±°
 /*---------------------------------------------------------*/
 
 /*---------------------------------------------------------*/
-// ÃÑÀÌ Àå¾Ö¹° ¸ÂÈú ¶§¸¶´Ù score¸¦ 1¾¿ Áõ°¡½ÃÅ°´Â ·ÎÁ÷ 
+// ì´ì´ ì¥ì• ë¬¼ ë§í ë•Œë§ˆë‹¤ scoreë¥¼ 1ì”© ì¦ê°€ì‹œí‚¤ëŠ” ë¡œì§ 
 /*---------------------------------------------------------*/
 reg d_inc, d_clr;
 wire hit, miss;
 reg [3:0] dig0, dig1;
 
-assign hit = (reach_obs==1 && refr_tick==1)? 1 : 0; //gunÀ¸·Î Àå¾Ö¹° ¸ÂÈû, hit¸¦ 1Å¬·° pulse·Î ¸¸µé±â À§ÇØ refr_tick°ú AND ½ÃÅ´
-assign miss = (miss_obs==1 && refr_tick==1)? 1 : 0; //gunÀÌ Àå¾Ö¹°¿¡ ¸ÂÀ½, miss¸¦ 1Å¬·° pulse·Î ¸¸µé±â À§ÇØ refr_tick°ú AND ½ÃÅ´
+assign hit = (reach_obs==1 && refr_tick==1)? 1 : 0; //gunìœ¼ë¡œ ì¥ì• ë¬¼ ë§í˜, hitë¥¼ 1í´ëŸ­ pulseë¡œ ë§Œë“¤ê¸° ìœ„í•´ refr_tickê³¼ AND ì‹œí‚´
+assign miss = (miss_obs==1 && refr_tick==1)? 1 : 0; //gunì´ ì¥ì• ë¬¼ì— ë§ìŒ, missë¥¼ 1í´ëŸ­ pulseë¡œ ë§Œë“¤ê¸° ìœ„í•´ refr_tickê³¼ AND ì‹œí‚´
 
 always @ (posedge clk or posedge rst) begin
     if(rst | d_clr) begin
         dig1 <= 0;
         dig0 <= 0;
-    end else if (hit) begin //Àå¾Ö¹° ¸ÂÃß¸é Á¡¼ö°¡ Áõ°¡
+    end else if (hit) begin //ì¥ì• ë¬¼ ë§ì¶”ë©´ ì ìˆ˜ê°€ ì¦ê°€
         if(dig0==9) begin 
             dig0 <= 0;
             if (dig1==9) dig1 <= 0;
-            else dig1 <= dig1+1; //Á¡¼ö 10ÀÇ ÀÚ¸® 1¾¿ Áõ°¡
-        end else dig0 <= dig0+1; //Á¡¼ö 1ÀÇ ÀÚ¸® 1¾¿ Áõ°¡
+            else dig1 <= dig1+1; //ì ìˆ˜ 10ì˜ ìë¦¬ 1ì”© ì¦ê°€
+        end else dig0 <= dig0+1; //ì ìˆ˜ 1ì˜ ìë¦¬ 1ì”© ì¦ê°€
     end
 end
 
@@ -117,13 +117,13 @@ end
 */
 
 /*---------------------------------------------------------*/
-// Àå¾Ö¹°
+// ì¥ì• ë¬¼
 /*---------------------------------------------------------*/
 wire [9:0] obs_left, obs_right, obs_y_t, obs_y_b; 
 reg obs_x_reg, obs_y_reg;
 
-assign obs_left = obs_x_reg; //Àå¾Ö¹°ÀÇ ¿ŞÂÊ
-assign obs_right = obs_left + obs_SIZE - 1; //Àå¾Ö¹°ÀÇ ¿À¸¥ÂÊ
+assign obs_left = obs_x_reg; //ì¥ì• ë¬¼ì˜ ì™¼ìª½
+assign obs_right = obs_left + obs_SIZE - 1; //ì¥ì• ë¬¼ì˜ ì˜¤ë¥¸ìª½
 assign obs_y_t = obs_y_reg;
 assign obs_y_b = obs_y_t + obs_SIZE - 1;
 
@@ -148,8 +148,8 @@ assign miss_obs = (gun_x_l <= obs_left && gun_x_r >= obs_right)? 1:0;
 wire [9:0] bomb_left, bomb_right, bomb_y_t, bomb_y_b; 
 reg bomb_x_reg, bomb_y_reg;
 
-assign bomb_left = bomb_x_reg; //Àå¾Ö¹°ÀÇ ¿ŞÂÊ
-assign bomb_right = bomb_left + bomb_SIZE - 1; //Àå¾Ö¹°ÀÇ ¿À¸¥ÂÊ
+assign bomb_left = bomb_x_reg; //ì¥ì• ë¬¼ì˜ ì™¼ìª½
+assign bomb_right = bomb_left + bomb_SIZE - 1; //ì¥ì• ë¬¼ì˜ ì˜¤ë¥¸ìª½
 assign bomb_y_t = bomb_y_reg;
 assign bomb_y_b = bomb_y_t + bomb_SIZE - 1;
 
@@ -182,34 +182,34 @@ always @ (key, hit, miss, state_reg, life_reg, level_reg) begin
     game_over = 0;
 
     case(state_reg) 
-        NEWGAME: begin //»õ °ÔÀÓ
-            d_clr = 1; //½ºÄÚ¾î 0À¸·Î ÃÊ±âÈ­
-            if(key[4] == 1) begin //¹öÆ°ÀÌ ´­¸®¸é
-                state_next = PLAY; //°ÔÀÓ½ÃÀÛ
-                life_next = 2'b10; //³²Àº »ı¸í 2°³·Î
+        NEWGAME: begin //ìƒˆ ê²Œì„
+            d_clr = 1; //ìŠ¤ì½”ì–´ 0ìœ¼ë¡œ ì´ˆê¸°í™”
+            if(key[4] == 1) begin //ë²„íŠ¼ì´ ëˆŒë¦¬ë©´
+                state_next = PLAY; //ê²Œì„ì‹œì‘
+                life_next = 2'b10; //ë‚¨ì€ ìƒëª… 2ê°œë¡œ
             end else begin
-                state_next = NEWGAME; //¹öÆ°ÀÌ ¾È ´­¸®¸é ÇöÀç »óÅÂ À¯Áö
-                life_next = 2'b11; //³²Àº »ı¸í 3°³ À¯Áö
+                state_next = NEWGAME; //ë²„íŠ¼ì´ ì•ˆ ëˆŒë¦¬ë©´ í˜„ì¬ ìƒíƒœ ìœ ì§€
+                life_next = 2'b11; //ë‚¨ì€ ìƒëª… 3ê°œ ìœ ì§€
             end
          end
          PLAY: begin
-            game_stop = 0; //°ÔÀÓ Running
+            game_stop = 0; //ê²Œì„ Running
             d_inc = hit;
-            if (miss) begin //Àå¾Ö¹°¿¡ ¸ÂÀ¸¸é
-                if (life_reg==2'b00) //³²Àº »ı¸íÀÌ ¾øÀ¸¸é
-                    state_next = OVER; //°ÔÀÓÁ¾·á
-                else begin//³²Àº »ı¸íÀÌ ÀÖÀ¸¸é 
+            if (miss) begin //ì¥ì• ë¬¼ì— ë§ìœ¼ë©´
+                if (life_reg==2'b00) //ë‚¨ì€ ìƒëª…ì´ ì—†ìœ¼ë©´
+                    state_next = OVER; //ê²Œì„ì¢…ë£Œ
+                else begin//ë‚¨ì€ ìƒëª…ì´ ìˆìœ¼ë©´ 
                     state_next = NEWGUN; 
-                    life_next = life_reg-1'b1; //³²Àº »ı¸í ÇÏ³ª ÁÙÀÓ
+                    life_next = life_reg-1'b1; //ë‚¨ì€ ìƒëª… í•˜ë‚˜ ì¤„ì„
                 end
             end else
-                state_next = PLAY; //ball ³õÄ¡Áö ¾ÊÀ¸¸é °è¼Ó ÁøÇà
+                state_next = PLAY; //ball ë†“ì¹˜ì§€ ì•Šìœ¼ë©´ ê³„ì† ì§„í–‰
         end
-        NEWGUN: //»õ gun ÁØºñ
+        NEWGUN: //ìƒˆ gun ì¤€ë¹„
             if(key[4] == 1) state_next = PLAY;
             else state_next = NEWGUN; 
         OVER: begin
-            if(key[4] == 1) begin //°ÔÀÓÀÌ ³¡³µÀ» ¶§ ¹öÆ°À» ´©¸£¸é »õ°ÔÀÓ ½ÃÀÛ
+            if(key[4] == 1) begin //ê²Œì„ì´ ëë‚¬ì„ ë•Œ ë²„íŠ¼ì„ ëˆ„ë¥´ë©´ ìƒˆê²Œì„ ì‹œì‘
                 state_next = NEWGAME;
             end else begin
                 state_next = OVER;
@@ -242,7 +242,7 @@ wire [6:0] char_addr;
 reg [6:0] char_addr_s, char_addr_l, char_addr_o, char_addr_lev;
 wire [2:0] bit_addr;
 reg [2:0] bit_addr_s, bit_addr_l, bit_addr_o, bit_addr_lev;
-wire [3:0] row_addr, row_addr_s, row_addr_l, row_addr_o, row_addr_lev; //4bit, ÁÖ¼Ò
+wire [3:0] row_addr, row_addr_s, row_addr_l, row_addr_o, row_addr_lev; //4bit, ì£¼ì†Œ
 wire score_on, life_on, over_on, level_on;
 
 wire font_bit;
@@ -252,7 +252,7 @@ wire [10:0] rom_addr;
 font_rom_vhd font_rom_inst (clk, rom_addr, font_word);
 
 assign rom_addr = {char_addr, row_addr};
-assign font_bit = font_word[~bit_addr]; //È­¸é xÁÂÇ¥´Â ¿ŞÂÊÀÌ ÀÛÀºµ¥, romÀÇ bit´Â ¿À¸¥ÂÊÀÌ ÀÛÀ¸¹Ç·Î reverse
+assign font_bit = font_word[~bit_addr]; //í™”ë©´ xì¢Œí‘œëŠ” ì™¼ìª½ì´ ì‘ì€ë°, romì˜ bitëŠ” ì˜¤ë¥¸ìª½ì´ ì‘ìœ¼ë¯€ë¡œ reverse
 
 assign char_addr = (score_on)? char_addr_s : (life_on)? char_addr_l : (over_on)? char_addr_o : (level_on)? char_addr_lev : 0;
 assign row_addr = (score_on)? row_addr_s : (life_on)? row_addr_l : (over_on)? char_addr_o : (level_on)? char_addr_lev : 0; 
@@ -271,7 +271,7 @@ always @ (*) begin
     else if (x>=score_x_l+8*3 && x<score_x_l+8*4) begin bit_addr_s = x-score_x_l-8*3; char_addr_s = 7'b1010010; end // R x52
     else if (x>=score_x_l+8*4 && x<score_x_l+8*5) begin bit_addr_s = x-score_x_l-8*4; char_addr_s = 7'b1000101; end // E x45
     else if (x>=score_x_l+8*5 && x<score_x_l+8*6) begin bit_addr_s = x-score_x_l-8*5; char_addr_s = 7'b0111010; end // : x3a
-    else if (x>=score_x_l+8*6 && x<score_x_l+8*7) begin bit_addr_s = x-score_x_l-8*6; char_addr_s = {3'b011, dig1}; end // digit 10, ASCII ÄÚµå¿¡¼­ ¼ıÀÚÀÇ address´Â 011·Î ½ÃÀÛ
+    else if (x>=score_x_l+8*6 && x<score_x_l+8*7) begin bit_addr_s = x-score_x_l-8*6; char_addr_s = {3'b011, dig1}; end // digit 10, ASCII ì½”ë“œì—ì„œ ìˆ«ìì˜ addressëŠ” 011ë¡œ ì‹œì‘
     else if (x>=score_x_l+8*7 && x<score_x_l+8*8) begin bit_addr_s = x-score_x_l-8*7; char_addr_s = {3'b011, dig0}; end
     else begin bit_addr_s = 0; char_addr_s = 0; end                         
 end
